@@ -1,0 +1,37 @@
+EventName,EventStart,EventEnd,EventCategory,Area
+Winter Clearance,2024-01-08,2024-01-14,Promotion,North
+Winter Clearance,2024-01-08,2024-01-14,Promotion,South
+Winter Clearance,2024-01-08,2024-01-14,Promotion,East
+Winter Clearance,2024-01-08,2024-01-14,Promotion,West
+New SKU Launch,2024-01-22,2024-01-22,Product Launch,North
+New SKU Launch,2024-01-22,2024-01-22,Product Launch,South
+New SKU Launch,2024-01-22,2024-01-22,Product Launch,East
+New SKU Launch,2024-01-22,2024-01-22,Product Launch,West
+Valentine Campaign,2024-02-01,2024-02-07,Campaign,North
+Valentine Campaign,2024-02-01,2024-02-07,Campaign,South
+Valentine Campaign,2024-02-01,2024-02-07,Campaign,East
+Valentine Campaign,2024-02-01,2024-02-07,Campaign,West
+Presidents Week Sale,2024-02-19,2024-02-25,Promotion,North
+Presidents Week Sale,2024-02-19,2024-02-25,Promotion,South
+Presidents Week Sale,2024-02-19,2024-02-25,Promotion,East
+Presidents Week Sale,2024-02-19,2024-02-25,Promotion,West
+Spring Trade Fair,2024-03-01,2024-03-03,Trade Fair,North
+Spring Trade Fair,2024-03-01,2024-03-03,Trade Fair,South
+Spring Trade Fair,2024-03-01,2024-03-03,Trade Fair,East
+Spring Trade Fair,2024-03-01,2024-03-03,Trade Fair,West
+Spring Sale,2024-03-11,2024-03-17,Promotion,North
+Spring Sale,2024-03-11,2024-03-17,Promotion,South
+Spring Sale,2024-03-11,2024-03-17,Promotion,East
+Spring Sale,2024-03-11,2024-03-17,Promotion,West
+Easter Campaign,2024-03-25,2024-03-31,Campaign,North
+Easter Campaign,2024-03-25,2024-03-31,Campaign,South
+Easter Campaign,2024-03-25,2024-03-31,Campaign,East
+Easter Campaign,2024-03-25,2024-03-31,Campaign,West
+North Winter Festival,2024-01-15,2024-01-20,Trade Fair,North
+South Carnival Promo,2024-02-10,2024-02-12,Promotion,South
+East Tech Expo,2024-02-15,2024-02-18,Trade Fair,East
+West Food Fair,2024-03-05,2024-03-07,Trade Fair,West
+North Loyalty Week,2024-01-29,2024-02-02,Campaign,North
+South Easter Preview,2024-03-18,2024-03-22,Promotion,South
+East Month-End Push,2024-02-26,2024-02-29,Promotion,East
+West New Year Push,2024-01-08,2024-01-12,Campaign,West

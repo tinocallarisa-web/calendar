@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "target": "ES6",
+    "lib": ["ES6", "DOM"],
+    "strict": false,
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "types": [],
+    "moduleResolution": "node",
+    "outDir": ".tmp/drop"
+  },
+  "files": ["src/visual.ts"]
+}

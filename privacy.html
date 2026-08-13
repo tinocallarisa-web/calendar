@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Calendar Events Heatmap | TCViz</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#FAF9F5;color:#3D3929;line-height:1.7}
+  header{background:#3D3929;color:#fff;padding:20px 40px;display:flex;align-items:center;gap:16px}
+  header h1{font-size:20px;font-weight:700}
+  header span{font-size:12px;color:#DAD9D4;margin-left:auto}
+  main{max-width:760px;margin:40px auto;padding:0 24px 60px}
+  h2{font-size:17px;font-weight:700;color:#3D3929;margin:32px 0 10px;border-bottom:2px solid #EDE9DE;padding-bottom:6px}
+  p{font-size:14px;color:#535146;margin-bottom:12px}
+  ul{font-size:14px;color:#535146;padding-left:20px;margin-bottom:14px}
+  li{margin-bottom:4px}
+  .highlight{background:#F0F7F0;border-left:4px solid #4CAF50;padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;font-size:13px;color:#2D5A2E}
+  footer{text-align:center;font-size:12px;color:#83827D;padding:24px;border-top:1px solid #DAD9D4;margin-top:40px}
+  footer a{color:#C96442;text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 362" width="80" height="35">
+    <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#B05730"/><stop offset=".55" stop-color="#C96442"/><stop offset="1" stop-color="#9C87F5"/></linearGradient></defs>
+    <g transform="translate(40,46)"><rect x="22" y="20" width="150" height="150" rx="30" fill="none" stroke="url(#g)" stroke-width="11"/><g fill="url(#g)"><rect x="42" y="110" width="20" height="58" rx="5"/><rect x="70" y="86" width="20" height="82" rx="5"/><rect x="98" y="62" width="20" height="106" rx="5"/><rect x="126" y="38" width="20" height="130" rx="5"/></g></g>
+    <text x="258" y="246" font-family="'Segoe UI',sans-serif" font-weight="700" font-size="196" letter-spacing="-4"><tspan fill="url(#g)">tc</tspan><tspan fill="#fff">viz</tspan></text>
+  </svg>
+  <h1>Privacy Policy — Calendar Events Heatmap</h1>
+  <span>Effective: 2025-08-01 · v1.0.0.0</span>
+</header>
+
+<main>
+
+<div class="highlight">
+  ✅ <strong>Short version:</strong> Calendar Events Heatmap makes no external network calls and sends no data anywhere. All processing happens inside Power BI on the user's machine.
+</div>
+
+<h2>1. Data We Collect</h2>
+<p>The Visual does not collect, store, or transmit any personal data or report data to TCViz or any third party.</p>
+<p>The data fields processed by the Visual are:</p>
+<ul>
+  <li><strong>Date</strong> — date column provided by the report author</li>
+  <li><strong>Main Measure</strong> — numeric measure for heatmap coloring</li>
+  <li><strong>Tooltip Measures</strong> — optional additional numeric measures</li>
+  <li><strong>Event Name</strong> — optional text column for event badge labels</li>
+  <li><strong>Event Category</strong> — optional text column for event color grouping</li>
+  <li><strong>Holiday Name</strong> — optional text column for holiday labels</li>
+</ul>
+<p>All of these values are provided by the Power BI host from the report's data model and are processed exclusively in-memory within the sandboxed browser environment of the Power BI renderer. They are not stored beyond the lifetime of the render call.</p>
+
+<h2>2. External Network Calls</h2>
+<p>The Visual makes <strong>no external network calls whatsoever</strong>. There are no:</p>
+<ul>
+  <li>Requests to TCViz servers</li>
+  <li>Analytics or telemetry pings</li>
+  <li>CDN or font loads from external URLs</li>
+  <li>API calls of any kind</li>
+</ul>
+<p>All rendering is self-contained. Fonts used are system fonts available in the Power BI environment (Segoe UI, system-ui).</p>
+
+<h2>3. License Validation</h2>
+<p>License status (Free or Pro) is determined exclusively through the official Microsoft Power BI <code>IVisualLicenseManager</code> API provided by the Power BI host. This API call is handled by the Power BI runtime; the Visual receives only a boolean result (licensed or not) and does not perform any independent network requests for license validation.</p>
+
+<h2>4. Format Pane Settings</h2>
+<p>Visual format settings (colors, font sizes, display preferences) are stored within the Power BI report file (`.pbix`) by the Power BI platform itself, using standard Power BI `objects` storage. TCViz does not have access to these settings.</p>
+
+<h2>5. Third-Party Services</h2>
+<p>The Visual does not integrate with any third-party services. License purchase and management is handled by Microsoft AppSource and Microsoft Commerce. Refer to Microsoft's Privacy Policy for information about how Microsoft handles your account and billing data.</p>
+
+<h2>6. Children's Privacy</h2>
+<p>The Visual is a data visualization tool for business analytics. It is not directed at children and does not knowingly collect any information from children.</p>
+
+<h2>7. Changes to This Policy</h2>
+<p>We may update this Privacy Policy to reflect changes to the Visual. The effective date at the top of this page will be updated accordingly. Since the Visual collects no data, material changes that affect user privacy are unlikely.</p>
+
+<h2>8. Contact</h2>
+<p>Questions about this Privacy Policy: <a href="mailto:tinocallarisa@gmail.com">tinocallarisa@gmail.com</a></p>
+
+</main>
+
+<footer>
+  <a href="https://tcviz.github.io/calendar/support.html">Support</a> ·
+  <a href="https://tcviz.github.io/calendar/terms.html">Terms</a> ·
+  <a href="https://github.com/tcviz/calendar">GitHub</a><br><br>
+  © 2025 TCViz · Calendar Events Heatmap v1.0.0.0
+</footer>
+</body>
+</html>

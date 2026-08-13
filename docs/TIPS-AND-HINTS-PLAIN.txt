@@ -1,0 +1,156 @@
+CALENDAR EVENTS HEATMAP — TIPS & HINTS
+Version 1.0.0.0 · TCViz
+Demo: https://www.youtube.com/watch?v=FUELmlkAGNI
+────────────────────────────────────────────────────────
+
+GETTING STARTED
+───────────────
+Calendar Events Heatmap combines a KPI heatmap with event badges
+in a single calendar. See how your measures (sales, revenue,
+traffic) relate to promotions, campaigns, and holidays — all on
+the same day cell.
+
+Minimum to get a working calendar:
+  · Add the visual to the report canvas
+  · Drag a Date column to the Date field well
+  · Drag a numeric measure to Main Measure
+
+The heatmap is live. Add events and holidays for the full picture.
+
+! Auto Date/Time issue: If dates show as a year number (2024)
+  instead of full dates, click the dropdown next to your Date
+  field and select "Date" (not Date Hierarchy). Or disable
+  Auto Date/Time in File → Options → Current file → Data Load.
+
+
+FIELD WELLS
+───────────
+Date .............. Required. Calendar days. One row per day.
+Main Measure ...... Required. Drives heatmap color intensity.
+Tooltip Measures .. Optional. Extra measures in hover tooltip only.
+Event Name ........ Optional. Badge label text on each day.
+Event Category .... Optional. Groups events for color coding (up to 8).
+Holiday Name ...... Optional. Holiday label. Uses the Date column.
+
+Key note: All fields share the same Date column. Your events table
+should be expanded per-day before connecting (one row per day for
+each event). The visual does not expand date ranges internally.
+
+
+FORMAT PANE SETTINGS
+────────────────────
+Calendar section:
+  · Default View — Month or Week on first load
+  · Months to Display [PRO] — 1 to 12 months side by side
+  · Week Starts On — Sunday or Monday
+  · Fiscal Calendar — enable for fiscal year offset
+
+Heatmap Colors section:
+  · Min Color — color for lowest measure value
+  · Max Color — color for highest measure value
+  · No Data Color — color for days with no data
+
+Day Number section:
+  · Font Size / Family / Color — day number style
+  · Weekend Color — Saturday and Sunday highlight
+  · Holiday Color — holiday day number color
+
+Events section:
+  · Show Events — toggle all event badges on/off
+  · Max Events per Day [PRO] — max badges per cell in month view
+  · Single color for all events [PRO] — overrides per-category colors
+  · Event Text Color / Font Size [PRO] — badge label style
+
+Event Category Colors [PRO]:
+  One color picker per category (Category 1 through Category 8),
+  in order of first appearance in the data. A color legend is
+  rendered in the visual below the Month/Week buttons.
+
+Measure Labels / View Buttons [PRO]:
+  Full font and color control for labels and navigation buttons.
+
+
+FREE vs PRO ($9.99/month)
+──────────────────────────
+Feature                     Free          Pro
+────────────────────────────────────────────────
+Month view ............... 1 month ....  1-12 months
+Week view ................ Locked ......  Included
+KPI heatmap .............. Included ....  Included
+Event badges ............. 1 per day ...  Configurable
+Per-category event colors  Auto palette   Configurable (8 cats)
+Holiday overlay .......... Included ....  Included
+Tooltip measures ......... Included ....  Included
+Cross-page filtering ..... Included ....  Included
+Full format pane ......... Basic .......  Full
+30-day full Pro trial .... Included on first install
+
+
+TIPS & BEST PRACTICES
+─────────────────────
+· Multi-month comparison: Use 3 or 6 months side by side to
+  spot quarterly patterns. Combine with a year slicer for
+  year-over-year comparison.
+
+· Category color strategy: Put your most important event type
+  first in the data so it maps to Category 1 and gets your
+  most prominent color.
+
+· Clean tooltips: Add secondary KPIs (margin, units) to
+  Tooltip Measures — they appear on hover without cluttering
+  the badge display.
+
+· Fiscal calendars: Enable Fiscal Calendar and set the start
+  month to align navigation and labels to your fiscal year.
+
+· Holiday overlap: If a day is both a holiday and has events,
+  the holiday color applies to the day number and badges still
+  show normally.
+
+· Performance: For large datasets, filter your Date table
+  to the reporting period in Power Query before connecting.
+
+
+EXAMPLE CONFIGURATIONS
+──────────────────────
+Retail Promotion Calendar:
+  Date → store date · Main Measure → daily sales
+  Event Name → promo name · Event Category → type
+  (Discount / Bundle / Clearance / Campaign)
+  Holiday Name → public holidays
+  Format: 3 months, orange brand Max Color
+
+Marketing Campaign Tracker:
+  Date → campaign date · Main Measure → website visits
+  Tooltip Measures → conversions, spend
+  Event Name → campaign · Event Category → channel
+  (Paid / Organic / Email / Social)
+  Format: Week view, one color per channel
+
+Operations Shift Calendar:
+  Date → work date · Main Measure → incident count
+  Event Name → incident type · Holiday Name → public holidays
+  Format: Min=green, Max=red (reverse heatmap)
+
+
+TROUBLESHOOTING
+───────────────
+Events on wrong days:
+  Expand your events table per-day in Power Query
+  before connecting (one row per event per day).
+
+Category colors reset after saving:
+  Check that Event Category is still connected
+  and category names haven't changed in the source.
+
+Heatmap all same color:
+  Measure may have zero variance. Check the formula
+  or swap Min/Max colors to verify the gradient exists.
+
+Slicers stop working after clicking a day:
+  Click an empty area in the visual to deselect.
+  Day selection activates cross-filtering.
+
+Week view button shows lock icon:
+  Week view is Pro. Start a free 30-day trial or
+  purchase on Microsoft AppSource.

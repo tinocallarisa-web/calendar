@@ -1,0 +1,96 @@
+==========================================
+YOUTUBE DESCRIPTION — FULL (long video)
+==========================================
+
+Calendar Events Heatmap: see your KPIs AND your promotions, campaigns, and holidays — all in one calendar. No more toggling between your sales chart and your promo schedule.
+
+Available free on Microsoft AppSource: https://appsource.microsoft.com (search "Calendar Events Heatmap TCViz")
+
+──────────────────────────────────────────
+CHAPTERS
+──────────────────────────────────────────
+0:00 Intro — why heatmap + events?
+0:00 Setting up the field wells
+0:00 Heatmap — connecting your KPI
+0:00 Adding event badges
+0:00 Event categories and colors (Pro)
+0:00 Week view (Pro)
+0:00 Multi-month view (Pro)
+0:00 Holiday overlay
+0:00 Cross-page filtering
+0:00 Format pane walkthrough
+0:00 Free vs Pro comparison
+0:00 Wrap up
+
+(Fill in timestamps after final render)
+
+──────────────────────────────────────────
+WHAT THIS VISUAL DOES
+──────────────────────────────────────────
+Most calendar visuals show either KPIs or events — not both. Calendar Events Heatmap combines them:
+
+✅ Heatmap: day cells color by your measure value — instantly see your best and worst days
+✅ Event badges: overlay promotions, campaigns, and holidays on the same cell
+✅ Categories: up to 8 event types, each with its own color and a built-in legend
+✅ Week view: drill into a specific week for a closer look
+✅ Cross-page filtering: click a day to filter your entire report
+
+Perfect for retail, FMCG, marketing, and operations — anywhere the question is "what happened on that day, and why?"
+
+──────────────────────────────────────────
+FREE vs PRO
+──────────────────────────────────────────
+FREE (no sign-up required):
+• Month view — 1 month
+• KPI heatmap
+• 1 event badge per day
+• Holiday overlay
+• Tooltip measures
+• Cross-page filtering
+
+PRO ($9.99/month — 30-day free trial, no card required):
+• 1 to 12 months side by side
+• Week view
+• Configurable events per day
+• Per-category event colors (fully configurable)
+• Full format pane (labels, buttons, event category colors)
+
+Start your trial: Microsoft AppSource → Calendar Events Heatmap
+
+──────────────────────────────────────────
+LINKS
+──────────────────────────────────────────
+📖 Support & docs: https://tcviz.github.io/calendar/support.html
+🐛 Report an issue: https://github.com/tcviz/calendar/issues
+🔒 Privacy policy: https://tcviz.github.io/calendar/privacy.html
+📜 Terms: https://tcviz.github.io/calendar/terms.html
+
+──────────────────────────────────────────
+PRIVACY
+──────────────────────────────────────────
+Calendar Events Heatmap makes no external network calls and sends no data outside of Power BI. All processing happens inside the Power BI sandbox on your machine.
+
+──────────────────────────────────────────
+#PowerBI #PowerBICustomVisual #DataVisualization #BusinessIntelligence #CalendarHeatmap #PowerBITips #DataAnalytics #TCViz #RetailAnalytics #MarketingAnalytics
+
+
+==========================================
+SHORT VERSION (LinkedIn / YouTube Shorts)
+==========================================
+
+Why do I need two visuals when one can do the job? Calendar Events Heatmap combines a KPI heatmap with event badges in a single Power BI calendar. See your promotions, campaigns, and holidays right on the same day your numbers spiked (or dropped).
+
+Free on Microsoft AppSource — 30-day Pro trial, no card required.
+
+https://tcviz.github.io/calendar/support.html
+
+
+==========================================
+ALTERNATIVE TITLES (A/B test)
+==========================================
+
+1. Calendar Events Heatmap for Power BI — Full Demo (Free on AppSource)
+2. Power BI Calendar That Shows KPIs AND Events Together — Tutorial
+3. Best Power BI Calendar Visual 2025 — Heatmap + Events + Week View
+4. How to Build a Promo Calendar in Power BI (with Heatmap Colors)
+5. Power BI Custom Visual: KPI Heatmap + Event Overlay in One Calendar

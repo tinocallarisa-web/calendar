@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation & Support
+    url: https://tcviz.github.io/calendar/support.html
+    about: Read the docs and FAQ before opening an issue
+  - name: License Questions
+    url: mailto:tinocallarisa@gmail.com
+    about: Questions about Pro licenses or billing
+  - name: Changelog
+    url: https://github.com/tcviz/calendar/blob/main/CHANGELOG.md
+    about: See what changed in each version

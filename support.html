@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar Events Heatmap – Support | TCViz</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#FAF9F5;color:#3D3929;line-height:1.6}
+  header{background:#3D3929;color:#fff;padding:20px 40px;display:flex;align-items:center;gap:16px}
+  header h1{font-size:20px;font-weight:700}
+  header span{font-size:12px;color:#DAD9D4;margin-left:auto}
+  nav{background:#EDE9DE;padding:10px 40px;display:flex;gap:24px;font-size:13px}
+  nav a{color:#535146;text-decoration:none;font-weight:600}
+  nav a:hover{color:#C96442}
+  main{max-width:860px;margin:40px auto;padding:0 24px 60px}
+  h2{font-size:18px;font-weight:700;color:#3D3929;margin:36px 0 12px;border-bottom:2px solid #EDE9DE;padding-bottom:6px}
+  h3{font-size:14px;font-weight:700;color:#535146;margin:20px 0 8px}
+  p{font-size:14px;color:#535146;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+  th{background:#EDE9DE;padding:8px 12px;text-align:left;font-weight:700;color:#3D3929}
+  td{padding:8px 12px;border-bottom:1px solid #DAD9D4;color:#535146;vertical-align:top}
+  .pro{background:#DBD3F0;color:#5B3FA0;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700}
+  .free{background:#EDE9DE;color:#535146;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700}
+  code{background:#EDE9DE;padding:2px 6px;border-radius:3px;font-size:12px;font-family:monospace}
+  .callout{background:#FFF7F4;border-left:4px solid #C96442;padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;font-size:13px}
+  .video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:20px 0}
+  .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+  footer{text-align:center;font-size:12px;color:#83827D;padding:24px;border-top:1px solid #DAD9D4;margin-top:40px}
+  footer a{color:#C96442;text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 362" width="80" height="35">
+    <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#B05730"/><stop offset=".55" stop-color="#C96442"/><stop offset="1" stop-color="#9C87F5"/></linearGradient></defs>
+    <g transform="translate(40,46)"><rect x="22" y="20" width="150" height="150" rx="30" fill="none" stroke="url(#g)" stroke-width="11"/><g fill="url(#g)"><rect x="42" y="110" width="20" height="58" rx="5"/><rect x="70" y="86" width="20" height="82" rx="5"/><rect x="98" y="62" width="20" height="106" rx="5"/><rect x="126" y="38" width="20" height="130" rx="5"/></g></g>
+    <text x="258" y="246" font-family="'Segoe UI',sans-serif" font-weight="700" font-size="196" letter-spacing="-4"><tspan fill="url(#g)">tc</tspan><tspan fill="#fff">viz</tspan></text>
+  </svg>
+  <h1>Calendar Events Heatmap — Support</h1>
+  <span>v1.0.0.0 · TCViz</span>
+</header>
+<nav>
+  <a href="#quickstart">Quick Start</a>
+  <a href="#fields">Field Wells</a>
+  <a href="#format">Format Pane</a>
+  <a href="#freetrial">Free vs Pro</a>
+  <a href="#faq">FAQ</a>
+  <a href="https://github.com/tcviz/calendar/issues" target="_blank">Report an Issue</a>
+</nav>
+
+<main>
+
+  <div class="video-wrap">
+    <iframe src="https://www.youtube.com/embed/FUELmlkAGNI" allowfullscreen title="Calendar Events Heatmap demo"></iframe>
+  </div>
+
+  <h2 id="quickstart">Quick Start</h2>
+  <p>Calendar Events Heatmap overlays your KPI heatmap with event badges (promotions, campaigns, holidays) in a single calendar surface. Three steps to get started:</p>
+  <ol style="font-size:14px;color:#535146;padding-left:20px;margin-bottom:16px;line-height:2">
+    <li>Add the visual to your report canvas.</li>
+    <li>Drag a <strong>Date</strong> column to the <em>Date</em> field well and a measure to <em>Main Measure</em>. The calendar heatmap appears immediately.</li>
+    <li>Drag event name and event category columns to see colored event badges on each day.</li>
+  </ol>
+  <div class="callout">⚠️ If your Date field shows the wrong year (e.g. 2024 instead of Jan 1 2024), click the ▼ next to the field and select <strong>Date</strong> (not Date Hierarchy). Or disable Auto Date/Time in File → Options → Current file → Data Load.</div>
+
+  <h2 id="fields">Field Wells</h2>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+    <tr><td><strong>Date</strong></td><td>Date column</td><td>Yes</td><td>One row per day. All other fields (events, holidays) use this same date column via your data model.</td></tr>
+    <tr><td><strong>Main Measure</strong></td><td>Measure</td><td>Yes</td><td>Drives the heatmap color intensity. Aggregated per day.</td></tr>
+    <tr><td><strong>Tooltip Measures</strong></td><td>Measure(s)</td><td>No</td><td>Additional measures shown in the tooltip only. Multiple fields accepted.</td></tr>
+    <tr><td><strong>Event Name</strong></td><td>Text column</td><td>No</td><td>Name displayed in the event badge on each calendar day.</td></tr>
+    <tr><td><strong>Event Category</strong></td><td>Text column</td><td>No</td><td>Category of the event (e.g. "Promotion", "Campaign"). Used for color coding. <span class="pro">PRO</span> per-category colors configurable.</td></tr>
+    <tr><td><strong>Holiday Name</strong></td><td>Text column</td><td>No</td><td>Name of the holiday. The date is taken from the Date field — no separate date column needed.</td></tr>
+  </table>
+  <div class="callout">📌 All fields share the <em>Date</em> column. A typical setup uses a merged/joined table in Power Query so that sales, events, and holidays all have a common date key.</div>
+
+  <h2 id="format">Format Pane Reference</h2>
+
+  <h3>Calendar</h3>
+  <table>
+    <tr><th>Setting</th><th>Tier</th><th>Description</th></tr>
+    <tr><td>Default View</td><td><span class="free">FREE</span></td><td>Month or Week. The view persists across resizes; only the first load uses this default.</td></tr>
+    <tr><td>Months to Display</td><td><span class="pro">PRO</span></td><td>Show 1–12 months side by side. Free tier always shows 1 month.</td></tr>
+    <tr><td>Week Starts On</td><td><span class="free">FREE</span></td><td>Monday or Sunday.</td></tr>
+    <tr><td>Fiscal Calendar</td><td><span class="free">FREE</span></td><td>Enable fiscal year offset.</td></tr>
+  </table>
+
+  <h3>Heatmap Colors</h3>
+  <table>
+    <tr><th>Setting</th><th>Tier</th><th>Description</th></tr>
+    <tr><td>Min Color</td><td><span class="free">FREE</span></td><td>Color for the lowest measure value.</td></tr>
+    <tr><td>Max Color</td><td><span class="free">FREE</span></td><td>Color for the highest measure value.</td></tr>
+    <tr><td>No Data Color</td><td><span class="free">FREE</span></td><td>Color for days with no measure data.</td></tr>
+  </table>
+
+  <h3>Day Number</h3>
+  <table>
+    <tr><th>Setting</th><th>Tier</th><th>Description</th></tr>
+    <tr><td>Font Size / Family / Color</td><td><span class="free">FREE</span></td><td>Style for regular day numbers.</td></tr>
+    <tr><td>Weekend Color</td><td><span class="free">FREE</span></td><td>Color for Saturday and Sunday numbers.</td></tr>
+    <tr><td>Holiday Color</td><td><span class="free">FREE</span></td><td>Color for days marked as holidays.</td></tr>
+  </table>
+
+  <h3>Events</h3>
+  <table>
+    <tr><th>Setting</th><th>Tier</th><th>Description</th></tr>
+    <tr><td>Show Events</td><td><span class="free">FREE</span></td><td>Toggle event badge visibility.</td></tr>
+    <tr><td>Max Events per Day</td><td><span class="pro">PRO</span></td><td>Max badges per cell in month view. Free tier shows 1 event per day.</td></tr>
+    <tr><td>Single color for all events</td><td><span class="pro">PRO</span></td><td>When ON, overrides per-category colors with a single badge color.</td></tr>
+    <tr><td>Event Text Color / Font Size</td><td><span class="pro">PRO</span></td><td>Badge label styling.</td></tr>
+  </table>
+
+  <h3>Event Category Colors <span class="pro">PRO</span></h3>
+  <p>One color picker per event category (up to 8). Categories appear in order of first occurrence in the data. The visual shows a color legend below the Month/Week buttons mapping each color to its category name.</p>
+
+  <h3>Measure Labels / View Buttons <span class="pro">PRO</span></h3>
+  <p>Font and color settings for measure labels and navigation buttons. Available in Pro.</p>
+
+  <h2 id="freetrial">Free vs Pro</h2>
+  <table>
+    <tr><th>Feature</th><th>Free</th><th>Pro ($9.99/mo)</th></tr>
+    <tr><td>Month view</td><td>✅ 1 month</td><td>✅ 1–12 months</td></tr>
+    <tr><td>Week view</td><td>🔒</td><td>✅</td></tr>
+    <tr><td>KPI heatmap</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Event badges</td><td>✅ 1/day</td><td>✅ configurable</td></tr>
+    <tr><td>Event category colors</td><td>Auto palette</td><td>✅ fully configurable</td></tr>
+    <tr><td>Holiday overlay</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Tooltip measures</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Cross-page filtering</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Full format pane</td><td>Basic</td><td>✅ full</td></tr>
+    <tr><td>30-day full trial</td><td colspan="2" style="text-align:center">✅ All Pro features during trial</td></tr>
+  </table>
+
+  <h2 id="faq">FAQ</h2>
+
+  <h3>My dates show as "1900" or the wrong year</h3>
+  <p>Power BI's Auto Date/Time hierarchy sends year numbers instead of full dates. Click the ▼ next to your date field in the field well and select <strong>Date</strong> (not Date Hierarchy). Alternatively disable Auto Date/Time in File → Options → Current file → Data Load.</p>
+
+  <h3>Slicers stop working after clicking a day</h3>
+  <p>Click on any empty area of the calendar to deselect the current day and restore cross-filtering.</p>
+
+  <h3>How do I connect holidays?</h3>
+  <p>Add a <em>Holiday Name</em> column to your main table via Power Query (merge with your holidays table on the Date key). Connect that column to the Holiday Name field well. The visual uses the Date field for the holiday date — no separate date column is needed.</p>
+
+  <h3>Events appear on wrong days</h3>
+  <p>Make sure your events table is expanded per day (one row per event-day combination) before connecting to the visual. The visual does not expand date ranges internally.</p>
+
+  <h3>Colors reset after saving the report</h3>
+  <p>Event category colors are stored per report. If they reset, check that the Event Category field is still connected and that category names haven't changed in your data source.</p>
+
+  <h3>How does the trial work?</h3>
+  <p>The 30-day trial gives full Pro access. No credit card required to start. After the trial, the visual switches to the Free tier automatically.</p>
+</main>
+
+<footer>
+  <a href="https://tcviz.github.io/calendar/privacy.html">Privacy</a> ·
+  <a href="https://tcviz.github.io/calendar/terms.html">Terms</a> ·
+  <a href="https://github.com/tcviz/calendar">GitHub</a> ·
+  <a href="https://github.com/tcviz/calendar/issues">Issues</a> ·
+  <a href="https://www.youtube.com/watch?v=FUELmlkAGNI">Video Demo</a><br><br>
+  © 2025 TCViz · Calendar Events Heatmap v1.0.0.0
+</footer>
+</body>
+</html>

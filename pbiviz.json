@@ -1,0 +1,26 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/core/pbiviz.json",
+  "visual": {
+    "name": "calendarTCViz",
+    "displayName": "Calendar Events Heatmap",
+    "guid": "calendarTCViz022303184F264C8B9ACE6A13E838FFEB",
+    "visualClassName": "CalendarVisual",
+    "version": "1.0.0.0",
+    "description": "The only Power BI calendar that combines a KPI heatmap with event overlays in one surface. See promotions, campaigns and holidays alongside your sales or any measure — month and week views, cross-page filtering, per-category event colors.",
+    "supportUrl": "https://tcviz.github.io/calendar/support.html",
+    "gitHubUrl": "https://github.com/tcviz/calendar",
+    "privacyTermsLink": "https://tcviz.github.io/calendar/privacy.html"
+  },
+  "apiVersion": "5.11.0",
+  "author": {
+    "name": "TCViz",
+    "email": "tinocallarisa@gmail.com"
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "externalJS": [],
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "stringResources": []
+}

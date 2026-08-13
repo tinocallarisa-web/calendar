@@ -1,0 +1,38 @@
+==========================================
+YOUTUBE TAGS — PRIMARY BLOCK (≤500 chars)
+==========================================
+
+Power BI,Power BI custom visual,calendar heatmap,calendar visual Power BI,event calendar Power BI,KPI heatmap,AppSource visual,promotion calendar,campaign tracker,Power BI tips,data visualization,business intelligence,retail analytics,marketing analytics,TCViz
+
+(Character count: ~240 — well within 500-char YouTube limit)
+
+
+==========================================
+EXPANDED TAGS (pick and mix as needed)
+==========================================
+
+General Power BI:
+Power BI, Power BI tutorial, Power BI tips, Power BI 2025, Power BI custom visual, AppSource visual, Power BI dashboard, business intelligence, data visualization, Microsoft Power BI
+
+Visual-specific:
+calendar heatmap, calendar visual Power BI, event calendar Power BI, KPI calendar, promotion calendar Power BI, campaign calendar, heatmap calendar, week view Power BI, multi-month calendar, holiday calendar Power BI
+
+Use-case tags:
+retail analytics, marketing analytics, FMCG analytics, operations calendar, sales calendar, promo tracking Power BI, campaign performance, event overlay
+
+Publisher:
+TCViz, TCViz Power BI, Calendar Events Heatmap
+
+
+==========================================
+FOCUS VARIANTS
+==========================================
+
+For retail/FMCG audience:
+Power BI, calendar heatmap, retail analytics, promotion calendar, FMCG analytics, KPI heatmap, event overlay, sales calendar, campaign tracker, Power BI custom visual, AppSource, TCViz
+
+For marketing audience:
+Power BI, calendar visual, marketing analytics, campaign calendar, event overlay, KPI heatmap, multi-month view, week view, channel analytics, Power BI custom visual, AppSource, TCViz
+
+For Power BI general audience:
+Power BI, custom visual, calendar heatmap, AppSource visual, event calendar, KPI calendar, week view, cross-page filtering, Power BI tips 2025, TCViz

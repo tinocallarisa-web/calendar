@@ -1,0 +1,24 @@
+{
+  "name": "calendar-tcviz",
+  "version": "1.0.0",
+  "description": "Calendar visual combining events and measures for Power BI",
+  "scripts": {
+    "package": "pbiviz package",
+    "build": "pbiviz package",
+    "start": "pbiviz start",
+    "lint": "pbiviz package --no-pbiviz --resources --no-minify",
+    "test:build": "node build-test.js"
+  },
+  "dependencies": {
+    "d3-scale": "^4.0.2",
+    "d3-interpolate": "^3.0.1",
+    "d3-color": "^3.1.0"
+  },
+  "devDependencies": {
+    "powerbi-visuals-api": "^5.11.0",
+    "powerbi-visuals-tools": "^5.4.5",
+    "typescript": "^5.3.3"
+  },
+  "author": "TCViz",
+  "license": "MIT"
+}
