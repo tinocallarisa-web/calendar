@@ -60,10 +60,10 @@ Start your trial: Microsoft AppSource → Calendar Events Heatmap
 ──────────────────────────────────────────
 LINKS
 ──────────────────────────────────────────
-📖 Support & docs: https://tcviz.github.io/calendar/support.html
-🐛 Report an issue: https://github.com/tcviz/calendar/issues
-🔒 Privacy policy: https://tcviz.github.io/calendar/privacy.html
-📜 Terms: https://tcviz.github.io/calendar/terms.html
+📖 Support & docs: https://tinocallarisa-web.github.io/calendar/support.html
+🐛 Report an issue: https://github.com/tinocallarisa-web/calendar/issues
+🔒 Privacy policy: https://tinocallarisa-web.github.io/calendar/privacy.html
+📜 Terms: https://tinocallarisa-web.github.io/calendar/terms.html
 
 ──────────────────────────────────────────
 PRIVACY
@@ -82,7 +82,7 @@ Why do I need two visuals when one can do the job? Calendar Events Heatmap combi
 
 Free on Microsoft AppSource — 30-day Pro trial, no card required.
 
-https://tcviz.github.io/calendar/support.html
+https://tinocallarisa-web.github.io/calendar/support.html
 
 
 ==========================================

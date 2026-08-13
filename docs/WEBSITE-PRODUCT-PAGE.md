@@ -156,7 +156,7 @@ Designed for typical reporting datasets (daily granularity, 1–3 years of data)
 
 ### Privacy & Network
 
-Zero external network calls. No telemetry. No analytics. All data is processed in-memory within the Power BI sandbox. Format settings are stored in the `.pbix` file by the Power BI platform. See [Privacy Policy](https://tcviz.github.io/calendar/privacy.html).
+Zero external network calls. No telemetry. No analytics. All data is processed in-memory within the Power BI sandbox. Format settings are stored in the `.pbix` file by the Power BI platform. See [Privacy Policy](https://tinocallarisa-web.github.io/calendar/privacy.html).
 
 ### Licensing
 
@@ -172,8 +172,8 @@ No external JavaScript libraries. No npm packages beyond the Power BI SDK. Fonts
 
 ### Support
 
-- Docs & FAQ: https://tcviz.github.io/calendar/support.html
-- Bug reports: https://github.com/tcviz/calendar/issues
+- Docs & FAQ: https://tinocallarisa-web.github.io/calendar/support.html
+- Bug reports: https://github.com/tinocallarisa-web/calendar/issues
 - Email: tinocallarisa@gmail.com
 
 ---

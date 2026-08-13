@@ -11,7 +11,7 @@
 ## Source Code
 
 **Certification branch:** `certification`  
-GitHub: https://github.com/tcviz/calendar/tree/certification
+GitHub: https://github.com/tinocallarisa-web/calendar/tree/certification
 
 The `certification` branch contains the exact source used to build the submitted `.pbiviz`. It has no build artifacts (`node_modules/`, `dist/`, `.tmp/` are in `.gitignore` and not tracked).
 
@@ -21,10 +21,10 @@ The `certification` branch contains the exact source used to build the submitted
 
 | Resource | URL |
 |---|---|
-| Support | https://tcviz.github.io/calendar/support.html |
-| Privacy Policy | https://tcviz.github.io/calendar/privacy.html |
-| Terms of Service | https://tcviz.github.io/calendar/terms.html |
-| GitHub repo | https://github.com/tcviz/calendar |
+| Support | https://tinocallarisa-web.github.io/calendar/support.html |
+| Privacy Policy | https://tinocallarisa-web.github.io/calendar/privacy.html |
+| Terms of Service | https://tinocallarisa-web.github.io/calendar/terms.html |
+| GitHub repo | https://github.com/tinocallarisa-web/calendar |
 | Demo video | https://www.youtube.com/watch?v=FUELmlkAGNI |
 
 ---
