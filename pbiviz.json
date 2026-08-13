@@ -8,7 +8,7 @@
     "version": "1.0.0.0",
     "description": "The only Power BI calendar that combines a KPI heatmap with event overlays in one surface. See promotions, campaigns and holidays alongside your sales or any measure — month and week views, cross-page filtering, per-category event colors.",
     "supportUrl": "https://tcviz.github.io/calendar/support.html",
-    "gitHubUrl": "https://github.com/tcviz/calendar",
+    "gitHubUrl": "https://github.com/tinocallarisa-web/calendar",
     "privacyTermsLink": "https://tcviz.github.io/calendar/privacy.html"
   },
   "apiVersion": "5.11.0",
