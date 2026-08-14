@@ -48,6 +48,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private hasRenderedData: boolean = false;
   private lastDataView: powerbi.DataView | null = null;
   private uniqueEventCategories: string[] = [];  // ordered by first appearance in data
+  private viewport: { width: number; height: number } = { width: 400, height: 300 };
 
   constructor(options: powerbi.extensibility.visual.VisualConstructorOptions) {
     this.host = options.host;
@@ -109,6 +110,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           }
         }
       }
+
+      // Store viewport for responsive rendering
+      this.viewport = options.viewport ?? this.viewport;
 
       // Render
       this.render();
@@ -339,18 +343,18 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const headerLabel = n > 1 ? `${startLabel} – ${endLabel}` : startLabel;
 
     let html = `
-      <div style="display:flex;flex-direction:column;height:100%;padding:8px;box-sizing:border-box;overflow:auto;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="display:flex;flex-direction:column;height:100%;padding:8px;box-sizing:border-box;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0;">
           <button data-nav="prev" style="${this.navBtnStyle()}">&#8592;</button>
           <span style="font-weight:600;font-size:14px;color:#3D3929;">${headerLabel}</span>
           <button data-nav="next" style="${this.navBtnStyle()}">&#8594;</button>
         </div>
-        <div style="display:flex;gap:4px;margin-bottom:8px;">
+        <div style="display:flex;gap:4px;margin-bottom:8px;flex-shrink:0;">
           <button data-view="month" style="${this.viewBtnStyle(this.currentView === "month")}">Month</button>
           <button data-view="week" style="${this.viewBtnStyle(false)}">${this.isPro ? "Week" : "Week 🔒"}</button>
         </div>
         ${this.buildCategoryLegend()}
-        <div style="display:flex;flex-direction:row;gap:12px;flex:1;overflow-x:auto;overflow-y:hidden;">
+        <div style="display:flex;flex-direction:row;gap:12px;flex:1;overflow:hidden;min-height:0;">
     `;
 
     for (let m = 0; m < n; m++) {
@@ -390,26 +394,25 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       grid.push(week);
     }
 
-    const cellMinH = totalMonths > 3 ? "24px" : "40px";
     const numFontSz = totalMonths > 6 ? "8px" : "10px";
     const showMeasure = totalMonths <= 6;
     const showEvents = this.settings.events.showEvents && totalMonths <= 3;
 
     const minColW = totalMonths > 1 ? "180px" : "0px";
     let html = `
-      <div style="flex:1 0 ${minColW};min-width:${minColW};display:flex;flex-direction:column;">
-        ${totalMonths > 1 ? `<div style="text-align:center;font-size:12px;font-weight:600;color:#3D3929;margin-bottom:6px;">${monthName}</div>` : ""}
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
+      <div style="flex:1 0 ${minColW};min-width:${minColW};display:flex;flex-direction:column;min-height:0;overflow:hidden;">
+        ${totalMonths > 1 ? `<div style="text-align:center;font-size:12px;font-weight:600;color:#3D3929;margin-bottom:6px;flex-shrink:0;">${monthName}</div>` : ""}
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;flex-shrink:0;">
           ${dayNames.map(dn => `<div style="text-align:center;font-size:10px;font-weight:600;color:#83827D;padding:2px 0;overflow:hidden;">${dn}</div>`).join("")}
         </div>
-        <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
+        <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-height:0;overflow:hidden;">
     `;
 
     grid.forEach(wk => {
-      html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:1;">`;
+      html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:1;min-height:0;">`;
       wk.forEach(date => {
         if (!date) {
-          html += `<div style="background:#F5F3ED;border-radius:4px;opacity:0.3;"></div>`;
+          html += `<div style="background:#F5F3ED;border-radius:4px;opacity:0.3;overflow:hidden;"></div>`;
           return;
         }
         const key = this.dateKey(date);
@@ -443,13 +446,13 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           <div data-date="${key}" data-has-data="${day ? "1" : "0"}"
                style="background:${bgColor};border-radius:4px;padding:3px;cursor:${day ? "pointer" : "default"};
                       border:${isToday ? todayBorder : isHoliday ? holidayBorder : "1px solid transparent"};
-                      display:flex;flex-direction:column;min-height:${cellMinH};overflow:hidden;">
-            <div style="font-size:${dayNumSz};font-family:${dayNumFont};font-weight:${isToday ? "700" : "400"};color:${dayNumColor};line-height:1;white-space:nowrap;">
+                      display:flex;flex-direction:column;overflow:hidden;min-height:0;">
+            <div style="font-size:${dayNumSz};font-family:${dayNumFont};font-weight:${isToday ? "700" : "400"};color:${dayNumColor};line-height:1;white-space:nowrap;flex-shrink:0;">
               ${date.getDate()}${isHoliday ? "✦" : ""}
             </div>
-            ${showMeasure && day?.measureValue != null ? `<div style="font-size:${lblSz};font-family:${lblFont};color:${lblColor};font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this.formatValue(day.measureValue)}</div>` : ""}
-            ${visibleEvents.map(e => `<div style="background:${evtBg(e)};color:${evtFg};border-radius:2px;font-size:${evtFontSz};font-family:${evtFont};padding:1px 3px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>`).join("")}
-            ${moreCount > 0 ? `<div style="font-size:8px;color:#83827D;margin-top:1px;white-space:nowrap;">+${moreCount}</div>` : ""}
+            ${showMeasure && day?.measureValue != null ? `<div style="font-size:${lblSz};font-family:${lblFont};color:${lblColor};font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;">${this.formatValue(day.measureValue)}</div>` : ""}
+            ${visibleEvents.map(e => `<div style="background:${evtBg(e)};color:${evtFg};border-radius:2px;font-size:${evtFontSz};font-family:${evtFont};padding:1px 3px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;">${e.name}</div>`).join("")}
+            ${moreCount > 0 ? `<div style="font-size:8px;color:#83827D;margin-top:1px;white-space:nowrap;flex-shrink:0;">+${moreCount}</div>` : ""}
           </div>
         `;
       });
@@ -483,18 +486,18 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const today = this.dateKey(new Date());
 
     let html = `
-      <div style="display:flex;flex-direction:column;height:100%;padding:8px;box-sizing:border-box;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="display:flex;flex-direction:column;height:100%;padding:8px;box-sizing:border-box;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0;">
           <button data-nav="prev" style="${this.navBtnStyle()}">&#8592;</button>
           <span style="font-weight:600;font-size:14px;color:#3D3929;">${weekLabel}</span>
           <button data-nav="next" style="${this.navBtnStyle()}">&#8594;</button>
         </div>
-        <div style="display:flex;gap:4px;margin-bottom:8px;">
+        <div style="display:flex;gap:4px;margin-bottom:8px;flex-shrink:0;">
           <button data-view="month" style="${this.viewBtnStyle(false)}">Month</button>
           <button data-view="week" style="${this.viewBtnStyle(true)}">${this.isPro ? "Week" : "Week 🔒"}</button>
         </div>
         ${this.buildCategoryLegend()}
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;flex:1;">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;flex:1;min-height:0;overflow:hidden;">
     `;
 
     const dn = this.settings.dayNumber;
@@ -826,7 +829,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         <span>${cat || "(Default)"}</span>
       </span>`;
     }).join("");
-    return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">${items}</div>`;
+    return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;flex-shrink:0;">${items}</div>`;
   }
 
   private navBtnStyle(): string {
