@@ -1,0 +1,44 @@
+Calendar Events Heatmap 1.1.0.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
+Full notes: docs/CERTIFICATION-NOTES.md in the repo.
+
+REPO + URLs
+github.com/tinocallarisa-web/calendar (public), branch "certification".
+tinocallarisa-web.github.io/calendar/ + support.html, privacy.html, terms.html
+Video youtube.com/watch?v=FUELmlkAGNI
+
+WHAT CHANGED IN 1.1.0.0
+- Keyboard navigation (roving tabindex, arrows, Home/End, PageUp/Down, Enter, Escape,
+  Shift+F10), ARIA grid semantics, high contrast.
+- Conditional formatting: Day Color with fx rule on Main Measure. Dynamic format strings,
+  report tooltips, bookmarks, allowInteractions.
+- No licensing UI of our own: the Week lock icon and upgrade toast are gone. Free users
+  trying a Pro option get Power BI's notifyFeatureBlocked / notifyLicenseRequired.
+- Pro format cards and options visible to everyone, marked [Pro].
+- Removed an unused "License Key" format property.
+- Week view no longer reachable in Free via Default View.
+
+LICENCE
+IVisualLicenseManager only: getAvailableServicePlans() against Plan ID "calendar-tcviz",
+once, after the first render. Active and Warning accepted; the 30-day plan trial resolves
+as Active. isLicenseUnsupportedEnv / isLicenseInfoAvailable honoured (no prompt where the
+licence cannot be read). No external calls; privileges is []. No innerHTML.
+
+FREE VS PRO
+Free: month view (1 month), heatmap, fx Day Color, 1 event per day, holidays, tooltips,
+cross-filtering, keyboard, high contrast.
+Pro: week view, 1-12 months, more events per day, event/label/button styling, category
+colours.
+
+TESTING - FREE (submitted package, no plan)
+1. Date + Main Measure: heatmap renders. Add Event Name: max 1 badge per day.
+2. Click Week: stays in month view, Power BI shows its licence notice.
+3. Months to Display [Pro] = 3: stays at 1 month, notice shown.
+4. Resize smaller: all week rows stay visible.
+5. Click a day: other visuals filter. Arrow keys move focus.
+
+TESTING - PRO (active "calendar-tcviz" plan or trial)
+1. Week view works; no notice.
+2. Months to Display = 3: three months side by side.
+3. Event Category Colors: colours apply to badges and legend.
+
+Rendering events on every path of update().

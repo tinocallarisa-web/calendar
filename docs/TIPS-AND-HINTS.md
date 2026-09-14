@@ -72,7 +72,7 @@ Full font and color control for the measure value labels and the Month/Week navi
 | Feature | Free | Pro ($9.99/mo) |
 |---|---|---|
 | Month view | 1 month | 1–12 months |
-| Week view | 🔒 | ✅ |
+| Week view | — | ✅ |
 | KPI heatmap | ✅ | ✅ |
 | Event badges | 1/day | Configurable |
 | Per-category event colors | Auto palette | ✅ Configurable |
@@ -143,5 +143,5 @@ Your measure may have zero variance. Check the measure formula or try switching 
 **Slicers stop working after clicking a day**  
 Click on an empty area of the visual to deselect. Day selection activates cross-filtering; deselecting restores slicer-driven filters.
 
-**Week view button shows 🔒**  
-Week view is a Pro feature. Start a free 30-day trial or purchase Pro on Microsoft AppSource.
+**Clicking Week keeps month view**  
+Week view is a Pro feature. Power BI shows its own notice with the option to start the 30-day trial or buy Pro on Microsoft AppSource.

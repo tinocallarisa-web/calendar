@@ -174,7 +174,7 @@ No external JavaScript libraries. No npm packages beyond the Power BI SDK. Fonts
 
 - Docs & FAQ: https://tinocallarisa-web.github.io/calendar/support.html
 - Bug reports: https://github.com/tinocallarisa-web/calendar/issues
-- Email: tinocallarisa@gmail.com
+- Email: support@tcviz.com
 
 ---
 

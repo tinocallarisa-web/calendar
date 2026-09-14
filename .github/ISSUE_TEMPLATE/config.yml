@@ -1,11 +1,17 @@
 blank_issues_enabled: false
 contact_links:
   - name: Documentation & Support
-    url: https://tcviz.github.io/calendar/support.html
-    about: Read the docs and FAQ before opening an issue
-  - name: License Questions
-    url: mailto:tinocallarisa@gmail.com
-    about: Questions about Pro licenses or billing
+    url: https://tinocallarisa-web.github.io/calendar/support.html
+    about: Quick start, field wells, format pane reference, accessibility and FAQ
   - name: Changelog
-    url: https://github.com/tcviz/calendar/blob/main/CHANGELOG.md
+    url: https://tinocallarisa-web.github.io/calendar/changelog.html
     about: See what changed in each version
+  - name: Questions & Ideas
+    url: https://github.com/tinocallarisa-web/calendar/discussions
+    about: Ask a question or discuss an idea with other users
+  - name: Video Tutorial
+    url: https://www.youtube.com/watch?v=FUELmlkAGNI
+    about: Watch the visual being set up end to end
+  - name: License & Billing Questions
+    url: mailto:support@tcviz.com
+    about: Questions about Pro licenses, the trial or billing

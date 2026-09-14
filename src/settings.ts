@@ -1,7 +1,7 @@
 // SP_IDENTIFIER must match Plan ID in Partner Center exactly
 export const SP_IDENTIFIER = "calendar-tcviz";
-
-export const TRIAL_DAYS = 30;
+// La prueba de 30 días la gestiona el plan de Partner Center (se ve como plan Active):
+// el visual no lleva lógica de prueba propia.
 
 export interface CalendarSettings {
   calendar: {
@@ -15,6 +15,8 @@ export interface CalendarSettings {
     colorMin: string;
     colorMax: string;
     colorNull: string;
+    /** Constant side of the "Day Color" conditional-formatting property. Null = use the gradient. */
+    dayColor: string | null;
   };
   dayNumber: {
     fontSize: number;
@@ -54,6 +56,7 @@ export const defaultSettings: CalendarSettings = {
     colorMin: "#EDE9DE",
     colorMax: "#C96442",
     colorNull: "#F5F3ED",
+    dayColor: null,
   },
   dayNumber: {
     fontSize: 11,
@@ -81,6 +84,27 @@ export const defaultSettings: CalendarSettings = {
   },
 };
 
+/**
+ * Ajustes efectivos sin licencia: las opciones Pro vuelven a su valor por defecto.
+ * El panel de formato sigue mostrando lo que eligió el usuario (parseSettings).
+ */
+export function freeSettings(s: CalendarSettings): CalendarSettings {
+  return {
+    ...s,
+    calendar: { ...s.calendar, view: "month", monthsToShow: 1 },
+    labels: { ...defaultSettings.labels },
+    navigation: { ...defaultSettings.navigation },
+    events: {
+      ...s.events,
+      maxEventsVisible: 1,
+      useGlobalColor: defaultSettings.events.useGlobalColor,
+      eventBgColor: defaultSettings.events.eventBgColor,
+      eventFontColor: defaultSettings.events.eventFontColor,
+      eventFontSize: defaultSettings.events.eventFontSize,
+    },
+  };
+}
+
 export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
   if (!dataView?.metadata?.objects) return defaultSettings;
   const obj = dataView.metadata.objects;
@@ -97,6 +121,7 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
       colorMin: (obj["heatmap"]?.["colorMin"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMin,
       colorMax: (obj["heatmap"]?.["colorMax"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMax,
       colorNull: (obj["heatmap"]?.["colorNull"] as any)?.solid?.color ?? defaultSettings.heatmap.colorNull,
+      dayColor: (obj["heatmap"]?.["dayColor"] as any)?.solid?.color ?? null,
     },
     dayNumber: {
       fontSize: (obj["dayNumber"]?.["fontSize"] as number) ?? defaultSettings.dayNumber.fontSize,

@@ -151,6 +151,6 @@ Slicers stop working after clicking a day:
   Click an empty area in the visual to deselect.
   Day selection activates cross-filtering.
 
-Week view button shows lock icon:
-  Week view is Pro. Start a free 30-day trial or
-  purchase on Microsoft AppSource.
+Clicking Week keeps month view:
+  Week view is Pro. Power BI shows a notice with the
+  option to start the 30-day trial or buy on AppSource.

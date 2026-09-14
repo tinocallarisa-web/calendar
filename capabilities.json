@@ -61,11 +61,11 @@
           "displayName": "Default View",
           "type": { "enumeration": [
             { "value": "month", "displayName": "Month" },
-            { "value": "week", "displayName": "Week" }
+            { "value": "week", "displayName": "Week [Pro]" }
           ]}
         },
         "monthsToShow": {
-          "displayName": "Months to Display",
+          "displayName": "Months to Display [Pro]",
           "type": { "enumeration": [
             { "value": "1",  "displayName": "1 month" },
             { "value": "2",  "displayName": "2 months" },
@@ -105,6 +105,18 @@
         "colorNull": {
           "displayName": "No Data Color",
           "type": { "fill": { "solid": { "color": true } } }
+        },
+        "dayColor": {
+          "displayName": "Day Color",
+          "description": "Overrides the heatmap gradient for individual days. Use the fx button to color days by a rule.",
+          "type": { "fill": { "solid": { "color": true } } },
+          "rule": {
+            "inputRole": "mainMeasure",
+            "output": {
+              "property": "dayColor",
+              "selector": ["date"]
+            }
+          }
         }
       }
     },
@@ -134,7 +146,7 @@
       }
     },
     "labels": {
-      "displayName": "Measure Labels",
+      "displayName": "Measure Labels [Pro]",
       "properties": {
         "fontSize": {
           "displayName": "Font Size",
@@ -151,7 +163,7 @@
       }
     },
     "navigation": {
-      "displayName": "View Buttons",
+      "displayName": "View Buttons [Pro]",
       "properties": {
         "activeColor": {
           "displayName": "Active Button Color",
@@ -171,29 +183,29 @@
           "type": { "bool": true }
         },
         "maxEventsVisible": {
-          "displayName": "Max Events per Day (month view)",
+          "displayName": "Max Events per Day (month view) [Pro]",
           "type": { "numeric": true }
         },
         "useGlobalColor": {
-          "displayName": "Single color for all events",
+          "displayName": "Single color for all events [Pro]",
           "type": { "bool": true }
         },
         "eventBgColor": {
-          "displayName": "Event Color",
+          "displayName": "Event Color [Pro]",
           "type": { "fill": { "solid": { "color": true } } }
         },
         "eventFontColor": {
-          "displayName": "Event Text Color",
+          "displayName": "Event Text Color [Pro]",
           "type": { "fill": { "solid": { "color": true } } }
         },
         "eventFontSize": {
-          "displayName": "Event Font Size",
+          "displayName": "Event Font Size [Pro]",
           "type": { "numeric": true }
         }
       }
     },
     "eventCategoryColors": {
-      "displayName": "Event Category Colors",
+      "displayName": "Event Category Colors [Pro]",
       "properties": {
         "c0": { "displayName": "Category 1", "type": { "fill": { "solid": { "color": true } } } },
         "c1": { "displayName": "Category 2", "type": { "fill": { "solid": { "color": true } } } },
@@ -204,15 +216,12 @@
         "c6": { "displayName": "Category 7", "type": { "fill": { "solid": { "color": true } } } },
         "c7": { "displayName": "Category 8", "type": { "fill": { "solid": { "color": true } } } }
       }
-    },
-    "license": {
-      "displayName": "License",
-      "properties": {
-        "key": {
-          "displayName": "License Key",
-          "type": { "text": true }
-        }
-      }
+    }
+  },
+  "tooltips": {
+    "supportedTypes": {
+      "default": true,
+      "canvas": true
     }
   },
   "supportsHighlight": true,

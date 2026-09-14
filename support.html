@@ -18,6 +18,7 @@
   h3{font-size:14px;font-weight:700;color:#535146;margin:20px 0 8px}
   p{font-size:14px;color:#535146;margin-bottom:12px}
   table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+  kbd{display:inline-block;font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:12px;background:#FAF9F5;border:1px solid #DAD9D4;border-bottom-width:2px;border-radius:4px;padding:1px 6px;color:#3D3929;white-space:nowrap}
   th{background:#EDE9DE;padding:8px 12px;text-align:left;font-weight:700;color:#3D3929}
   td{padding:8px 12px;border-bottom:1px solid #DAD9D4;color:#535146;vertical-align:top}
   .pro{background:#DBD3F0;color:#5B3FA0;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700}
@@ -26,6 +27,12 @@
   .callout{background:#FFF7F4;border-left:4px solid #C96442;padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;font-size:13px}
   .video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:20px 0}
   .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+  #searchbar{margin:0 0 8px}
+  #searchbar label{display:block;font-size:12px;font-weight:700;color:#83827D;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+  #docsearch{width:100%;font-family:inherit;font-size:14px;color:#3D3929;background:#fff;border:1px solid #DAD9D4;border-radius:6px;padding:10px 12px}
+  #docsearch:focus{outline:2px solid #C96442;outline-offset:1px;border-color:#C96442}
+  #searchstatus{font-size:12px;color:#83827D;min-height:18px;margin:6px 0 0}
+  #searchempty{background:#FFF7F4;border-left:4px solid #C96442;padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;font-size:13px;color:#535146}
   footer{text-align:center;font-size:12px;color:#83827D;padding:24px;border-top:1px solid #DAD9D4;margin-top:40px}
   footer a{color:#C96442;text-decoration:none}
 </style>
@@ -38,18 +45,32 @@
     <text x="258" y="246" font-family="'Segoe UI',sans-serif" font-weight="700" font-size="196" letter-spacing="-4"><tspan fill="url(#g)">tc</tspan><tspan fill="#fff">viz</tspan></text>
   </svg>
   <h1>Calendar Events Heatmap — Support</h1>
-  <span>v1.0.0.0 · TCViz</span>
+  <span>v1.1.0.0 · TCViz</span>
 </header>
 <nav>
   <a href="#quickstart">Quick Start</a>
   <a href="#fields">Field Wells</a>
   <a href="#format">Format Pane</a>
+  <a href="#integration">Report Integration</a>
   <a href="#freetrial">Free vs Pro</a>
+  <a href="#accessibility">Accessibility</a>
   <a href="#faq">FAQ</a>
+  <a href="https://tinocallarisa-web.github.io/calendar/changelog.html">Changelog</a>
+  <a href="https://marketplace.microsoft.com/en-us/product/power-bi-visuals/tino_callarisa.calendar-events-heatmap" target="_blank">Get the Visual</a>
   <a href="https://github.com/tinocallarisa-web/calendar/issues" target="_blank">Report an Issue</a>
+  <a href="https://github.com/tinocallarisa-web/calendar/discussions" target="_blank">Questions &amp; Ideas</a>
 </nav>
 
 <main>
+
+  <div id="searchbar">
+    <label for="docsearch">Search these docs</label>
+    <input id="docsearch" type="search" autocomplete="off" spellcheck="false"
+           placeholder="Try: keyboard, holidays, tooltip, colors, trial…">
+    <p id="searchstatus" role="status" aria-live="polite"></p>
+  </div>
+  <p id="searchempty" hidden>No section matches that search. Try a different word, or
+    <a href="https://github.com/tinocallarisa-web/calendar/discussions">ask in Discussions</a>.</p>
 
   <div class="video-wrap">
     <iframe src="https://www.youtube.com/embed/FUELmlkAGNI" allowfullscreen title="Calendar Events Heatmap demo"></iframe>
@@ -93,6 +114,7 @@
     <tr><td>Min Color</td><td><span class="free">FREE</span></td><td>Color for the lowest measure value.</td></tr>
     <tr><td>Max Color</td><td><span class="free">FREE</span></td><td>Color for the highest measure value.</td></tr>
     <tr><td>No Data Color</td><td><span class="free">FREE</span></td><td>Color for days with no measure data.</td></tr>
+    <tr><td>Day Color</td><td><span class="free">FREE</span></td><td>Overrides the gradient. Click the <strong>fx</strong> button to color days by a rule based on the Main Measure — for example red below target, green above. A constant value colors every day the same. Precedence: rule, then constant, then gradient.</td></tr>
   </table>
 
   <h3>Day Number</h3>
@@ -118,6 +140,18 @@
   <h3>Measure Labels / View Buttons <span class="pro">PRO</span></h3>
   <p>Font and color settings for measure labels and navigation buttons. Available in Pro.</p>
 
+  <h2 id="integration">Report Integration</h2>
+
+  <h3>Tooltips</h3>
+  <p>Hovering a day shows the date, the Main Measure value, the holiday name and the events on that day, plus every measure you place in the <strong>Tooltip Measures</strong> field well. Tooltips also open when a day receives keyboard focus.</p>
+  <p>You can replace the default tooltip with your own <strong>tooltip page</strong>: create a page, set <em>Page information → Allow use as tooltip</em>, then select it under <em>Format → General → Tooltips</em> on the calendar. The page receives the hovered day as its filter context.</p>
+
+  <h3>Number formatting</h3>
+  <p>Values are formatted with the measure's own format string, re-read on every refresh so dynamic format strings written in DAX are respected. Percentages, currencies and decimal precision all carry through. Inside a day cell the value is abbreviated using display units to fit the space; tooltips show full precision. Each Tooltip Measure uses its own column's format.</p>
+
+  <h3>Selection and bookmarks</h3>
+  <p>Clicking a day filters the rest of the page; <kbd>Ctrl</kbd>+click adds to the selection. Selected days are outlined and the rest are dimmed. Bookmarks are supported: the calendar restores its selection when a bookmark is applied, and follows selections cleared elsewhere in the report.</p>
+
   <h2 id="freetrial">Free vs Pro</h2>
   <table>
     <tr><th>Feature</th><th>Free</th><th>Pro ($9.99/mo)</th></tr>
@@ -128,10 +162,38 @@
     <tr><td>Event category colors</td><td>Auto palette</td><td>✅ fully configurable</td></tr>
     <tr><td>Holiday overlay</td><td>✅</td><td>✅</td></tr>
     <tr><td>Tooltip measures</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Report tooltip pages</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Conditional formatting (Day Color)</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Bookmarks</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Keyboard navigation &amp; high contrast</td><td>✅</td><td>✅</td></tr>
     <tr><td>Cross-page filtering</td><td>✅</td><td>✅</td></tr>
     <tr><td>Full format pane</td><td>Basic</td><td>✅ full</td></tr>
     <tr><td>30-day full trial</td><td colspan="2" style="text-align:center">✅ All Pro features during trial</td></tr>
   </table>
+
+  <h2 id="accessibility">Accessibility</h2>
+  <p>The calendar grid is fully operable from the keyboard and adapts to Windows high-contrast themes. Available in Free and Pro alike.</p>
+
+  <h3>Keyboard navigation</h3>
+  <p>Tab into the visual once to reach the day grid, then move within it:</p>
+  <table>
+    <tr><th>Key</th><th>Action</th></tr>
+    <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Move one day</td></tr>
+    <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Move one week (month view) or one day (week view)</td></tr>
+    <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>First / last day of the week</td></tr>
+    <tr><td><kbd>Page Up</kbd> / <kbd>Page Down</kbd></td><td>Previous / next month (month view) or week (week view)</td></tr>
+    <tr><td><kbd>Enter</kbd> or <kbd>Space</kbd></td><td>Filter the report on the focused day</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Add the focused day to the current selection</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Clear the selection and restore slicers</td></tr>
+    <tr><td><kbd>Shift</kbd> + <kbd>F10</kbd></td><td>Open the Power BI context menu on the focused day</td></tr>
+  </table>
+  <p>Moving past the edge of the visible range navigates to the adjacent month or week and keeps focus on the day you moved to. Tooltips open on keyboard focus, so the measures in the <em>Tooltip Measures</em> field well are reachable without a mouse.</p>
+
+  <h3>Screen readers</h3>
+  <p>The calendar is exposed as a grid. Each day announces its full date, the measure value, the holiday name when present, and the names of any events on that day. Selected days are announced as selected, and the month or week label is announced when you navigate.</p>
+
+  <h3>High contrast</h3>
+  <p>When Windows high-contrast mode is on, the visual stops using fill color to carry meaning. Day cells take the theme background and the heatmap intensity is re-encoded as border weight — the heavier the border, the higher the value. Today and the active view button are marked by a thicker border in the theme's selected-foreground color, event badges and legend swatches switch to an outlined style, and all text uses the theme foreground. Your configured colors are left untouched and return as soon as high contrast is turned off.</p>
 
   <h2 id="faq">FAQ</h2>
 
@@ -150,17 +212,108 @@
   <h3>Colors reset after saving the report</h3>
   <p>Event category colors are stored per report. If they reset, check that the Event Category field is still connected and that category names haven't changed in your data source.</p>
 
+  <h3>Keyboard focus is stuck on one day</h3>
+  <p>The grid uses a single tab stop by design: <kbd>Tab</kbd> enters the calendar and the arrow keys move within it, which is how Power BI expects a grid visual to behave. Press <kbd>Tab</kbd> again to leave the calendar and continue to the next visual.</p>
+
+  <h3>My heatmap colors disappeared</h3>
+  <p>Check whether Windows high-contrast mode is on. In that mode the visual deliberately replaces the color ramp with border weight, because high contrast themes forbid encoding meaning in fill color. Your color settings are preserved and return when you turn high contrast off.</p>
+
   <h3>How does the trial work?</h3>
   <p>The 30-day trial gives full Pro access. No credit card required to start. After the trial, the visual switches to the Free tier automatically.</p>
 </main>
 
+<script>
+/* Client-side search over this page. No dependencies, no network.
+   The page is fully visible without JavaScript; this only hides non-matches. */
+(function () {
+  var main = document.querySelector("main");
+  var input = document.getElementById("docsearch");
+  var status = document.getElementById("searchstatus");
+  var empty = document.getElementById("searchempty");
+  if (!main || !input) return;
+
+  var SKIP = { searchbar: 1, searchempty: 1 };
+
+  // A block is a heading plus everything up to the next heading. Level 0 is the
+  // intro material that appears before the first heading.
+  var blocks = [];
+  var current = null;
+  Array.prototype.forEach.call(main.children, function (el) {
+    if (el.id && SKIP[el.id]) return;
+    var isHeading = el.tagName === "H2" || el.tagName === "H3";
+    if (isHeading || !current) {
+      current = { level: isHeading ? (el.tagName === "H2" ? 2 : 3) : 0, els: [], parent: null };
+      if (current.level === 3) {
+        for (var i = blocks.length - 1; i >= 0; i--) {
+          if (blocks[i].level === 2) { current.parent = blocks[i]; break; }
+        }
+      }
+      blocks.push(current);
+    }
+    current.els.push(el);
+  });
+  blocks.forEach(function (b) {
+    b.text = b.els.map(function (e) { return e.textContent || ""; }).join(" ").toLowerCase();
+  });
+
+  function setVisible(block, on) {
+    block.els.forEach(function (el) { el.hidden = !on; });
+  }
+
+  function apply() {
+    var q = input.value.trim().toLowerCase();
+
+    if (!q) {
+      blocks.forEach(function (b) { setVisible(b, true); });
+      status.textContent = "";
+      empty.hidden = true;
+      return;
+    }
+
+    blocks.forEach(function (b) { b.hit = b.level !== 0 && b.text.indexOf(q) !== -1; });
+
+    var matches = 0;
+    blocks.forEach(function (b) {
+      if (b.level === 0) { setVisible(b, false); return; }
+      var show = b.hit || (b.parent && b.parent.hit);
+      if (b.level === 2) {
+        show = b.hit || blocks.some(function (o) { return o.parent === b && o.hit; });
+      }
+      if (b.hit) matches++;
+      setVisible(b, show);
+    });
+
+    status.textContent = matches === 1
+      ? "1 section matches \u201c" + input.value.trim() + "\u201d"
+      : matches + " sections match \u201c" + input.value.trim() + "\u201d";
+    empty.hidden = matches > 0;
+  }
+
+  input.addEventListener("input", apply);
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { input.value = ""; apply(); }
+  });
+
+  // Following a nav anchor while filtered would jump to a hidden section.
+  Array.prototype.forEach.call(document.querySelectorAll('nav a[href^="#"]'), function (a) {
+    a.addEventListener("click", function () {
+      if (input.value) { input.value = ""; apply(); }
+    });
+  });
+})();
+</script>
+
 <footer>
+  <a href="https://tcviz.com/product/calendar-events-heatmap/">Product page</a> ·
+  <a href="https://marketplace.microsoft.com/en-us/product/power-bi-visuals/tino_callarisa.calendar-events-heatmap">Marketplace</a> ·
   <a href="https://tinocallarisa-web.github.io/calendar/privacy.html">Privacy</a> ·
   <a href="https://tinocallarisa-web.github.io/calendar/terms.html">Terms</a> ·
   <a href="https://github.com/tinocallarisa-web/calendar">GitHub</a> ·
+  <a href="https://tinocallarisa-web.github.io/calendar/changelog.html">Changelog</a> ·
   <a href="https://github.com/tinocallarisa-web/calendar/issues">Issues</a> ·
+  <a href="https://github.com/tinocallarisa-web/calendar/discussions">Discussions</a> ·
   <a href="https://www.youtube.com/watch?v=FUELmlkAGNI">Video Demo</a><br><br>
-  © 2025 TCViz · Calendar Events Heatmap v1.0.0.0
+  © 2026 TCViz · Calendar Events Heatmap v1.1.0.0
 </footer>
 </body>
 </html>

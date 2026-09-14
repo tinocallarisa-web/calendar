@@ -1,15 +1,15 @@
 // Calendar by TCViz — base styles
-// Most styling is inline in the SVG/HTML for portability
+//
+// NOTE: pbiviz does not emit this file into the .pbiviz package (content.css is absent
+// in every shipped build from 1.0.0.0 onwards), so nothing defined here reaches the
+// report. The visual's real stylesheet — focus rings, forced-colors and reduced-motion
+// rules — is injected at runtime by `injectStyles()` in src/visual.ts.
+//
+// pbiviz.json requires a `style` entry to exist, so this file is kept as that entry.
+// If a future toolchain version starts bundling it, move the rules back here.
 
 .tcviz-calendar {
   * {
     box-sizing: border-box;
-  }
-
-  button {
-    transition: opacity 0.1s ease;
-    &:hover {
-      opacity: 0.75;
-    }
   }
 }

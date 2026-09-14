@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Changelog — Calendar Events Heatmap by TCViz</title>
+<meta name="description" content="Release history for the Calendar Events Heatmap Power BI custom visual by TCViz.">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#FAF9F5;color:#3D3929;line-height:1.6}
+  header{background:#3D3929;color:#fff;padding:20px 40px;display:flex;align-items:center;gap:16px}
+  header h1{font-size:20px;font-weight:700}
+  header span{font-size:12px;color:#DAD9D4;margin-left:auto}
+  nav{background:#EDE9DE;padding:10px 40px;display:flex;gap:24px;font-size:13px;flex-wrap:wrap}
+  nav a{color:#535146;text-decoration:none;font-weight:600}
+  nav a:hover{color:#C96442}
+  main{max-width:860px;margin:40px auto;padding:0 24px 60px}
+  h2{font-size:18px;font-weight:700;color:#3D3929;margin:36px 0 12px;border-bottom:2px solid #EDE9DE;padding-bottom:6px}
+  h3{font-size:14px;font-weight:700;color:#535146;margin:20px 0 8px}
+  h4{font-size:13px;font-weight:700;color:#83827D;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+  p{font-size:14px;color:#535146;margin-bottom:12px}
+  ul{margin:0 0 12px 20px}
+  li{font-size:14px;color:#535146;margin-bottom:5px}
+  li ul{margin-top:5px}
+  hr{border:0;border-top:1px solid #DAD9D4;margin:28px 0}
+  code{background:#EDE9DE;padding:2px 6px;border-radius:3px;font-size:12px;font-family:ui-monospace,Consolas,monospace}
+  strong{color:#3D3929}
+  footer{text-align:center;font-size:12px;color:#83827D;padding:24px;border-top:1px solid #DAD9D4;margin-top:40px}
+  footer a{color:#C96442;text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 362" width="80" height="35" aria-label="TCViz">
+    <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#B05730"/><stop offset=".55" stop-color="#C96442"/><stop offset="1" stop-color="#9C87F5"/></linearGradient></defs>
+    <g transform="translate(40,46)"><rect x="22" y="20" width="150" height="150" rx="30" fill="none" stroke="url(#g)" stroke-width="11"/><g fill="url(#g)"><rect x="42" y="110" width="20" height="58" rx="5"/><rect x="70" y="86" width="20" height="82" rx="5"/><rect x="98" y="62" width="20" height="106" rx="5"/><rect x="126" y="38" width="20" height="130" rx="5"/></g></g>
+    <text x="258" y="246" font-family="'Segoe UI',sans-serif" font-weight="700" font-size="196" letter-spacing="-4"><tspan fill="url(#g)">tc</tspan><tspan fill="#fff">viz</tspan></text>
+  </svg>
+  <h1>Calendar Events Heatmap — Changelog</h1>
+  <span>v1.1.0.0 &middot; TCViz</span>
+</header>
+<nav>
+  <a href="https://tinocallarisa-web.github.io/calendar/support.html">Support &amp; Docs</a>
+  <a href="https://github.com/tinocallarisa-web/calendar">GitHub</a>
+  <a href="https://github.com/tinocallarisa-web/calendar/issues">Report an Issue</a>
+  <a href="https://github.com/tinocallarisa-web/calendar/discussions">Questions &amp; Ideas</a>
+  <a href="https://www.youtube.com/watch?v=FUELmlkAGNI">Video Tutorial</a>
+  <a href="https://marketplace.microsoft.com/en-us/product/power-bi-visuals/tino_callarisa.calendar-events-heatmap">Get the Visual</a>
+</nav>
+
+<main>
+  <p>All notable changes to this project are documented in this file.</p>
+  <hr>
+  <h2 id="1-1-0-0-2026-09-04">[1.1.0.0] — 2026-09-04</h2>
+  <h3 id="added">Added</h3>
+  <p><strong>Power BI feature support</strong></p>
+  <ul>
+  <li><strong>Report tooltips.</strong> <code>capabilities.json</code> now declares <code>tooltips.supportedTypes.canvas</code>, so a tooltip page can be attached to the visual and is shown for the hovered day. Standard tooltips were already supported; this adds the report-page variant.</li>
+  <li><strong>Dynamic format strings.</strong> Values are formatted with the measure's own format string, read from the column metadata on every update so a DAX-driven format string is picked up. Percentages, currencies, decimal precision and custom formats now render correctly where they previously fell back to a hand-rolled K/M abbreviation. Day cells keep the compact form via display units; tooltips and screen-reader labels show full precision. Each Tooltip Measure is formatted with its own column's format string.</li>
+  <li><strong>Bookmarks.</strong> <code>registerOnSelectCallback</code> keeps the visual's selection in sync when a bookmark, a "clear filters" action or a selection made elsewhere in the report changes it. Previously the visual kept painting a stale selection.</li>
+  <li><strong>Conditional formatting.</strong> A new <strong>Day Color</strong> property under Heatmap Colors carries an fx button. A rule bound to the Main Measure resolves per day and overrides the gradient; a constant value applies to every day. Precedence is rule, then constant, then the gradient.</li>
+  <li><strong>Allow Interactions.</strong> Click, keyboard activation and the context menu now honour <code>host.allowInteractions</code>, so the visual is inert where Power BI asks it to be — for example when used inside a report tooltip page.</li>
+  </ul>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li>Tooltip Measures were aggregated by parsing their own *formatted* strings and stripping every non-numeric character. Any currency symbol, percent sign or thousands separator corrupted the running total. Aggregation now runs on the raw numbers and formatting happens only at display time.</li>
+  </ul>
+  <p><strong>Accessibility</strong></p>
+  <ul>
+  <li>Full keyboard navigation across the day grid. A roving <code>tabindex</code> makes the grid a single tab stop; from there:</li>
+  <ul>
+  <li><code>←</code> <code>→</code> move one day, <code>↑</code> <code>↓</code> move one week (month view) or one day (week view)</li>
+  <li><code>Home</code> / <code>End</code> jump to the first / last day of the week</li>
+  <li><code>Page Up</code> / <code>Page Down</code> jump one month (month view) or one week (week view)</li>
+  <li><code>Enter</code> / <code>Space</code> filter on the focused day; <code>Ctrl</code>/<code>Cmd</code> adds to the selection</li>
+  <li><code>Escape</code> clears the selection so slicers and other visuals return to unfiltered</li>
+  <li><code>Shift+F10</code> / <code>Context Menu</code> opens the Power BI context menu on the focused day</li>
+  <li>Moving past the edge of the visible range navigates to the adjacent month or week and keeps focus on the target day</li>
+  </ul>
+  <li>Visible focus ring on day cells and on all navigation buttons, themed to the configured accent color and drawn with <code>box-shadow</code> so it never collides with the selection outline.</li>
+  <li>Tooltips now open on keyboard focus, not only on hover, so the secondary measures in the <strong>Tooltip Measures</strong> field well are reachable without a mouse.</li>
+  <li>ARIA semantics: <code>role="grid"</code> / <code>rowgroup</code> / <code>row</code> / <code>columnheader</code> / <code>gridcell</code> on the calendar structure, a per-day <code>aria-label</code> announcing date, measure value, holiday and event names, <code>aria-selected</code> on selected days, <code>aria-live</code> on the month/week label, <code>aria-pressed</code> on the Month/Week toggle, <code>aria-label</code> on the navigation buttons, and <code>role="list"</code> on the event category legend.</li>
+  <li>High contrast support via <code>host.colorPalette.isHighContrast</code>. When a high-contrast theme is active the visual stops encoding meaning in fill color: day cells use the theme background with the heatmap intensity re-encoded as border weight (1–4px) in the theme foreground, today and the active view button are marked by a heavier border in the selected-foreground color, event badges and legend swatches switch to outlined style, and all text uses the theme foreground.</li>
+  <li><code>@media (forced-colors: active)</code> and <code>@media (prefers-reduced-motion: reduce)</code> rules so the OS palette and motion preferences win outright.</li>
+  </ul>
+  <h3 id="changed">Changed</h3>
+  <ul>
+  <li><strong>Power BI's own purchase notifications replace the visual's licensing UI.</strong> The "🔒" on the Week button and the "… is available in Calendar Events Heatmap Pro" toast are gone: Microsoft asks visuals not to draw their own licensing UX. A Free user who clicks Week, or sets a Pro option (several months, more events per day, event styling, label and button styling, category colours), gets <code>notifyFeatureBlocked</code> and <code>notifyLicenseRequired</code>, which carry the purchase path. They fire only once the licence is resolved and are cleared when it resolves to Pro.</li>
+  <li><strong>Pro options are visible to Free users</strong>, marked "[Pro]" in the format pane. The Measure Labels, View Buttons and Event Category Colors cards used to be hidden without a licence, so nobody could find them. The pane shows the value the user chose; the visual applies it only with a licence.</li>
+  <li>The package description no longer claims to be "the only" calendar of its kind.</li>
+  <li>Selecting a day now dims the unselected days and draws an outline on the selected ones, in both month and week view, for mouse and keyboard alike.</li>
+  <li><code>capabilities.json</code> already declared <code>supportsKeyboardFocus</code>; this release is what actually implements it.</li>
+  <li><code>style/visual.less</code> is no longer where the stylesheet lives. pbiviz has never emitted it into the package — <code>content.css</code> is absent in every build from 1.0.0.0 onwards — so the rules it declared never reached a report. The stylesheet is now injected at runtime by <code>injectStyles()</code>, which is what makes the keyboard focus ring actually ship.</li>
+  </ul>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li><strong>Week view was reachable without a licence</strong> by setting *Default View = Week*: the toggle was gated, the render path was not. Week view now renders only with a licence.</li>
+  <li><strong>A licence in the <code>Warning</code> state was treated as Free.</strong> Warning is the grace period of a failed payment; the customer has paid and now keeps Pro through it. The 30-day trial configured on the Partner Center plan resolves as Active, as before.</li>
+  <li><strong>Publish to Web, embedding and export no longer ask anyone to buy.</strong> <code>isLicenseUnsupportedEnv</code> and <code>isLicenseInfoAvailable</code> are honoured.</li>
+  <li><strong>Removed a "License Key" text field</strong> from the format pane and <code>capabilities.json</code>. It was never read by the code, and the visual is licensed only through AppSource.</li>
+  <li>Removed the unused <code>TRIAL_DAYS</code> constant and <code>trialActive</code> field.</li>
+  <li>Day keys are parsed back into dates from their explicit year/month/day components. <code>new Date("2025-03-04")</code> is interpreted as UTC midnight and lands on the previous day in any negative UTC offset, which would have moved keyboard focus to the wrong day for users west of UTC.</li>
+  </ul>
+  <hr>
+  <h2 id="1-0-0-3-2026-08-21">[1.0.0.3] — 2026-08-21</h2>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li><strong>Security — XSS.</strong> Removed all four <code>innerHTML</code> assignments and the <code>powerbi-visuals/no-inner-outer-html</code> lint suppressions that accompanied them. <code>buildMonthView()</code>, <code>buildWeekView()</code>, <code>buildSingleMonthGrid()</code> and <code>buildCategoryLegend()</code> now build DOM nodes instead of HTML strings, and every user-supplied value (event name, event category, holiday name, formatted measure) is written through <code>.textContent</code>, which is never interpreted as markup.</li>
+  <li>Added <code>sanitizeColor()</code> and <code>sanitizeFont()</code> so format-pane values are validated before they reach a style attribute.</li>
+  <li>Added input validation in <code>parseDataView()</code>: unparseable dates are skipped, control characters are stripped from event and holiday names, and measure values are checked with <code>isFinite()</code>.</li>
+  <li><code>renderLandingPage()</code> and <code>showUpgradePrompt()</code> rebuilt with DOM nodes.</li>
+  <li>License check now compares <code>plan.state</code> against the numeric <code>ServicePlanState.Active</code> instead of the string <code>"Active"</code>.</li>
+  </ul>
+  <hr>
+  <h2 id="1-0-0-2-2026-08-17">[1.0.0.2] — 2026-08-17</h2>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li>First attempt at the XSS remediation above. Superseded by 1.0.0.3, which completed the conversion away from <code>innerHTML</code>.</li>
+  </ul>
+  <hr>
+  <h2 id="1-0-0-1-2026-08-14">[1.0.0.1] — 2026-08-14</h2>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li><strong>Resizing hid calendar rows.</strong> Day cells carried a fixed <code>min-height: 40px</code>, so a 5–6 row grid had a minimum height above 240px and the bottom rows were silently clipped by <code>overflow: hidden</code> when the visual was made smaller. Cells now use <code>min-height: 0</code> and <code>flex: 1</code>, distributing the available height evenly across week rows at any size.</li>
+  <li>Added <code>min-height: 0</code> at every level of the flex chain so flex shrink propagates through the nested column layouts.</li>
+  <li>Added <code>flex-shrink: 0</code> to the navigation bar, view toggle, day-name header and legend so the controls never yield their space to the grid.</li>
+  <li>Applied to both month and week view.</li>
+  </ul>
+  <hr>
+  <h2 id="1-0-0-0-2026-08-13">[1.0.0.0] — 2026-08-13</h2>
+  <h3 id="added">Added</h3>
+  <p><strong>Core visual</strong></p>
+  <ul>
+  <li>Month view with KPI heatmap — gradient coloring from min to max across visible days</li>
+  <li>Configurable heatmap colors: min, max, and no-data color pickers</li>
+  <li>Day number styling: font size, family, color; separate weekend and holiday colors</li>
+  <li>Previous/Next navigation buttons for month and week views</li>
+  <li>Keyboard accessibility (<code>supportsKeyboardFocus</code>)</li>
+  <li>Cross-page filtering via Power BI <code>selectionManager</code></li>
+  <li>Right-click Power BI context menu support (<code>showContextMenu</code>)</li>
+  <li>Landing page support (<code>supportsLandingPage</code>)</li>
+  <li>Highlight support (<code>supportsHighlight</code>)</li>
+  <li>Multi-visual selection (<code>supportsMultiVisualSelection</code>)</li>
+  <li>Filter state synchronization (<code>supportsSynchronizingFilterState</code>)</li>
+  </ul>
+  <p><strong>Events</strong></p>
+  <ul>
+  <li>Event badges with automatic per-category color palette (auto mode)</li>
+  <li>Per-category event color configuration: up to 8 categories, one color picker each — <strong>Pro</strong></li>
+  <li>Color legend rendered in-visual below Month/Week navigation buttons</li>
+  <li>Single global event color mode with <code>useGlobalColor</code> toggle (when ON, single "Event Color" picker overrides category colors)</li>
+  <li>Event badge text color and font size configuration — <strong>Pro</strong></li>
+  <li>Max events per day (month view) — <strong>Pro</strong></li>
+  </ul>
+  <p><strong>Views</strong></p>
+  <ul>
+  <li>Week view — <strong>Pro</strong></li>
+  <li>Multi-month view: 1–12 months side by side — <strong>Pro</strong></li>
+  <li>Configurable default view (month/week), week start day (Sun/Mon), fiscal calendar with start month offset</li>
+  </ul>
+  <p><strong>Data roles</strong></p>
+  <ul>
+  <li><code>date</code> — calendar date (Grouping)</li>
+  <li><code>mainMeasure</code> — KPI measure for heatmap (Measure)</li>
+  <li><code>secondaryMeasures</code> — tooltip-only measures, multiple fields supported (Measure)</li>
+  <li><code>eventName</code> — event badge label (Grouping)</li>
+  <li><code>eventCategory</code> — event color grouping (Grouping)</li>
+  <li><code>holidayName</code> — holiday overlay label (Grouping)</li>
+  </ul>
+  <p><strong>Format pane</strong></p>
+  <ul>
+  <li>Calendar: Default View, Months to Display, Week Starts On, Fiscal Calendar, Fiscal Year Start Month</li>
+  <li>Heatmap Colors: Min Color, Max Color, No Data Color</li>
+  <li>Day Number: Font Size, Font Family, Color, Weekend Color, Holiday Color</li>
+  <li>Events: Show Events, Max Events per Day, Single color for all events, Event Color (conditional), Event Text Color, Event Font Size</li>
+  <li>Event Category Colors (c0–c7): one picker per category — <strong>Pro</strong></li>
+  <li>Measure Labels: Font Size, Font Family, Color — <strong>Pro</strong></li>
+  <li>View Buttons: Active Button Color, Button Text Color — <strong>Pro</strong></li>
+  </ul>
+  <p><strong>Freemium</strong></p>
+  <ul>
+  <li>Free tier: 1 month view, heatmap, 1 event/day, auto category colors, holidays, tooltip measures, filtering</li>
+  <li>Pro tier ($9.99/month): all Free features + multi-month, week view, configurable events/day, per-category colors, full format pane</li>
+  <li>30-day full Pro trial on first install — no payment required</li>
+  <li>Upgrade toast when Free-tier user attempts a Pro-only action</li>
+  </ul>
+  <p><strong>Documentation</strong></p>
+  <ul>
+  <li><code>support.html</code>, <code>terms.html</code>, <code>privacy.html</code> published to GitHub Pages</li>
+  <li><code>docs/CERTIFICATION-NOTES.md</code></li>
+  <li><code>docs/TIPS-AND-HINTS.md</code> + <code>docs/TIPS-AND-HINTS-PLAIN.txt</code></li>
+  <li><code>docs/WEBSITE-PRODUCT-PAGE.md</code></li>
+  <li><code>docs/YOUTUBE-DESCRIPTION.txt</code></li>
+  <li><code>docs/YOUTUBE-TAGS.txt</code></li>
+  </ul>
+</main>
+
+<footer>
+  <a href="https://tcviz.com/product/calendar-events-heatmap/">Product page</a> &middot;
+  <a href="https://marketplace.microsoft.com/en-us/product/power-bi-visuals/tino_callarisa.calendar-events-heatmap">Marketplace</a> &middot;
+  <a href="https://tinocallarisa-web.github.io/calendar/support.html">Support</a> &middot;
+  <a href="https://tinocallarisa-web.github.io/calendar/privacy.html">Privacy</a> &middot;
+  <a href="https://tinocallarisa-web.github.io/calendar/terms.html">Terms</a> &middot;
+  <a href="https://github.com/tinocallarisa-web/calendar">GitHub</a> &middot;
+  <a href="https://github.com/tinocallarisa-web/calendar/issues">Issues</a><br><br>
+  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.1.0.0
+</footer>
+</body>
+</html>
