@@ -4,6 +4,19 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## [1.1.1.0] — 2026-09-14
+
+### Fixed
+
+- **A paying customer could stay on Free.** `getAvailableServicePlans()` returns each plan's
+  `spIdentifier` as the full Partner Center **Service ID** (`publisher.offer.plan`), as the
+  licensing API documentation states. The visual compared it with the bare plan ID
+  `calendar-tcviz`, which never matches the full Service ID. It now accepts a Service ID
+  ending in `.calendar-tcviz`, and the bare plan ID as well. The 30-day trial resolves the
+  same way.
+
+---
+
 ## [1.1.0.0] — 2026-09-04
 
 ### Added

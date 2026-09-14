@@ -1,9 +1,9 @@
-# Certification Notes — Calendar Events Heatmap v1.1.0.0
+# Certification Notes — Calendar Events Heatmap v1.1.1.0
 
 **Visual GUID:** `calendarTCViz022303184F264C8B9ACE6A13E838FFEB`  
 **Plan ID:** `calendar-tcviz`  
 **Publisher:** TCViz (support@tcviz.com)  
-**Version:** 1.1.0.0  
+**Version:** 1.1.1.0  
 **Submission date:** (fill on submission)
 
 ---

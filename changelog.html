@@ -37,7 +37,7 @@
     <text x="258" y="246" font-family="'Segoe UI',sans-serif" font-weight="700" font-size="196" letter-spacing="-4"><tspan fill="url(#g)">tc</tspan><tspan fill="#fff">viz</tspan></text>
   </svg>
   <h1>Calendar Events Heatmap — Changelog</h1>
-  <span>v1.1.0.0 &middot; TCViz</span>
+  <span>v1.1.1.0 &middot; TCViz</span>
 </header>
 <nav>
   <a href="https://tinocallarisa-web.github.io/calendar/support.html">Support &amp; Docs</a>
@@ -50,6 +50,12 @@
 
 <main>
   <p>All notable changes to this project are documented in this file.</p>
+  <hr>
+  <h2 id="1-1-1-0-2026-09-14">[1.1.1.0] — 2026-09-14</h2>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li><strong>A paying customer could stay on Free.</strong> <code>getAvailableServicePlans()</code> returns each plan's <code>spIdentifier</code> as the full Partner Center <strong>Service ID</strong> (<code>publisher.offer.plan</code>), as the licensing API documentation states. The visual compared it with the bare plan ID <code>calendar-tcviz</code>, which never matches the full Service ID. It now accepts a Service ID ending in <code>.calendar-tcviz</code>, and the bare plan ID as well. The 30-day trial resolves the same way.</li>
+  </ul>
   <hr>
   <h2 id="1-1-0-0-2026-09-04">[1.1.0.0] — 2026-09-04</h2>
   <h3 id="added">Added</h3>
@@ -203,7 +209,7 @@
   <a href="https://tinocallarisa-web.github.io/calendar/terms.html">Terms</a> &middot;
   <a href="https://github.com/tinocallarisa-web/calendar">GitHub</a> &middot;
   <a href="https://github.com/tinocallarisa-web/calendar/issues">Issues</a><br><br>
-  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.1.0.0
+  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.1.1.0
 </footer>
 </body>
 </html>

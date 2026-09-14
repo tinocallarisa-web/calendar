@@ -1,4 +1,6 @@
-Calendar Events Heatmap 1.1.0.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
+Calendar Events Heatmap 1.1.1.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
+Replaces 1.1.0.0. Licence fix: spIdentifier is the full Service ID (publisher.offer.plan);
+the check now accepts one ending in ".calendar-tcviz".
 Full notes: docs/CERTIFICATION-NOTES.md in the repo.
 
 REPO + URLs

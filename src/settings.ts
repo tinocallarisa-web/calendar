@@ -1,5 +1,16 @@
-// SP_IDENTIFIER must match Plan ID in Partner Center exactly
+// SP_IDENTIFIER: Plan ID, la última parte del Service ID de Partner Center
 export const SP_IDENTIFIER = "calendar-tcviz";
+
+/**
+ * spIdentifier es el Service ID completo de Partner Center ("editor.oferta.plan", p.ej.
+ * "tino_callarisa.calendar-events-heatmap.calendar-tcviz"), no el Plan ID corto: lo dice
+ * la documentación de la licensing API. Comparar solo con el Plan ID dejaba en Free a quien
+ * pagaba. Se acepta el Service ID que termina en ".<plan>" y también el Plan ID.
+ */
+export function matchesPlan(spIdentifier: unknown, planId: string): boolean {
+  const sp = String(spIdentifier ?? "");
+  return sp === planId || sp.endsWith("." + planId);
+}
 // La prueba de 30 días la gestiona el plan de Partner Center (se ve como plan Active):
 // el visual no lleva lógica de prueba propia.
 

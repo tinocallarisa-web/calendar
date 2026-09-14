@@ -1,7 +1,7 @@
 /// <reference types="powerbi-visuals-api" />
 import powerbi from "powerbi-visuals-api";
 import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
-import { SP_IDENTIFIER, CalendarSettings, parseSettings, freeSettings, defaultSettings } from "./settings";
+import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings } from "./settings";
 
 type IValueFormatter = ReturnType<typeof valueFormatter.create>;
 
@@ -1262,7 +1262,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           const plans: any[] = result?.plans ?? [];
           // ServicePlanState: Active = 1, Warning = 2. Warning es el periodo de gracia de un
           // cobro fallido: el cliente ya pagó y conserva Pro. La prueba de 30 días llega como Active.
-          resolve(plans.some(p => p.spIdentifier === SP_IDENTIFIER &&
+          resolve(plans.some(p => matchesPlan(p.spIdentifier, SP_IDENTIFIER) &&
             ((p.state as unknown as number) === 1 || (p.state as unknown as number) === 2)));
         },
         () => { this.licenseInfoAvailable = false; resolve(false); }
