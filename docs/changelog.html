@@ -37,7 +37,7 @@
     <text x="258" y="246" font-family="'Segoe UI',sans-serif" font-weight="700" font-size="196" letter-spacing="-4"><tspan fill="url(#g)">tc</tspan><tspan fill="#fff">viz</tspan></text>
   </svg>
   <h1>Calendar Events Heatmap — Changelog</h1>
-  <span>v1.1.1.0 &middot; TCViz</span>
+  <span>v1.1.2.0 &middot; TCViz</span>
 </header>
 <nav>
   <a href="https://tinocallarisa-web.github.io/calendar/support.html">Support &amp; Docs</a>
@@ -50,6 +50,25 @@
 
 <main>
   <p>All notable changes to this project are documented in this file.</p>
+  <hr>
+  <h2 id="1-1-2-0-2026-09-20">[1.1.2.0] — 2026-09-20</h2>
+  <h3 id="added">Added</h3>
+  <ul>
+  <li><strong>Pro preview while editing.</strong> Without a licence, in edit mode, the Pro features (week view, multiple events per day and per-category colours) now render working under a "Pro preview" watermark, as Microsoft's publishing guidelines allow for paid features. In reading view, before the licence resolves, or where Power BI cannot check licences (Publish to Web, embedding, export), the free result is shown with no watermark.</li>
+  <li><strong><code>build-test.js --free</code></strong>: builds with the real licence instead of forcing Pro. It is the only mode in which the preview, the watermark and the purchase notices can be tested.</li>
+  </ul>
+  <h3 id="certification">Certification</h3>
+  <ul>
+  <li><code>npm audit</code>: de 14 avisos (1 alto, 9 moderados) a <strong>7 (0 altos, 3 moderados, 4 bajos)</strong>, con <code>overrides</code> de <code>uuid</code> y <code>elliptic</code>. **<code>ajv</code> moderado no se puede resolver sin subir <code>powerbi-visuals-tools</code>**: forzar <code>ajv@8</code> rompe el build (el ESLint interno de tools 5.6 necesita <code>ajv@6</code>). Queda declarado como hueco conocido.</li>
+  <li><strong>ESLint no existía en el repo</strong>: ni dependencia, ni plugin, ni configuración, ni script. Añadidos <code>eslint@^9</code>, <code>eslint-plugin-powerbi-visuals</code>, <code>eslint.config.mjs</code> y el script <code>"eslint"</code> que pide certificación. Sin errores (<code>tools/</code> y <code>build-test.js</code> excluidos por ser utilidades locales, no parte del visual).</li>
+  <li><strong>Localización creada desde cero.</strong> No había carpeta <code>stringResources</code> y <code>pbiviz.json</code> la declaraba como <code>[]</code>. Ahora hay <code>resources.resjson</code> con 50 cadenas, las 46 entradas de <code>capabilities.json</code> (6 roles, 7 objetos, 33 propiedades) llevan su <code>displayNameKey</code>, y el visual llama a <code>createLocalizationManager()</code> para el texto del aviso de compra.</li>
+  <li><code>build-test.js</code> admite <code>--free</code>, el único modo en el que se pueden probar la vista previa, la marca de agua y los avisos de compra.</li>
+  </ul>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li><strong>Only one purchase notice reached the user.</strong> <code>notifyLicenseRequired</code> and <code>notifyFeatureBlocked</code> were called back to back, and Power BI shows a single notification at a time, so the second replaced the first. The previous notice is now cleared first, the banner names only the newly activated features, and the persistent Upgrade bar follows once the banner ends (~10.5 s). Pattern verified in Risk Matrix Pro in the Power BI service.</li>
+  <li>Clicking the Week button still notifies, even if that feature was already announced.</li>
+  </ul>
   <hr>
   <h2 id="1-1-1-0-2026-09-14">[1.1.1.0] — 2026-09-14</h2>
   <h3 id="fixed">Fixed</h3>
@@ -209,7 +228,7 @@
   <a href="https://tinocallarisa-web.github.io/calendar/terms.html">Terms</a> &middot;
   <a href="https://github.com/tinocallarisa-web/calendar">GitHub</a> &middot;
   <a href="https://github.com/tinocallarisa-web/calendar/issues">Issues</a><br><br>
-  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.1.1.0
+  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.1.2.0
 </footer>
 </body>
 </html>

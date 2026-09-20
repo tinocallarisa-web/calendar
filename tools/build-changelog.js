@@ -19,7 +19,8 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const SRC = path.join(ROOT, "CHANGELOG.md");
-const OUT = path.join(ROOT, "changelog.html");
+// Pages sirve desde /docs (el repo es privado y servir desde la raiz expondria src/).
+const OUT = path.join(ROOT, "docs", "changelog.html");
 const PBIVIZ = path.join(ROOT, "pbiviz.json");
 
 const REPO = "https://github.com/tinocallarisa-web/calendar";
