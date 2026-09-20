@@ -1,4 +1,4 @@
-# Calendar Events Heatmap — Tips & Hints
+# Calendar Events Heatmap — Tips & Hints (v1.1.2.0)
 
 **Version 1.0.0.0 · TCViz**  
 Demo video: https://www.youtube.com/watch?v=FUELmlkAGNI
@@ -82,7 +82,15 @@ Full font and color control for the measure value labels and the Month/Week navi
 | Full format pane | Basic | ✅ Full |
 | 30-day full trial | ✅ All Pro features | — |
 
-To unlock Pro: click the lock icon or visit Microsoft AppSource to purchase the plan.
+**While you are editing the report without a licence**, Pro options render working under a
+*Pro preview* watermark, and Power BI shows its own notice with the purchase option. In
+reading view — and wherever Power BI cannot check licences, such as Publish to Web, embedding
+or export — the free result is shown with no watermark, so a published report never uses a
+Pro feature you have not paid for.
+
+To unlock Pro, use the Upgrade option in Power BI's own notice, or buy the plan on Microsoft
+AppSource. (The old lock icon was removed: Microsoft asks visuals not to draw their own
+licensing UI.)
 
 ---
 
@@ -143,5 +151,7 @@ Your measure may have zero variance. Check the measure formula or try switching 
 **Slicers stop working after clicking a day**  
 Click on an empty area of the visual to deselect. Day selection activates cross-filtering; deselecting restores slicer-driven filters.
 
-**Clicking Week keeps month view**  
-Week view is a Pro feature. Power BI shows its own notice with the option to start the 30-day trial or buy Pro on Microsoft AppSource.
+**Clicking Week shows a watermark**  
+Week view is a Pro feature. While you edit the report it renders under the *Pro preview*
+watermark so you can see what you would get, and Power BI shows its notice with the option to
+start the 30-day trial or buy Pro. In reading view it stays in month view with no watermark.

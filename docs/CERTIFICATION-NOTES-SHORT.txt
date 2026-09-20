@@ -1,46 +1,46 @@
-Calendar Events Heatmap 1.1.1.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
-Replaces 1.1.0.0. Licence fix: spIdentifier is the full Service ID (publisher.offer.plan);
-the check now accepts one ending in ".calendar-tcviz".
+Calendar Events Heatmap 1.1.2.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
+Repo, branch certification: https://github.com/tinocallarisa-web/calendar/tree/certification
+Pages site: https://tinocallarisa-web.github.io/calendar/
+  -> support.html · privacy.html · terms.html
+Video: https://www.youtube.com/watch?v=FUELmlkAGNI
+
+WHY THIS SUBMISSION
+Replaces 1.1.0.0 (1.1.1.0 was never sent; included here). Purchase notice fixed,
+watermarked Pro preview, new brand icon.
+
+PLEASE READ FIRST - PRO PREVIEW
+Without a licence, IN EDIT MODE ONLY, Pro options render working under a "Pro preview"
+watermark, which the guidelines allow for paid features. Intentional, not missing gating.
+In reading view, before the licence resolves, and where licences cannot be read (Publish to
+Web, embed, export) the FREE result is drawn with no watermark, so a published report never
+uses an unpaid Pro feature.
+
+TESTING - FREE (no active plan)
+1. Date + Main Measure: heatmap renders. Add Event Name: 1 badge per day.
+2. In EDIT mode click Week: the week view renders under the watermark, a banner names the
+   feature and after ~10 s Power BI's Upgrade bar appears. Clicking Week always notifies.
+3. Months to Display [Pro] = 3: three months render under the watermark.
+4. Switch to reading view: month view, 1 badge per day, no watermark and no notice.
+5. Click a day: other visuals filter. Arrows move focus, Enter selects, Escape clears.
+6. Resize smaller: all week rows stay visible.
+
+TESTING - PRO (active "calendar-tcviz" plan or its 30-day trial)
+1. Week view and 3 months: no watermark, no notice.
+2. Event Category Colors apply to badges and legend.
+
+PRIVACY/NETWORK
+No network calls, telemetry, cookies or storage. privileges: []. No innerHTML.
+ESLint (eslint-plugin-powerbi-visuals) clean.
+
+LICENSING
+IVisualLicenseManager only. Pro when the full Service ID ends in ".calendar-tcviz" and state
+is Active or Warning; the 30-day trial resolves as Active. Requested once after the first
+render, never blocks it; failure stays Free with no prompts. No licensing UI of our own.
+
+KNOWN GAPS
+1. npm audit reports 3 moderate findings, all from "ajv" inside powerbi-visuals-tools 5.6.
+   They cannot be fixed here: forcing ajv 8 breaks the build because the ESLint bundled with
+   those tools requires ajv 6. Went from 14 findings (1 high) to 7 (0 high) via overrides.
+2. Format pane still uses enumerateObjectInstances; getFormattingModel is planned.
+
 Full notes: docs/CERTIFICATION-NOTES.md in the repo.
-
-REPO + URLs
-github.com/tinocallarisa-web/calendar (public), branch "certification".
-tinocallarisa-web.github.io/calendar/ + support.html, privacy.html, terms.html
-Video youtube.com/watch?v=FUELmlkAGNI
-
-WHAT CHANGED IN 1.1.0.0
-- Keyboard navigation (roving tabindex, arrows, Home/End, PageUp/Down, Enter, Escape,
-  Shift+F10), ARIA grid semantics, high contrast.
-- Conditional formatting: Day Color with fx rule on Main Measure. Dynamic format strings,
-  report tooltips, bookmarks, allowInteractions.
-- No licensing UI of our own: the Week lock icon and upgrade toast are gone. Free users
-  trying a Pro option get Power BI's notifyFeatureBlocked / notifyLicenseRequired.
-- Pro format cards and options visible to everyone, marked [Pro].
-- Removed an unused "License Key" format property.
-- Week view no longer reachable in Free via Default View.
-
-LICENCE
-IVisualLicenseManager only: getAvailableServicePlans() against Plan ID "calendar-tcviz",
-once, after the first render. Active and Warning accepted; the 30-day plan trial resolves
-as Active. isLicenseUnsupportedEnv / isLicenseInfoAvailable honoured (no prompt where the
-licence cannot be read). No external calls; privileges is []. No innerHTML.
-
-FREE VS PRO
-Free: month view (1 month), heatmap, fx Day Color, 1 event per day, holidays, tooltips,
-cross-filtering, keyboard, high contrast.
-Pro: week view, 1-12 months, more events per day, event/label/button styling, category
-colours.
-
-TESTING - FREE (submitted package, no plan)
-1. Date + Main Measure: heatmap renders. Add Event Name: max 1 badge per day.
-2. Click Week: stays in month view, Power BI shows its licence notice.
-3. Months to Display [Pro] = 3: stays at 1 month, notice shown.
-4. Resize smaller: all week rows stay visible.
-5. Click a day: other visuals filter. Arrow keys move focus.
-
-TESTING - PRO (active "calendar-tcviz" plan or trial)
-1. Week view works; no notice.
-2. Months to Display = 3: three months side by side.
-3. Event Category Colors: colours apply to badges and legend.
-
-Rendering events on every path of update().

@@ -1,5 +1,5 @@
 CALENDAR EVENTS HEATMAP — TIPS & HINTS
-Version 1.0.0.0 · TCViz
+Version 1.1.2.0 · TCViz
 Demo: https://www.youtube.com/watch?v=FUELmlkAGNI
 ────────────────────────────────────────────────────────
 
@@ -85,6 +85,13 @@ Cross-page filtering ..... Included ....  Included
 Full format pane ......... Basic .......  Full
 30-day full Pro trial .... Included on first install
 
+While you EDIT the report without a licence, Pro options render
+working under a "Pro preview" watermark and Power BI shows its
+notice with the purchase option. In reading view — and wherever
+Power BI cannot check licences (Publish to Web, embedding,
+export) — the free result is shown with no watermark, so a
+published report never uses a Pro feature you have not paid for.
+
 
 TIPS & BEST PRACTICES
 ─────────────────────
@@ -151,6 +158,9 @@ Slicers stop working after clicking a day:
   Click an empty area in the visual to deselect.
   Day selection activates cross-filtering.
 
-Clicking Week keeps month view:
-  Week view is Pro. Power BI shows a notice with the
-  option to start the 30-day trial or buy on AppSource.
+Clicking Week shows a watermark:
+  Week view is Pro. While you edit, it renders under the
+  "Pro preview" watermark so you can see what you would get,
+  and Power BI shows a notice with the option to start the
+  30-day trial or buy on AppSource. In reading view it stays
+  in month view with no watermark.
