@@ -49,6 +49,14 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private licenseInfoAvailable: boolean = true;  // false si la licencia no se pudo leer
   private licenseIconShown: boolean = false;
   private lastBlockedNotice: string = "";
+  /** Funciones Pro de las que ya se avisó en esta sesión de edición */
+  private notifiedPro: string[] = [];
+  /** Temporizador que deja la barra de Upgrade cuando termina el banner */
+  private licenseIconTimer: number | null = null;
+  private localization: powerbi.extensibility.ILocalizationManager;
+  /** Vista previa Pro: Free, editando, con la licencia ya resuelta y legible */
+  private proPreview: boolean = false;
+  private watermarkEl: HTMLDivElement;
 
   /** Lo que se pinta: en Free, las opciones Pro vuelven a su valor por defecto. */
   private settings: CalendarSettings = defaultSettings;
@@ -94,6 +102,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.events = options.host.eventService;
     this.selectionManager = options.host.createSelectionManager();
     this.licenseManager = (options.host as any).licenseManager;
+    // Localización de los textos que muestra el visual en tiempo de ejecución.
+    this.localization = options.host.createLocalizationManager();
 
     // Root container
     this.container = document.createElement("div");
@@ -107,6 +117,19 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       box-sizing: border-box;
       position: relative;
     `;
+    // Marca de agua de la vista previa Pro. Blanca con contorno oscuro y opacidad 0.55:
+    // un gris translúcido desaparece sobre celdas saturadas y fondos oscuros. No intercepta
+    // clics ni entra en el recorrido del lector de pantalla.
+    this.watermarkEl = document.createElement("div");
+    this.watermarkEl.setAttribute("aria-hidden", "true");
+    this.watermarkEl.textContent = "Pro preview";
+    this.watermarkEl.style.cssText =
+      "position:absolute;left:0;top:0;right:0;bottom:0;display:none;align-items:center;" +
+      "justify-content:center;pointer-events:none;z-index:5;font:700 32px 'Segoe UI',sans-serif;" +
+      "color:#FFFFFF;opacity:0.55;transform:rotate(-20deg);" +
+      "text-shadow:0 0 2px rgba(51,51,51,0.85),0 1px 3px rgba(51,51,51,0.65);";
+    this.container.appendChild(this.watermarkEl);
+
     options.element.appendChild(this.container);
     this.injectStyles();
 
@@ -179,14 +202,25 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       // Landing page — no data yet
       if (!dataView?.table) {
+        this.proPreview = false;
+        this.updateWatermark();   // nada que pintar: tampoco marca
         this.renderLandingPage();
         this.events.renderingFinished(options);
         return;
       }
 
       this.lastDataView = dataView;
+      // Vista previa Pro: solo en edición (ViewMode View=0), con la licencia ya resuelta y
+      // en un entorno donde se puede leer. En lectura, antes de resolver, o donde no se
+      // puede leer (Publish to Web, export), se pinta el resultado gratuito sin marca:
+      // ahí un cliente que paga se leería como Free.
+      const viewMode = (options as any).viewMode;
+      const editing  = typeof viewMode === "number" && viewMode !== 0;
+      this.proPreview = !this.isPro && editing && this.licenseResolved
+        && this.licenseEnvSupported && this.licenseInfoAvailable;
+
       this.rawSettings = parseSettings(dataView);
-      this.settings = this.isPro ? this.rawSettings : freeSettings(this.rawSettings);
+      this.settings = (this.isPro || this.proPreview) ? this.rawSettings : freeSettings(this.rawSettings);
       // Apply "Default View" only on first load; after that preserve user's choice
       if (!this.viewInitialized) {
         this.currentView = this.settings.calendar.view;
@@ -220,6 +254,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       // Request license after render (never blocks render)
       this.requestLicenseDeferred();
       this.notifyProBlocked();
+      this.updateWatermark();
 
       this.events.renderingFinished(options);
     } catch (e) {
@@ -420,7 +455,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.container.style.setProperty("--tcviz-focus-halo", this.hc ? this.hcBg : "#FAF9F5");
 
     // La vista semanal es Pro. Antes bastaba con "Default View = Week" para verla en Free.
-    const view = (this.currentView === "week" && this.isPro)
+    const view = (this.currentView === "week" && (this.isPro || this.proPreview))
       ? this.buildWeekView()
       : this.buildMonthView();
 
@@ -671,7 +706,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const isWeekend = date.getDay() === 0 || date.getDay() === 6;
         const isHoliday = day?.isHoliday ?? false;
         const eventsArr = day?.events ?? [];
-        const maxEvt = this.isPro ? this.settings.events.maxEventsVisible : 1;
+        const maxEvt = (this.isPro || this.proPreview) ? this.settings.events.maxEventsVisible : 1;
         const visibleEvents = showEvents ? eventsArr.slice(0, maxEvt) : [];
         const moreCount = showEvents ? eventsArr.length - visibleEvents.length : 0;
 
@@ -1095,7 +1130,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const viewBtn = (e.target as HTMLElement).closest("[data-view]") as HTMLElement;
       if (!viewBtn) return;
       const requested = viewBtn.dataset.view as "month" | "week";
-      if (!this.isPro && requested === "week") {
+      if (!this.isPro && !this.proPreview && requested === "week") {
         this.notifyProBlocked("week view");   // aviso de Power BI con la ruta de compra
         return;
       }
@@ -1310,25 +1345,67 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     if (!this.licenseEnvSupported || !this.licenseInfoAvailable) return;
 
     const lm = this.licenseManager;
-    if (!this.licenseIconShown) {
-      this.licenseIconShown = true;
-      // LicenseNotificationType.General es const enum: 0 en runtime
-      try { lm?.notifyLicenseRequired?.(0); } catch (_) { /* best effort */ }
-    }
-    const sig = wanted.join("|");
-    if (!clicked && sig === this.lastBlockedNotice) return;   // no repetir en cada resize
-    this.lastBlockedNotice = sig;
-    const one = wanted.length === 1;
-    const list = one ? wanted[0] : wanted.slice(0, -1).join(", ") + " and " + wanted[wanted.length - 1];
+
+    // Power BI muestra UNA notificación a la vez y la última sustituye a la anterior
+    // (verificado en Risk Matrix, en el servicio, 2026-09-16). Llamar a notifyFeatureBlocked
+    // y notifyLicenseRequired seguidos dejaba solo una visible. Secuencia correcta: retirar
+    // lo anterior, banner con la función concreta, y al terminar (~10 s) la barra de Upgrade.
+    const added = wanted.filter(w => this.notifiedPro.indexOf(w) === -1);
+    this.notifiedPro = wanted.slice();
+    // Un clic sobre un control Pro siempre merece aviso, aunque ya se hubiera avisado.
+    if (added.length === 0 && !clicked) return;
+    const show0 = added.length ? added : [clicked as string];
+    this.licenseIconShown = true;
+    this.lastBlockedNotice = wanted.join("|");
+    const one = show0.length === 1;
+    const list = one ? show0[0] : show0.slice(0, -1).join(", ") + " and " + show0[show0.length - 1];
+    // El texto sale de stringResources; el literal queda como respaldo si falta la clave.
+    const tpl = this.localization?.getDisplayName(one ? "LicenceNotice_One" : "LicenceNotice_Many")
+      || `Calendar Events Heatmap: {0} ${one ? "is" : "are"} part of the Pro plan, shown as a watermarked preview.`;
+    const msg = tpl.replace("{0}", list);
+
+    const show = () => {
+      try { lm?.notifyFeatureBlocked?.(msg.slice(0, 500)); } catch (_) { /* best effort */ }
+      this.cancelLicenseIcon();
+      this.licenseIconTimer = window.setTimeout(() => {
+        this.licenseIconTimer = null;
+        if (this.isPro || this.notifiedPro.length === 0) return;
+        // LicenseNotificationType.General es const enum: 0 en runtime
+        try { lm?.notifyLicenseRequired?.(0); } catch (_) { /* best effort */ }
+      }, 10500);
+    };
     try {
-      lm?.notifyFeatureBlocked?.(
-        `Calendar Events Heatmap: ${list} ${one ? "is" : "are"} part of the Pro plan. ` +
-        `Get a licence to enable ${one ? "it" : "them"}.`);
-    } catch (_) { /* best effort */ }
+      const cleared = lm?.clearLicenseNotification?.();
+      if (cleared && typeof cleared.then === "function") { cleared.then(show, show); }
+      else { show(); }
+    } catch (_) { show(); }
+  }
+
+  /**
+   * La marca solo sale si el usuario ha pedido de verdad algo de pago, y su tamaño sigue al
+   * ancho del visual: un font-size fijo se queda ridículo a pantalla completa, que es justo
+   * donde lo mira el revisor.
+   */
+  private updateWatermark(): void {
+    const show = this.proPreview && this.attemptedPro().length > 0;
+    this.watermarkEl.style.display = show ? "flex" : "none";
+    if (!show) { return; }
+    const width = this.container.clientWidth || 0;
+    const size  = Math.max(20, Math.min(72, Math.round(width * 0.09)));
+    this.watermarkEl.style.fontSize = `${size}px`;
+  }
+
+  private cancelLicenseIcon(): void {
+    if (this.licenseIconTimer !== null) {
+      window.clearTimeout(this.licenseIconTimer);
+      this.licenseIconTimer = null;
+    }
   }
 
   private clearLicenseNotice(): void {
     this.lastBlockedNotice = "";
+    this.notifiedPro = [];
+    this.cancelLicenseIcon();
     if (!this.licenseIconShown) return;
     this.licenseIconShown = false;
     try { this.licenseManager?.clearLicenseNotification?.(); } catch (_) { /* best effort */ }
@@ -1660,7 +1737,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   /** Returns the user-configured color for the event category, or falls back to the auto-palette. */
   private getCategoryColor(category: string): string {
     const idx = this.uniqueEventCategories.indexOf(category);
-    if (this.isPro && idx >= 0 && idx < 8) {   // colores por categoría: Pro
+    if ((this.isPro || this.proPreview) && idx >= 0 && idx < 8) {   // colores por categoría: Pro
       const obj = this.lastDataView?.metadata?.objects?.["eventCategoryColors"];
       const configured = (obj?.[`c${idx}`] as any)?.solid?.color;
       if (configured) return this.sanitizeColor(configured, this.categoryColor(category));

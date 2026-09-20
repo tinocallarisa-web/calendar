@@ -4,7 +4,11 @@
  * Patches visual.ts and pbiviz.json for a test build (isPro=true, guid_test),
  * runs pbiviz package, then restores both files.
  *
- * Usage: node build-test.js
+ * Usage: node build-test.js            → Pro forzado, guid <real>_test
+ *        node build-test.js --free     → licencia real (Free), guid <real>_testfree
+ *
+ * El modo --free es el ÚNICO con el que se puede probar la vista previa Pro, su marca
+ * de agua y los avisos de compra: con Pro forzado no se muestran, por diseño.
  */
 
 const fs = require("fs");
@@ -16,6 +20,8 @@ const PBIVIZ_JSON = path.join(__dirname, "pbiviz.json");
 
 const ISPRO_MARKER = "private isPro: boolean = false; // ISPRO_MARKER";
 const ISPRO_PATCHED = "private isPro: boolean = true; // ISPRO_MARKER";
+const forceFree = process.argv.includes("--free");
+const suffix = forceFree ? "_testfree" : "_test";
 
 // ── Read originals ───────────────────────────────────────────────────────────
 const originalVisual = fs.readFileSync(VISUAL_TS, "utf8");
@@ -44,12 +50,16 @@ process.on("uncaughtException", (e) => { console.error(e); restore(); process.ex
 
 try {
   // ── Patch ─────────────────────────────────────────────────────────────────
-  const patchedVisual = originalVisual.replace(ISPRO_MARKER, ISPRO_PATCHED);
+  // En modo --free no se parchea isPro: se deja que resuelva el licenseManager real.
+  const patchedVisual = forceFree
+    ? originalVisual
+    : originalVisual.replace(ISPRO_MARKER, ISPRO_PATCHED);
   fs.writeFileSync(VISUAL_TS, patchedVisual, "utf8");
 
-  pbivizObj.visual.guid = originalGuid + "_test";
+  pbivizObj.visual.guid = originalGuid + suffix;
   fs.writeFileSync(PBIVIZ_JSON, JSON.stringify(pbivizObj, null, 2), "utf8");
 
+  console.log(`🔧 Tier: ${forceFree ? "Free (licencia real)" : "Pro (forzado)"}`);
   console.log(`🔧 Patched: guid → ${pbivizObj.visual.guid}`);
   console.log("📦 Running pbiviz package...");
 

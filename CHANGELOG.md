@@ -4,6 +4,43 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## [1.1.2.0] — 2026-09-20
+
+### Added
+- **Pro preview while editing.** Without a licence, in edit mode, the Pro features (week view,
+  multiple events per day and per-category colours) now render working under a "Pro preview"
+  watermark, as Microsoft's publishing guidelines allow for paid features. In reading view,
+  before the licence resolves, or where Power BI cannot check licences (Publish to Web,
+  embedding, export), the free result is shown with no watermark.
+- **`build-test.js --free`**: builds with the real licence instead of forcing Pro. It is the
+  only mode in which the preview, the watermark and the purchase notices can be tested.
+
+### Certification
+- `npm audit`: de 14 avisos (1 alto, 9 moderados) a **7 (0 altos, 3 moderados, 4 bajos)**,
+  con `overrides` de `uuid` y `elliptic`. **`ajv` moderado no se puede resolver sin subir
+  `powerbi-visuals-tools`**: forzar `ajv@8` rompe el build (el ESLint interno de tools 5.6
+  necesita `ajv@6`). Queda declarado como hueco conocido.
+- **ESLint no existía en el repo**: ni dependencia, ni plugin, ni configuración, ni script.
+  Añadidos `eslint@^9`, `eslint-plugin-powerbi-visuals`, `eslint.config.mjs` y el script
+  `"eslint"` que pide certificación. Sin errores (`tools/` y `build-test.js` excluidos por
+  ser utilidades locales, no parte del visual).
+- **Localización creada desde cero.** No había carpeta `stringResources` y `pbiviz.json`
+  la declaraba como `[]`. Ahora hay `resources.resjson` con 50 cadenas, las 46 entradas de
+  `capabilities.json` (6 roles, 7 objetos, 33 propiedades) llevan su `displayNameKey`, y el
+  visual llama a `createLocalizationManager()` para el texto del aviso de compra.
+- `build-test.js` admite `--free`, el único modo en el que se pueden probar la vista previa,
+  la marca de agua y los avisos de compra.
+
+### Fixed
+- **Only one purchase notice reached the user.** `notifyLicenseRequired` and
+  `notifyFeatureBlocked` were called back to back, and Power BI shows a single notification
+  at a time, so the second replaced the first. The previous notice is now cleared first, the
+  banner names only the newly activated features, and the persistent Upgrade bar follows once
+  the banner ends (~10.5 s). Pattern verified in Risk Matrix Pro in the Power BI service.
+- Clicking the Week button still notifies, even if that feature was already announced.
+
+---
+
 ## [1.1.1.0] — 2026-09-14
 
 ### Fixed
