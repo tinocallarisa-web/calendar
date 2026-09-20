@@ -56,6 +56,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private localization: powerbi.extensibility.ILocalizationManager;
   /** Vista previa Pro: Free, editando, con la licencia ya resuelta y legible */
   private proPreview: boolean = false;
+  /** Modo edición (ViewMode != 0). Se guarda para poder recalcular la vista previa
+      cuando la licencia responde, que ocurre después del primer pintado. */
+  private editing: boolean = false;
   private watermarkEl: HTMLDivElement;
 
   /** Lo que se pinta: en Free, las opciones Pro vuelven a su valor por defecto. */
@@ -215,9 +218,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       // puede leer (Publish to Web, export), se pinta el resultado gratuito sin marca:
       // ahí un cliente que paga se leería como Free.
       const viewMode = (options as any).viewMode;
-      const editing  = typeof viewMode === "number" && viewMode !== 0;
-      this.proPreview = !this.isPro && editing && this.licenseResolved
-        && this.licenseEnvSupported && this.licenseInfoAvailable;
+      this.editing = typeof viewMode === "number" && viewMode !== 0;
+      this.proPreview = this.computePreview();
 
       this.rawSettings = parseSettings(dataView);
       this.settings = (this.isPro || this.proPreview) ? this.rawSettings : freeSettings(this.rawSettings);
@@ -519,7 +521,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
   private buildMonthView(): HTMLElement {
     // Free tier: single month only
-    const n = this.isPro
+    // La vista previa cuenta como Pro a efectos de pintado: este gate se saltaba
+    // proPreview y forzaba un mes aunque los ajustes ya trajeran tres.
+    const n = (this.isPro || this.proPreview)
       ? Math.max(1, this.settings.calendar.monthsToShow ?? 1)
       : 1;
     const weekStart = this.settings.calendar.weekStart;
@@ -584,7 +588,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const weekBtn = document.createElement("button");
     weekBtn.setAttribute("data-view", "week");
     weekBtn.setAttribute("type", "button");
-    weekBtn.setAttribute("aria-label", this.isPro ? "Week view" : "Week view (Pro feature)");
+    weekBtn.setAttribute("aria-label", (this.isPro || this.proPreview) ? "Week view" : "Week view (Pro feature)");
     weekBtn.setAttribute("aria-pressed", String(this.currentView === "week"));
     weekBtn.style.cssText = this.viewBtnStyle(false);
     weekBtn.textContent = "Week";
@@ -901,7 +905,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const weekBtn = document.createElement("button");
     weekBtn.setAttribute("data-view", "week");
     weekBtn.setAttribute("type", "button");
-    weekBtn.setAttribute("aria-label", this.isPro ? "Week view" : "Week view (Pro feature)");
+    weekBtn.setAttribute("aria-label", (this.isPro || this.proPreview) ? "Week view" : "Week view (Pro feature)");
     weekBtn.setAttribute("aria-pressed", String(this.currentView === "week"));
     weekBtn.style.cssText = this.viewBtnStyle(true);
     weekBtn.textContent = "Week";
@@ -1130,12 +1134,23 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const viewBtn = (e.target as HTMLElement).closest("[data-view]") as HTMLElement;
       if (!viewBtn) return;
       const requested = viewBtn.dataset.view as "month" | "week";
-      if (!this.isPro && !this.proPreview && requested === "week") {
-        this.notifyProBlocked("week view");   // aviso de Power BI con la ruta de compra
+      if (!this.isPro && requested === "week") {
+        if (!this.proPreview) {
+          this.notifyProBlocked("week view");   // aviso de Power BI con la ruta de compra
+          return;
+        }
+        // En vista previa la semana SÍ se pinta, pero sigue siendo de pago: se avisa igual.
+        // Usar una función Pro sin que aparezca la ruta de compra es lo que deja al autor
+        // creyendo que la tiene incluida.
+        this.currentView = requested;
+        this.render();
+        this.notifyProBlocked("week view");
+        this.updateWatermark();               // el render acaba de vaciar el contenedor
         return;
       }
       this.currentView = requested;
       this.render();
+      this.updateWatermark();
     });
 
     // Keyboard navigation across the day grid
@@ -1307,13 +1322,28 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
   private applyLicense(isPro: boolean): void {
     this.licenseResolved = true;
-    if (!isPro || this.isPro) { this.notifyProBlocked(); return; }
+    if (!isPro || this.isPro) {
+      // La licencia responde después del primer render, cuando proPreview aún era false y
+      // los ajustes se resolvieron como Free. Ahora ya se sabe: recalcular y repintar, o
+      // el autor se queda con el resultado gratuito y una marca de agua que no corresponde.
+      const before = this.proPreview;
+      this.proPreview = this.computePreview();
+      if (this.proPreview !== before && this.lastDataView) {
+        this.settings = this.proPreview ? this.rawSettings : freeSettings(this.rawSettings);
+        try { this.render(); } catch (_) { /* el render ya reporta su propio fallo */ }
+      }
+      this.notifyProBlocked();
+      this.updateWatermark();
+      return;
+    }
     this.isPro = true;
+    this.proPreview = false;          // con licencia no hay vista previa que marcar
     this.clearLicenseNotice();
     this.settings = this.rawSettings;
     if (this.lastDataView) {
       try { this.render(); } catch (_) { }
     }
+    this.updateWatermark();           // el render acaba de vaciar el contenedor
   }
 
   /** Opciones Pro que el usuario ha fijado en este informe (solo lo que está en metadata.objects). */
@@ -1386,7 +1416,19 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
    * ancho del visual: un font-size fijo se queda ridículo a pantalla completa, que es justo
    * donde lo mira el revisor.
    */
+  /** Vista previa Pro: Free, editando, con la licencia resuelta y legible. */
+  private computePreview(): boolean {
+    return !this.isPro && this.editing && this.licenseResolved
+      && this.licenseEnvSupported && this.licenseInfoAvailable;
+  }
+
   private updateWatermark(): void {
+    // El render vacía el contenedor entero (removeChild en bucle), así que la marca se
+    // pierde en cada pintado y hay que volver a insertarla. Encenderla sobre un elemento
+    // desconectado del DOM no hace nada: ese era el motivo de que no se viera.
+    if (this.watermarkEl.parentNode !== this.container) {
+      this.container.appendChild(this.watermarkEl);
+    }
     const show = this.proPreview && this.attemptedPro().length > 0;
     this.watermarkEl.style.display = show ? "flex" : "none";
     if (!show) { return; }
