@@ -39,8 +39,8 @@ render, never blocks it; failure stays Free with no prompts. No licensing UI of 
 
 KNOWN GAPS
 1. npm audit reports 3 moderate findings, all from "ajv" inside powerbi-visuals-tools 5.6.
-   They cannot be fixed here: forcing ajv 8 breaks the build because the ESLint bundled with
-   those tools requires ajv 6. Went from 14 findings (1 high) to 7 (0 high) via overrides.
-2. Format pane still uses enumerateObjectInstances; getFormattingModel is planned.
+   Forcing ajv 8 breaks the build: the ESLint bundled with those tools needs ajv 6. Went
+   from 14 findings (1 high) to 7 (0 high) via overrides.
+2. Format pane still uses enumerateObjectInstances; getFormattingModel planned.
 
-Full notes: docs/CERTIFICATION-NOTES.md in the repo.
+Full notes: docs/CERTIFICATION-NOTES.md.
