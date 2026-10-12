@@ -531,14 +531,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const dayMap = new Map(this.calendarData.map(d => [this.dateKey(d.date), d]));
     const today = this.dateKey(new Date());
 
-    const dayNames = weekStart === 1
-      ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-      : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const dayNames = this.dayNames(weekStart);
 
     const startDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
     const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + n - 1, 1);
-    const startLabel = startDate.toLocaleString("default", { month: "long", year: "numeric" });
-    const endLabel = endDate.toLocaleString("default", { month: "long", year: "numeric" });
+    const startLabel = startDate.toLocaleString(this.loc(), { month: "long", year: "numeric" });
+    const endLabel = endDate.toLocaleString(this.loc(), { month: "long", year: "numeric" });
     const headerLabel = n > 1 ? `${startLabel} – ${endLabel}` : startLabel;
 
     const outer = document.createElement("div");
@@ -628,7 +626,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const weekStart = this.settings.calendar.weekStart;
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const monthName = firstDay.toLocaleString("default", { month: "long", year: "numeric" });
+    const monthName = firstDay.toLocaleString(this.loc(), { month: "long", year: "numeric" });
 
     const grid: (Date | null)[][] = [];
     let week: (Date | null)[] = [];
@@ -834,10 +832,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       days.push(d);
     }
 
-    const weekLabel = `${monday.toLocaleDateString("default", { month: "short", day: "numeric" })} – ${days[6].toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" })}`;
-    const dayNames = weekStart === 1
-      ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-      : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const weekLabel = `${monday.toLocaleDateString(this.loc(), { month: "short", day: "numeric" })} – ${days[6].toLocaleDateString(this.loc(), { month: "short", day: "numeric", year: "numeric" })}`;
+    const dayNames = this.dayNames(weekStart);
 
     const dayMap = new Map(this.calendarData.map(d => [this.dateKey(d.date), d]));
     const today = this.dateKey(new Date());
@@ -1246,7 +1242,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const items: powerbi.extensibility.VisualTooltipDataItem[] = [
           {
             displayName: "Date",
-            value: day.date.toLocaleDateString(),
+            value: day.date.toLocaleDateString(this.loc()),
           },
         ];
         if (day.measureValue != null) {
@@ -1460,6 +1456,19 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return n < 10 ? "0" + n : String(n);
   }
 
+  /** Idioma del informe. Antes los días iban en inglés fijo y los meses en el idioma del navegador. */
+  private loc(): string {
+    return String((this.host as any).locale || "en-US");
+  }
+
+  /** Nombres cortos de los días en el idioma del informe, empezando por el día elegido. */
+  private dayNames(weekStart: number): string[] {
+    const f = new Intl.DateTimeFormat(this.loc(), { weekday: "short" });
+    // El 7 de enero de 2024 es domingo: 7 + i recorre la semana desde el domingo.
+    return Array.from({ length: 7 }, (_, i) => f.format(new Date(2024, 0, 7 + ((i + weekStart) % 7))))
+      .map(x => x.replace(/\.$/, ""));
+  }
+
   private dateKey(date: Date): string {
     return date.getFullYear() + "-" + this.pad2(date.getMonth() + 1) + "-" + this.pad2(date.getDate());
   }
@@ -1577,7 +1586,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   /** Screen-reader description of a day cell: date, value, holiday and events. */
   private cellAriaLabel(date: Date, day: CalendarDay | undefined): string {
     const parts: string[] = [
-      date.toLocaleDateString("default", {
+      date.toLocaleDateString(this.loc(), {
         weekday: "long", day: "numeric", month: "long", year: "numeric",
       }),
     ];
