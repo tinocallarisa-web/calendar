@@ -2,6 +2,7 @@
 import powerbi from "powerbi-visuals-api";
 import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
 import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings } from "./settings";
+import { PANEL, PanelProp } from "./panel";
 
 type IValueFormatter = ReturnType<typeof valueFormatter.create>;
 
@@ -1843,109 +1844,92 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       : `background:none;color:${tc};border:1px solid #DAD9D4;border-radius:4px;cursor:pointer;padding:2px 8px;font-size:11px;`;
   }
 
-  public enumerateObjectInstances(options: powerbi.EnumerateVisualObjectInstancesOptions): powerbi.VisualObjectInstanceEnumeration {
-    // El panel muestra lo que eligió el usuario, no los valores efectivos de Free:
-    // si mostrara los de Free, parecería que el ajuste no se ha aplicado.
-    const effective = this.settings;
-    this.settings = this.rawSettings;
-    try { return this.enumerateInstances(options); } finally { this.settings = effective; }
+  // ─── Panel de formato (modelo de formato, 1.2.0.0) ────────────────────────
+
+  /** Texto en el idioma de Power BI; las claves del panel están en capabilities.json. */
+  private t(key: string, fallback: string): string {
+    try {
+      const v = this.localization?.getDisplayName(key);
+      return v && v !== key ? v : fallback;
+    } catch (_) {
+      return fallback;
+    }
   }
 
-  private enumerateInstances(options: powerbi.EnumerateVisualObjectInstancesOptions): powerbi.VisualObjectInstanceEnumeration {
-    const instances: powerbi.VisualObjectInstance[] = [];
-    const { objectName } = options;
+  /**
+   * Sustituye a enumerateObjectInstances (API antigua, sin panel nuevo ni formato sobre el
+   * lienzo). Recorre PANEL, generado desde capabilities.json. Muestra lo que eligió el usuario,
+   * no los valores efectivos de Free: si mostrara los de Free parecería que el ajuste no se aplica.
+   * Las tarjetas Pro se ven también en Free (llevan "[Pro]"): si no, nadie descubre que existen.
+   */
+  public getFormattingModel(): powerbi.visuals.FormattingModel {
+    const s = this.rawSettings ?? defaultSettings;
+    const objs: any = this.lastDataView?.metadata?.objects ?? {};
+    const cards: powerbi.visuals.FormattingCard[] = [];
 
-    if (objectName === "calendar") {
-      instances.push({
-        objectName,
-        selector: null as any,
-        properties: {
-          view: this.settings.calendar.view,
-          monthsToShow: String(this.settings.calendar.monthsToShow),
-          fiscalEnabled: this.settings.calendar.fiscalEnabled,
-          fiscalStartMonth: this.settings.calendar.fiscalStartMonth,
-          weekStart: String(this.settings.calendar.weekStart),
-        },
-      });
-    }
-    if (objectName === "heatmap") {
-      instances.push({
-        objectName,
-        selector: null as any,
-        properties: {
-          colorMin: { solid: { color: this.settings.heatmap.colorMin } },
-          colorMax: { solid: { color: this.settings.heatmap.colorMax } },
-          colorNull: { solid: { color: this.settings.heatmap.colorNull } },
-          dayColor: { solid: { color: this.settings.heatmap.colorMax } },
-        },
-        // ConstantOrRule = Constant | Rule. VisualEnumerationInstanceKinds is a
-        // `const enum`, so it cannot be referenced at runtime — the literal is used.
-        propertyInstanceKind: { dayColor: 3 },
-        altConstantValueSelector: null as any,
-      } as powerbi.VisualObjectInstance);
-    }
-    if (objectName === "dayNumber") {
-      instances.push({
-        objectName,
-        selector: null as any,
-        properties: {
-          fontSize: this.settings.dayNumber.fontSize,
-          fontFamily: this.settings.dayNumber.fontFamily,
-          color: { solid: { color: this.settings.dayNumber.color } },
-          weekendColor: { solid: { color: this.settings.dayNumber.weekendColor } },
-          holidayColor: { solid: { color: this.settings.dayNumber.holidayColor } },
-        },
-      });
-    }
-    // Tarjetas Pro visibles también en Free (llevan "[Pro]"): si no, nadie descubre que existen
-    if (objectName === "labels") {
-      instances.push({
-        objectName,
-        selector: null as any,
-        properties: {
-          fontSize: this.settings.labels.fontSize,
-          fontFamily: this.settings.labels.fontFamily,
-          color: { solid: { color: this.settings.labels.color } },
-        },
-      });
-    }
-    if (objectName === "navigation") {
-      instances.push({
-        objectName,
-        selector: null as any,
-        properties: {
-          activeColor: { solid: { color: this.settings.navigation.activeColor } },
-          textColor: { solid: { color: this.settings.navigation.textColor } },
-        },
-      });
-    }
-    if (objectName === "events") {
-      const evtProps: Record<string, any> = {
-        showEvents: this.settings.events.showEvents,
-        maxEventsVisible: this.settings.events.maxEventsVisible,
-        useGlobalColor: this.settings.events.useGlobalColor,
-        eventFontColor: { solid: { color: this.settings.events.eventFontColor } },
-        eventFontSize: this.settings.events.eventFontSize,
-      };
-      if (this.settings.events.useGlobalColor) {
-        evtProps["eventBgColor"] = { solid: { color: this.settings.events.eventBgColor ?? "#C96442" } };
+    const valor = (o: string, pr: PanelProp): any => {
+      if (o === "eventCategoryColors") {
+        const i = parseInt(pr.p.slice(1), 10);
+        const cat = this.uniqueEventCategories[i] ?? "";
+        return (objs?.eventCategoryColors?.[pr.p] as any)?.solid?.color ?? this.categoryColor(cat);
       }
-      instances.push({ objectName, selector: null as any, properties: evtProps });
-    }
+      const v = (s as any)[o]?.[pr.p];
+      if (o === "heatmap" && pr.p === "dayColor") return s.heatmap.colorMax;
+      if (o === "events" && pr.p === "eventBgColor") return v ?? "#C96442";
+      return v;
+    };
 
-    if (objectName === "eventCategoryColors") {
-      const catObj = this.lastDataView?.metadata?.objects?.["eventCategoryColors"];
-      const cats = this.uniqueEventCategories.slice(0, 8);
-      const props: Record<string, any> = {};
-      cats.forEach((cat, idx) => {
-        props[`c${idx}`] = { solid: { color: (catObj?.[`c${idx}`] as any)?.solid?.color ?? this.categoryColor(cat) } };
-      });
-      for (let i = cats.length; i < 8; i++) {
-        props[`c${i}`] = { solid: { color: (catObj?.[`c${i}`] as any)?.solid?.color ?? this.categoryColor("") } };
+    for (const card of PANEL) {
+      const slices: powerbi.visuals.FormattingSlice[] = [];
+      const reset: powerbi.visuals.FormattingDescriptor[] = [];
+      for (const pr of card.props) {
+        if (card.o === "events" && pr.p === "eventBgColor" && !s.events.useGlobalColor) continue;
+        let nombre = this.t(pr.key, pr.en);
+        if (card.o === "eventCategoryColors") {
+          const i = parseInt(pr.p.slice(1), 10);
+          if (i >= Math.max(1, this.uniqueEventCategories.length)) continue;
+          nombre = this.uniqueEventCategories[i] || nombre;
+        }
+        const descriptor: any = { objectName: card.o, propertyName: pr.p };
+        const v = valor(card.o, pr);
+        let control: any;
+        switch (pr.kind) {
+          case "color":
+            if (card.o === "heatmap" && pr.p === "dayColor") {
+              // Formato condicional (fx): la regla se evalúa por fila y llega en
+              // DataViewTableRow.objects (ver ruleColorFor). InstancesAndTotals = 0.
+              descriptor.selector = { data: [{ dataViewWildcard: { matchingOption: 0 } }] };
+              descriptor.altConstantValueSelector = null;
+              descriptor.instanceKind = 3;   // ConstantOrRule (const enum: se usa el literal)
+            }
+            control = { type: powerbi.visuals.FormattingComponent.ColorPicker, properties: { descriptor, value: { value: v } } };
+            break;
+          case "toggle":
+            control = { type: powerbi.visuals.FormattingComponent.ToggleSwitch, properties: { descriptor, value: !!v } };
+            break;
+          case "num":
+            control = { type: powerbi.visuals.FormattingComponent.NumUpDown, properties: { descriptor, value: Number(v) } };
+            break;
+          case "drop":
+            control = { type: powerbi.visuals.FormattingComponent.Dropdown, properties: { descriptor, value: String(v) } };
+            break;
+          case "font":
+            control = { type: powerbi.visuals.FormattingComponent.FontPicker, properties: { descriptor, value: String(v) } };
+            break;
+          default:
+            control = { type: powerbi.visuals.FormattingComponent.TextInput, properties: { descriptor, value: String(v ?? ""), placeholder: "" } };
+        }
+        slices.push({ uid: `${card.o}-${pr.p}`, displayName: nombre, control } as any);
+        reset.push({ objectName: card.o, propertyName: pr.p });
       }
-      instances.push({ objectName, selector: null as any, properties: props });
+      if (slices.length === 0) continue;
+      cards.push({
+        uid: `${card.o}-card`,
+        displayName: this.t(card.key, card.en),
+        groups: [{ uid: `${card.o}-group`, displayName: undefined as any, slices }],
+        revertToDefaultDescriptors: reset,
+      } as any);
     }
-
-    return instances;
+    return { cards };
   }
 }
