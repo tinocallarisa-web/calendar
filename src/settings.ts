@@ -33,6 +33,9 @@ export interface CalendarSettings {
     /** Constant side of the "Day Color" conditional-formatting property. Null = use the gradient. */
     dayColor: string | null;
   };
+  /** Reglas de color (1.2.0.0, gratis): umbrales sobre el valor del día, cada uno con su color.
+   *  Sustituyen al fx, que Power BI no ofrece a visuales que leen los datos como tabla. */
+  rules: { on: boolean; op: "gte" | "lte"; value: number; color: string }[];
   /** Leyenda de la escala de color (1.2.0.0). */
   legend: {
     show: boolean;
@@ -57,6 +60,8 @@ export interface CalendarSettings {
   };
   events: {
     showEvents: boolean;
+    /** Eventos como etiquetas o como marcas de color (auto: marcas en mes y año, etiquetas en semana). */
+    display: "auto" | "marks" | "labels";
     maxEventsVisible: number;
     useGlobalColor: boolean;   // false = per-category colors; true = single global color
     eventBgColor: string | null;
@@ -81,6 +86,11 @@ export const defaultSettings: CalendarSettings = {
     colorNull: "#F5F3ED",
     dayColor: null,
   },
+  rules: [
+    { on: false, op: "gte", value: 0, color: "#1A9850" },
+    { on: false, op: "lte", value: 0, color: "#D73027" },
+    { on: false, op: "gte", value: 0, color: "#FEE08B" },
+  ],
   legend: {
     show: true,
     position: "top",
@@ -104,6 +114,7 @@ export const defaultSettings: CalendarSettings = {
   },
   events: {
     showEvents: true,
+    display: "auto",
     maxEventsVisible: 1,
     useGlobalColor: false,
     eventBgColor: null,
@@ -153,6 +164,12 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
       colorNull: (obj["heatmap"]?.["colorNull"] as any)?.solid?.color ?? defaultSettings.heatmap.colorNull,
       dayColor: (obj["heatmap"]?.["dayColor"] as any)?.solid?.color ?? null,
     },
+    rules: [1, 2, 3].map(n => ({
+      on: (obj["rules"]?.[`rule${n}On`] as boolean) ?? false,
+      op: ((obj["rules"]?.[`rule${n}Op`] as string) ?? defaultSettings.rules[n - 1].op) as "gte" | "lte",
+      value: (obj["rules"]?.[`rule${n}Value`] as number) ?? 0,
+      color: (obj["rules"]?.[`rule${n}Color`] as any)?.solid?.color ?? defaultSettings.rules[n - 1].color,
+    })),
     legend: {
       show: (obj["legend"]?.["show"] as boolean) ?? defaultSettings.legend.show,
       position: (obj["legend"]?.["position"] as "top" | "bottom") ?? defaultSettings.legend.position,
@@ -176,6 +193,7 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
     },
     events: {
       showEvents: (obj["events"]?.["showEvents"] as boolean) ?? defaultSettings.events.showEvents,
+      display: (obj["events"]?.["display"] as "auto" | "marks" | "labels") ?? defaultSettings.events.display,
       maxEventsVisible: (obj["events"]?.["maxEventsVisible"] as number) ?? defaultSettings.events.maxEventsVisible,
       useGlobalColor: (obj["events"]?.["useGlobalColor"] as boolean) ?? defaultSettings.events.useGlobalColor,
       eventBgColor: (obj["events"]?.["eventBgColor"] as any)?.solid?.color ?? null,

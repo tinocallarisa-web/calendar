@@ -759,7 +759,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         numDiv.style.fontSize = numSz;
         numDiv.style.fontFamily = numFont;
         numDiv.style.fontWeight = isToday ? "700" : "400";
-        numDiv.style.color = dayNumColor;
+        const oscuro = !this.hc && this.isDark(chrome.bg);
+        numDiv.style.color = oscuro ? "#FFFFFF" : dayNumColor;
         numDiv.style.lineHeight = "1";
         numDiv.style.whiteSpace = "nowrap";
         numDiv.style.flexShrink = "0";
@@ -771,7 +772,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           const valDiv = document.createElement("div");
           valDiv.style.fontSize = lblSz;
           valDiv.style.fontFamily = lblFont;
-          valDiv.style.color = lblColor;
+          valDiv.style.color = oscuro ? "#FFFFFF" : lblColor;
           valDiv.style.fontWeight = "600";
           valDiv.style.lineHeight = "1.2";
           valDiv.style.whiteSpace = "nowrap";
@@ -782,8 +783,36 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           cell.appendChild(valDiv);
         }
 
+        // Eventos como marcas de color (1.2.0.0): una por categoría al pie del día; los nombres
+        // están en la leyenda y en la ayuda emergente. "auto" = marcas en mes y año.
+        const comoMarcas = this.settings.events.display !== "labels";
+        if (comoMarcas && showEvents && eventsArr.length > 0) {
+          const pie = document.createElement("div");
+          pie.style.cssText = "display:flex;gap:2px;margin-top:auto;align-items:center;flex-shrink:0;";
+          const vistos = new Set<string>();
+          const colores: string[] = [];
+          eventsArr.forEach(e => {
+            const col = this.sanitizeColor(
+              (this.settings.events.useGlobalColor && this.settings.events.eventBgColor) ? this.settings.events.eventBgColor : e.color, "#C96442");
+            if (!vistos.has(col)) { vistos.add(col); colores.push(col); }
+          });
+          colores.slice(0, 4).forEach(col => {
+            const m = document.createElement("span");
+            m.style.cssText = `display:inline-block;width:14px;height:4px;border-radius:2px;background:${this.hc ? this.hcFg : col};flex-shrink:0;`
+              + "box-shadow:0 0 0 1px rgba(255,255,255,0.85);";
+            pie.appendChild(m);
+          });
+          if (colores.length > 4) {
+            const mas = document.createElement("span");
+            mas.style.cssText = `font-size:8px;color:${this.fg(null, "#83827D")};`;
+            mas.textContent = `+${colores.length - 4}`;
+            pie.appendChild(mas);
+          }
+          cell.appendChild(pie);
+        }
+
         // Event pills
-        visibleEvents.forEach(e => {
+        (comoMarcas ? [] : visibleEvents).forEach(e => {
           const evtDiv = document.createElement("div");
           const evtBg = this.sanitizeColor(
             (this.settings.events.useGlobalColor && this.settings.events.eventBgColor)
@@ -808,7 +837,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         });
 
         // "+N more"
-        if (moreCount > 0) {
+        if (moreCount > 0 && !comoMarcas) {
           const moreDiv = document.createElement("div");
           moreDiv.style.fontSize = "8px";
           moreDiv.style.color = this.fg(null, "#83827D");
@@ -1585,7 +1614,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       return { bg: this.hcBg, border: `${w}px ${style} ${isToday ? this.hcFgSel : this.hcFg}` };
     }
     // Precedence: a per-day rule wins, then a constant "Day Color", then the gradient.
-    const fill = day?.ruleColor ?? (day ? this.settings.heatmap.dayColor : null) ?? day?.heatmapColor;
+    const fill = this.ruleFor(day?.measureValue ?? null) ?? day?.ruleColor ?? (day ? this.settings.heatmap.dayColor : null) ?? day?.heatmapColor;
     return {
       bg: this.sanitizeColor(fill, this.settings.heatmap.colorNull),
       border: isToday
@@ -1775,6 +1804,33 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
    * output selector — here the `date` role. Read defensively: when no rule is set the
    * whole chain is absent, which is the normal case.
    */
+  /**
+   * Reglas de color (1.2.0.0): la primera regla activa que se cumple pinta el día. Son el formato
+   * condicional del visual: Power BI no ofrece el fx a los visuales que leen los datos como tabla
+   * (documentado por Microsoft), y el de la 1.1 nunca llegaba a aplicarse.
+   */
+  /** ¿Fondo oscuro? Para poner el texto en blanco encima (reglas de color con tonos intensos). */
+  private isDark(color: string | null | undefined): boolean {
+    const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(color || ""));
+    if (!m) return false;
+    const [r, g, b] = [m[1], m[2], m[3]].map(h => {
+      const v = parseInt(h, 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.3;
+  }
+
+  private ruleFor(value: number | null): string | null {
+    if (value === null || value === undefined || !isFinite(value)) return null;
+    for (const r of this.settings.rules) {
+      if (!r.on) continue;
+      if ((r.op === "gte" && value >= r.value) || (r.op === "lte" && value <= r.value)) {
+        return this.sanitizeColor(r.color, "") || null;
+      }
+    }
+    return null;
+  }
+
   private readRuleColor(row: powerbi.DataViewTableRow, dateIdx: number): string | null {
     if (dateIdx < 0) return null;
     const objs = (row as any)?.objects;
@@ -1826,8 +1882,13 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   }
 
   private categoryColor(category: string): string {
-    const palette = ["#C96442", "#9C87F5", "#4BA3C3", "#E8A838", "#5BAD6F", "#D06E8C"];
+    // Sin el teja del mapa de calor (#C96442): una marca de ese color desaparecía sobre un día "caliente".
+    const palette = ["#9C87F5", "#4BA3C3", "#E8A838", "#5BAD6F", "#D06E8C", "#2B6CB0", "#8C8C3E", "#6B4E9B"];
     if (!category) return palette[0];
+    // Por orden de aparición (1.2.0.0): hasta 8 categorías nunca comparten color. Antes era un
+    // hash del nombre sobre 6 colores y dos categorías podían salir iguales.
+    const idx = this.uniqueEventCategories.indexOf(category);
+    if (idx >= 0 && idx < palette.length) return palette[idx];
     let hash = 0;
     for (let i = 0; i < category.length; i++) hash = category.charCodeAt(i) + ((hash << 5) - hash);
     return palette[Math.abs(hash) % palette.length];
@@ -2236,6 +2297,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const cat = this.uniqueEventCategories[i] ?? "";
         return (objs?.eventCategoryColors?.[pr.p] as any)?.solid?.color ?? this.categoryColor(cat);
       }
+      const regla = /^rule(\d)(On|Op|Value|Color)$/.exec(pr.p);
+      if (o === "rules" && regla) {
+        const r = s.rules[parseInt(regla[1], 10) - 1];
+        return regla[2] === "On" ? r.on : regla[2] === "Op" ? r.op : regla[2] === "Value" ? r.value : r.color;
+      }
       const v = (s as any)[o]?.[pr.p];
       if (o === "heatmap" && pr.p === "dayColor") return s.heatmap.colorMax;
       if (o === "events" && pr.p === "eventBgColor") return v ?? "#C96442";
@@ -2258,13 +2324,6 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         let control: any;
         switch (pr.kind) {
           case "color":
-            if (card.o === "heatmap" && pr.p === "dayColor") {
-              // Formato condicional (fx): la regla se evalúa por fila y llega en
-              // DataViewTableRow.objects (ver ruleColorFor). InstancesAndTotals = 0.
-              descriptor.selector = { data: [{ dataViewWildcard: { matchingOption: 0 } }] };
-              descriptor.altConstantValueSelector = null;
-              descriptor.instanceKind = 3;   // ConstantOrRule (const enum: se usa el literal)
-            }
             control = { type: powerbi.visuals.FormattingComponent.ColorPicker, properties: { descriptor, value: { value: v } } };
             break;
           case "toggle":

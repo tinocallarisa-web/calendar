@@ -88,6 +88,85 @@ export const PANEL: PanelCard[] = [
         ]
     },
     {
+        "o": "rules",
+        "key": "Visual_Rules",
+        "en": "Color Rules",
+        "props": [
+            {
+                "p": "rule1On",
+                "kind": "toggle",
+                "key": "Visual_Rules_Rule1",
+                "en": "Rule 1"
+            },
+            {
+                "p": "rule1Op",
+                "kind": "drop",
+                "key": "Visual_Rules_Op",
+                "en": "Condition"
+            },
+            {
+                "p": "rule1Value",
+                "kind": "num",
+                "key": "Visual_Rules_Value",
+                "en": "Value"
+            },
+            {
+                "p": "rule1Color",
+                "kind": "color",
+                "key": "Visual_Rules_Color",
+                "en": "Color"
+            },
+            {
+                "p": "rule2On",
+                "kind": "toggle",
+                "key": "Visual_Rules_Rule2",
+                "en": "Rule 2"
+            },
+            {
+                "p": "rule2Op",
+                "kind": "drop",
+                "key": "Visual_Rules_Op",
+                "en": "Condition"
+            },
+            {
+                "p": "rule2Value",
+                "kind": "num",
+                "key": "Visual_Rules_Value",
+                "en": "Value"
+            },
+            {
+                "p": "rule2Color",
+                "kind": "color",
+                "key": "Visual_Rules_Color",
+                "en": "Color"
+            },
+            {
+                "p": "rule3On",
+                "kind": "toggle",
+                "key": "Visual_Rules_Rule3",
+                "en": "Rule 3"
+            },
+            {
+                "p": "rule3Op",
+                "kind": "drop",
+                "key": "Visual_Rules_Op",
+                "en": "Condition"
+            },
+            {
+                "p": "rule3Value",
+                "kind": "num",
+                "key": "Visual_Rules_Value",
+                "en": "Value"
+            },
+            {
+                "p": "rule3Color",
+                "kind": "color",
+                "key": "Visual_Rules_Color",
+                "en": "Color"
+            }
+        ]
+    },
+    {
         "o": "legend",
         "key": "Visual_Legend",
         "en": "Color Legend",
@@ -203,6 +282,12 @@ export const PANEL: PanelCard[] = [
                 "kind": "toggle",
                 "key": "Visual_Events_ShowEvents",
                 "en": "Show Events"
+            },
+            {
+                "p": "display",
+                "kind": "drop",
+                "key": "Visual_Events_Display",
+                "en": "Show events as"
             },
             {
                 "p": "maxEventsVisible",

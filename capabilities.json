@@ -280,6 +280,141 @@
         }
       }
     },
+    "rules": {
+      "displayName": "Color Rules",
+      "displayNameKey": "Visual_Rules",
+      "properties": {
+        "rule1On": {
+          "displayName": "Rule 1",
+          "displayNameKey": "Visual_Rules_Rule1",
+          "type": {
+            "bool": true
+          }
+        },
+        "rule1Op": {
+          "displayName": "Condition",
+          "displayNameKey": "Visual_Rules_Op",
+          "type": {
+            "enumeration": [
+              {
+                "value": "gte",
+                "displayName": "Greater than or equal to",
+                "displayNameKey": "Visual_Rules_Gte"
+              },
+              {
+                "value": "lte",
+                "displayName": "Less than or equal to",
+                "displayNameKey": "Visual_Rules_Lte"
+              }
+            ]
+          }
+        },
+        "rule1Value": {
+          "displayName": "Value",
+          "displayNameKey": "Visual_Rules_Value",
+          "type": {
+            "numeric": true
+          }
+        },
+        "rule1Color": {
+          "displayName": "Color",
+          "displayNameKey": "Visual_Rules_Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "rule2On": {
+          "displayName": "Rule 2",
+          "displayNameKey": "Visual_Rules_Rule2",
+          "type": {
+            "bool": true
+          }
+        },
+        "rule2Op": {
+          "displayName": "Condition",
+          "displayNameKey": "Visual_Rules_Op",
+          "type": {
+            "enumeration": [
+              {
+                "value": "gte",
+                "displayName": "Greater than or equal to",
+                "displayNameKey": "Visual_Rules_Gte"
+              },
+              {
+                "value": "lte",
+                "displayName": "Less than or equal to",
+                "displayNameKey": "Visual_Rules_Lte"
+              }
+            ]
+          }
+        },
+        "rule2Value": {
+          "displayName": "Value",
+          "displayNameKey": "Visual_Rules_Value",
+          "type": {
+            "numeric": true
+          }
+        },
+        "rule2Color": {
+          "displayName": "Color",
+          "displayNameKey": "Visual_Rules_Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "rule3On": {
+          "displayName": "Rule 3",
+          "displayNameKey": "Visual_Rules_Rule3",
+          "type": {
+            "bool": true
+          }
+        },
+        "rule3Op": {
+          "displayName": "Condition",
+          "displayNameKey": "Visual_Rules_Op",
+          "type": {
+            "enumeration": [
+              {
+                "value": "gte",
+                "displayName": "Greater than or equal to",
+                "displayNameKey": "Visual_Rules_Gte"
+              },
+              {
+                "value": "lte",
+                "displayName": "Less than or equal to",
+                "displayNameKey": "Visual_Rules_Lte"
+              }
+            ]
+          }
+        },
+        "rule3Value": {
+          "displayName": "Value",
+          "displayNameKey": "Visual_Rules_Value",
+          "type": {
+            "numeric": true
+          }
+        },
+        "rule3Color": {
+          "displayName": "Color",
+          "displayNameKey": "Visual_Rules_Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
+    },
     "legend": {
       "displayName": "Color Legend",
       "displayNameKey": "Visual_Legend",
@@ -443,6 +578,29 @@
           "displayNameKey": "Visual_Events_ShowEvents",
           "type": {
             "bool": true
+          }
+        },
+        "display": {
+          "displayName": "Show events as",
+          "displayNameKey": "Visual_Events_Display",
+          "type": {
+            "enumeration": [
+              {
+                "value": "auto",
+                "displayName": "Auto (marks in month and year, labels in week)",
+                "displayNameKey": "Visual_Events_Display_Auto"
+              },
+              {
+                "value": "marks",
+                "displayName": "Color marks",
+                "displayNameKey": "Visual_Events_Display_Marks"
+              },
+              {
+                "value": "labels",
+                "displayName": "Labels",
+                "displayNameKey": "Visual_Events_Display_Labels"
+              }
+            ]
           }
         },
         "maxEventsVisible": {
