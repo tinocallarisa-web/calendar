@@ -171,6 +171,8 @@
   "Visual_Layout_CellGap": "日期间距 (px)",
   "Visual_Layout_CellRadius": "日期圆角半径 (px)",
   "Visual_Legend": "颜色图例",
+  "Visual_Legend_Color": "文本颜色",
+  "Visual_Legend_FontSize": "文本大小",
   "Visual_Legend_Position": "位置",
   "Visual_Legend_Position_Bottom": "底部",
   "Visual_Legend_Position_Top": "顶部",

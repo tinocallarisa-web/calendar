@@ -92,6 +92,8 @@ export interface CalendarSettings {
     show: boolean;
     position: "top" | "bottom";
     showValues: boolean;
+    fontSize: number;
+    color: string;
   };
   dayNumber: {
     fontSize: number;
@@ -151,6 +153,8 @@ export const defaultSettings: CalendarSettings = {
     show: true,
     position: "top",
     showValues: true,
+    fontSize: 9,
+    color: "#83827D",
   },
   dayNumber: {
     fontSize: 11,
@@ -240,6 +244,8 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
       show: (obj["legend"]?.["show"] as boolean) ?? defaultSettings.legend.show,
       position: (obj["legend"]?.["position"] as "top" | "bottom") ?? defaultSettings.legend.position,
       showValues: (obj["legend"]?.["showValues"] as boolean) ?? defaultSettings.legend.showValues,
+      fontSize: (obj["legend"]?.["fontSize"] as number) ?? defaultSettings.legend.fontSize,
+      color: (obj["legend"]?.["color"] as any)?.solid?.color ?? defaultSettings.legend.color,
     },
     dayNumber: {
       fontSize: (obj["dayNumber"]?.["fontSize"] as number) ?? defaultSettings.dayNumber.fontSize,

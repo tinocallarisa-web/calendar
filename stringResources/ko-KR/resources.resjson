@@ -171,6 +171,8 @@
   "Visual_Layout_CellGap": "날짜 간격 (px)",
   "Visual_Layout_CellRadius": "날짜 모서리 반경 (px)",
   "Visual_Legend": "색 범례",
+  "Visual_Legend_Color": "텍스트 색",
+  "Visual_Legend_FontSize": "텍스트 크기",
   "Visual_Legend_Position": "위치",
   "Visual_Legend_Position_Bottom": "아래쪽",
   "Visual_Legend_Position_Top": "위쪽",

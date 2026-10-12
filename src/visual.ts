@@ -2037,12 +2037,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const item = document.createElement("span");
       item.setAttribute("role", "listitem");
       item.setAttribute("aria-label", `${this.t("Aria_EventCategory", "Event category")}: ${cat || this.t("Cal_Default", "Default")}`);
-      item.style.cssText = `display:inline-flex;align-items:center;gap:3px;font-size:9px;color:${this.fg(null, "#83827D")};white-space:nowrap;`;
+      item.style.cssText = `display:inline-flex;align-items:center;gap:3px;font-size:${this.legendFontSize()}px;color:${this.fg(this.settings.legend.color, "#83827D")};white-space:nowrap;`;
 
       const swatch = document.createElement("span");
       swatch.style.display = "inline-block";
-      swatch.style.width = "8px";
-      swatch.style.height = "8px";
+      swatch.style.width = `${Math.round(this.legendFontSize() * 0.9)}px`;
+      swatch.style.height = `${Math.round(this.legendFontSize() * 0.9)}px`;
       swatch.style.borderRadius = "2px";
       swatch.style.backgroundColor = this.hc ? this.hcBg : color;
       if (this.hc) swatch.style.border = `2px solid ${this.hcFg}`;
@@ -2479,6 +2479,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return this.viewport.width < 320 || this.viewport.height < 320;
   }
 
+  /** Tamaño del texto de las leyendas (Color Legend → Text size), entre 7 y 20 px. */
+  private legendFontSize(): number {
+    return Math.max(7, Math.min(20, this.settings.legend.fontSize || 9));
+  }
+
   private appendScaleLegend(outer: HTMLElement, where: "top" | "bottom"): void {
     if (this.compact()) return;
     const lg = this.settings.legend;
@@ -2488,7 +2493,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     fila.setAttribute("role", "img");
     const minTxt = this.formatValue(this.valueMin), maxTxt = this.formatValue(this.valueMax);
     fila.setAttribute("aria-label", this.t("Cal_ScaleLegend", "Color scale from {0} to {1}").replace("{0}", minTxt).replace("{1}", maxTxt));
-    fila.style.cssText = `display:flex;align-items:center;gap:6px;font-size:9px;color:${this.fg(null, "#83827D")};`
+    fila.style.cssText = `display:flex;align-items:center;gap:6px;font-size:${this.legendFontSize()}px;color:${this.fg(this.settings.legend.color, "#83827D")};`
       + (where === "top" ? "margin-bottom:6px;" : "margin-top:6px;") + "flex-shrink:0;";
     const barra = document.createElement("span");
     barra.style.cssText = `display:inline-block;width:110px;height:8px;border-radius:4px;`

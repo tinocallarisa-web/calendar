@@ -171,6 +171,8 @@
   "Visual_Layout_CellGap": "Espacio entre días (px)",
   "Visual_Layout_CellRadius": "Radio de esquina del día (px)",
   "Visual_Legend": "Leyenda de color",
+  "Visual_Legend_Color": "Color del texto",
+  "Visual_Legend_FontSize": "Tamaño del texto",
   "Visual_Legend_Position": "Posición",
   "Visual_Legend_Position_Bottom": "Abajo",
   "Visual_Legend_Position_Top": "Arriba",

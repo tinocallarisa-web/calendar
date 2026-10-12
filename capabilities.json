@@ -559,6 +559,24 @@
           "type": {
             "bool": true
           }
+        },
+        "fontSize": {
+          "displayName": "Text size",
+          "displayNameKey": "Visual_Legend_FontSize",
+          "type": {
+            "numeric": true
+          }
+        },
+        "color": {
+          "displayName": "Text color",
+          "displayNameKey": "Visual_Legend_Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     },

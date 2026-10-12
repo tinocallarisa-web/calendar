@@ -171,6 +171,8 @@
   "Visual_Layout_CellGap": "Ruimte tussen dagen (px)",
   "Visual_Layout_CellRadius": "Hoekradius van dagen (px)",
   "Visual_Legend": "Kleurenlegenda",
+  "Visual_Legend_Color": "Tekstkleur",
+  "Visual_Legend_FontSize": "Tekstgrootte",
   "Visual_Legend_Position": "Positie",
   "Visual_Legend_Position_Bottom": "Onder",
   "Visual_Legend_Position_Top": "Boven",

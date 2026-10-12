@@ -213,6 +213,18 @@ export const PANEL: PanelCard[] = [
                 "kind": "toggle",
                 "key": "Visual_Legend_ShowValues",
                 "en": "Show min and max"
+            },
+            {
+                "p": "fontSize",
+                "kind": "num",
+                "key": "Visual_Legend_FontSize",
+                "en": "Text size"
+            },
+            {
+                "p": "color",
+                "kind": "color",
+                "key": "Visual_Legend_Color",
+                "en": "Text color"
             }
         ]
     },

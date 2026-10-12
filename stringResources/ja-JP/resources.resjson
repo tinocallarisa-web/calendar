@@ -171,6 +171,8 @@
   "Visual_Layout_CellGap": "日の間隔 (px)",
   "Visual_Layout_CellRadius": "日の角の半径 (px)",
   "Visual_Legend": "色の凡例",
+  "Visual_Legend_Color": "テキストの色",
+  "Visual_Legend_FontSize": "テキストのサイズ",
   "Visual_Legend_Position": "位置",
   "Visual_Legend_Position_Bottom": "下",
   "Visual_Legend_Position_Top": "上",
