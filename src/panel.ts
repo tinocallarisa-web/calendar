@@ -41,6 +41,12 @@ export const PANEL: PanelCard[] = [
                 "kind": "drop",
                 "key": "Visual_Calendar_WeekStart",
                 "en": "Week Starts On"
+            },
+            {
+                "p": "weekNumbers",
+                "kind": "drop",
+                "key": "Visual_Calendar_WeekNumbers",
+                "en": "Week Numbers"
             }
         ]
     },
@@ -72,6 +78,31 @@ export const PANEL: PanelCard[] = [
                 "kind": "color",
                 "key": "Visual_Heatmap_DayColor",
                 "en": "Day Color"
+            }
+        ]
+    },
+    {
+        "o": "legend",
+        "key": "Visual_Legend",
+        "en": "Color Legend",
+        "props": [
+            {
+                "p": "show",
+                "kind": "toggle",
+                "key": "Visual_Legend_Show",
+                "en": "Show"
+            },
+            {
+                "p": "position",
+                "kind": "drop",
+                "key": "Visual_Legend_Position",
+                "en": "Position"
+            },
+            {
+                "p": "showValues",
+                "kind": "toggle",
+                "key": "Visual_Legend_ShowValues",
+                "en": "Show min and max"
             }
         ]
     },

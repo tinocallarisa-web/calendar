@@ -66,7 +66,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private settings: CalendarSettings = defaultSettings;
   /** Lo que eligió el usuario: es lo que muestra el panel de formato. */
   private rawSettings: CalendarSettings = defaultSettings;
-  private currentView: "month" | "week" = "month";
+  private currentView: "year" | "month" | "week" = "month";
   private viewInitialized: boolean = false;   // only apply "Default View" setting once
   private currentDate: Date = new Date();
   private calendarData: CalendarDay[] = [];
@@ -458,8 +458,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.container.style.setProperty("--tcviz-focus-halo", this.hc ? this.hcBg : "#FAF9F5");
 
     // La vista semanal es Pro. Antes bastaba con "Default View = Week" para verla en Free.
-    const view = (this.currentView === "week" && (this.isPro || this.proPreview))
-      ? this.buildWeekView()
+    // Semana y año son Pro. Antes bastaba con "Default View = Week" para verla en Free.
+    const pro = this.isPro || this.proPreview;
+    const view = (this.currentView === "week" && pro) ? this.buildWeekView()
+      : (this.currentView === "year" && pro) ? this.buildYearView()
       : this.buildMonthView();
 
     // Atomic swap
@@ -542,63 +544,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const outer = document.createElement("div");
     outer.style.cssText = "display:flex;flex-direction:column;height:100%;min-height:380px;padding:8px;box-sizing:border-box;overflow:hidden;";
 
-    // ── Navigation header ──
-    const header = document.createElement("div");
-    header.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0;";
-
-    const prevBtn = document.createElement("button");
-    prevBtn.setAttribute("data-nav", "prev");
-    prevBtn.setAttribute("type", "button");
-    prevBtn.setAttribute("aria-label", this.currentView === "month" ? "Previous month" : "Previous week");
-    prevBtn.style.cssText = this.navBtnStyle();
-    prevBtn.textContent = "←";
-
-    const headerSpan = document.createElement("span");
-    headerSpan.setAttribute("aria-live", "polite");
-    headerSpan.style.cssText = `font-weight:600;font-size:14px;color:${this.fg(null, "#3D3929")};`;
-    headerSpan.textContent = headerLabel;
-
-    const nextBtn = document.createElement("button");
-    nextBtn.setAttribute("data-nav", "next");
-    nextBtn.setAttribute("type", "button");
-    nextBtn.setAttribute("aria-label", this.currentView === "month" ? "Next month" : "Next week");
-    nextBtn.style.cssText = this.navBtnStyle();
-    nextBtn.textContent = "→";
-
-    header.appendChild(prevBtn);
-    header.appendChild(headerSpan);
-    header.appendChild(nextBtn);
-    outer.appendChild(header);
-
-    // ── View buttons ──
-    const viewRow = document.createElement("div");
-    viewRow.setAttribute("role", "group");
-    viewRow.setAttribute("aria-label", "Calendar view");
-    viewRow.style.cssText = "display:flex;gap:4px;margin-bottom:8px;flex-shrink:0;";
-
-    const monthBtn = document.createElement("button");
-    monthBtn.setAttribute("data-view", "month");
-    monthBtn.setAttribute("type", "button");
-    monthBtn.setAttribute("aria-label", "Month view");
-    monthBtn.setAttribute("aria-pressed", String(this.currentView === "month"));
-    monthBtn.style.cssText = this.viewBtnStyle(this.currentView === "month");
-    monthBtn.textContent = "Month";
-
-    const weekBtn = document.createElement("button");
-    weekBtn.setAttribute("data-view", "week");
-    weekBtn.setAttribute("type", "button");
-    weekBtn.setAttribute("aria-label", (this.isPro || this.proPreview) ? "Week view" : "Week view (Pro feature)");
-    weekBtn.setAttribute("aria-pressed", String(this.currentView === "week"));
-    weekBtn.style.cssText = this.viewBtnStyle(false);
-    weekBtn.textContent = "Week";
-
-    viewRow.appendChild(monthBtn);
-    viewRow.appendChild(weekBtn);
-    outer.appendChild(viewRow);
-
-    // ── Category legend ──
-    const legend = this.buildCategoryLegend();
-    if (legend) outer.appendChild(legend);
+    // ── Cabecera, vistas y leyendas (comunes a las tres vistas) ──
+    this.buildChrome(outer, headerLabel, "year");
 
     // ── Month grids ──
     const gridsContainer = document.createElement("div");
@@ -612,6 +559,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     }
 
     outer.appendChild(gridsContainer);
+    this.appendScaleLegend(outer, "bottom");
     return outer;
   }
 
@@ -672,7 +620,17 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // Day names header
     const dayNamesRow = document.createElement("div");
     dayNamesRow.setAttribute("role", "row");
-    dayNamesRow.style.cssText = "display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;flex-shrink:0;";
+    const semanas = this.settings.calendar.weekNumbers !== "none";
+    const columnas = semanas ? "26px repeat(7,1fr)" : "repeat(7,1fr)";
+    dayNamesRow.style.cssText = `display:grid;grid-template-columns:${columnas};gap:2px;margin-bottom:4px;flex-shrink:0;`;
+    if (semanas) {
+      const wk = document.createElement("div");
+      wk.setAttribute("role", "columnheader");
+      wk.style.cssText = `text-align:center;font-size:9px;font-weight:600;color:${this.fg(null, "#83827D")};padding:2px 0;`;
+      wk.textContent = this.t("Cal_Wk", "Wk");
+      wk.title = this.t("Cal_WeekNumber", "Week number");
+      dayNamesRow.appendChild(wk);
+    }
     dayNames.forEach(dn => {
       const cell = document.createElement("div");
       cell.setAttribute("role", "columnheader");
@@ -689,7 +647,20 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     grid.forEach(wk => {
       const weekRow = document.createElement("div");
       weekRow.setAttribute("role", "row");
-      weekRow.style.cssText = "display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:1;min-height:0;";
+      weekRow.style.cssText = `display:grid;grid-template-columns:${columnas};gap:2px;flex:1;min-height:0;`;
+      if (semanas) {
+        // Número de semana: un clic abre esa semana (navegación jerárquica año → mes → semana).
+        const primero = wk.find(d => d !== null) as Date;
+        const n = this.weekNumber(primero);
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-drill-week", this.dateKey(primero));
+        b.setAttribute("aria-label", this.t("Cal_OpenWeek", "Open week {0}").replace("{0}", String(n)));
+        b.style.cssText = `border:none;background:none;cursor:pointer;font-size:9px;font-weight:600;padding:0;`
+          + `color:${this.fg(this.settings.navigation.textColor, "#83827D")};align-self:center;`;
+        b.textContent = String(n);
+        weekRow.appendChild(b);
+      }
 
       wk.forEach(date => {
         if (!date) {
@@ -857,63 +828,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const outer = document.createElement("div");
     outer.style.cssText = "display:flex;flex-direction:column;height:100%;min-height:280px;padding:8px;box-sizing:border-box;overflow:hidden;";
 
-    // ── Navigation header ──
-    const header = document.createElement("div");
-    header.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0;";
-
-    const prevBtn = document.createElement("button");
-    prevBtn.setAttribute("data-nav", "prev");
-    prevBtn.setAttribute("type", "button");
-    prevBtn.setAttribute("aria-label", this.currentView === "month" ? "Previous month" : "Previous week");
-    prevBtn.style.cssText = this.navBtnStyle();
-    prevBtn.textContent = "←";
-
-    const weekSpan = document.createElement("span");
-    weekSpan.setAttribute("aria-live", "polite");
-    weekSpan.style.cssText = `font-weight:600;font-size:14px;color:${this.fg(null, "#3D3929")};`;
-    weekSpan.textContent = weekLabel;
-
-    const nextBtn = document.createElement("button");
-    nextBtn.setAttribute("data-nav", "next");
-    nextBtn.setAttribute("type", "button");
-    nextBtn.setAttribute("aria-label", this.currentView === "month" ? "Next month" : "Next week");
-    nextBtn.style.cssText = this.navBtnStyle();
-    nextBtn.textContent = "→";
-
-    header.appendChild(prevBtn);
-    header.appendChild(weekSpan);
-    header.appendChild(nextBtn);
-    outer.appendChild(header);
-
-    // ── View buttons ──
-    const viewRow = document.createElement("div");
-    viewRow.setAttribute("role", "group");
-    viewRow.setAttribute("aria-label", "Calendar view");
-    viewRow.style.cssText = "display:flex;gap:4px;margin-bottom:8px;flex-shrink:0;";
-
-    const monthBtn = document.createElement("button");
-    monthBtn.setAttribute("data-view", "month");
-    monthBtn.setAttribute("type", "button");
-    monthBtn.setAttribute("aria-label", "Month view");
-    monthBtn.setAttribute("aria-pressed", String(this.currentView === "month"));
-    monthBtn.style.cssText = this.viewBtnStyle(false);
-    monthBtn.textContent = "Month";
-
-    const weekBtn = document.createElement("button");
-    weekBtn.setAttribute("data-view", "week");
-    weekBtn.setAttribute("type", "button");
-    weekBtn.setAttribute("aria-label", (this.isPro || this.proPreview) ? "Week view" : "Week view (Pro feature)");
-    weekBtn.setAttribute("aria-pressed", String(this.currentView === "week"));
-    weekBtn.style.cssText = this.viewBtnStyle(true);
-    weekBtn.textContent = "Week";
-
-    viewRow.appendChild(monthBtn);
-    viewRow.appendChild(weekBtn);
-    outer.appendChild(viewRow);
-
-    // ── Category legend ──
-    const legend = this.buildCategoryLegend();
-    if (legend) outer.appendChild(legend);
+    // ── Cabecera, vistas y leyendas (comunes a las tres vistas) ──
+    this.buildChrome(outer, weekLabel, "month");
 
     // ── Days grid ──
     const daysGrid = document.createElement("div");
@@ -1118,7 +1034,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const nav = (e.target as HTMLElement).closest("[data-nav]") as HTMLElement;
       if (!nav) return;
       const dir = nav.dataset.nav === "next" ? 1 : -1;
-      if (this.currentView === "month") {
+      if (this.currentView === "year") {
+        this.currentDate = new Date(this.currentDate.getFullYear() + dir, this.currentDate.getMonth(), 1);
+      } else if (this.currentView === "month") {
         this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + dir, 1);
       } else {
         this.currentDate = new Date(this.currentDate.getTime() + dir * 7 * 24 * 60 * 60 * 1000);
@@ -1126,28 +1044,20 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       this.render();
     });
 
-    // View toggle
+    // Cambio de vista y navegación jerárquica: botones Year / Month / Week, el título (sube un
+    // nivel), el nombre de cada mes en la vista de año y el número de semana (bajan), y Hoy.
     wrapper.addEventListener("click", (e: MouseEvent) => {
-      const viewBtn = (e.target as HTMLElement).closest("[data-view]") as HTMLElement;
-      if (!viewBtn) return;
-      const requested = viewBtn.dataset.view as "month" | "week";
-      if (!this.isPro && requested === "week") {
-        if (!this.proPreview) {
-          this.notifyProBlocked("week view");   // aviso de Power BI con la ruta de compra
-          return;
-        }
-        // En vista previa la semana SÍ se pinta, pero sigue siendo de pago: se avisa igual.
-        // Usar una función Pro sin que aparezca la ruta de compra es lo que deja al autor
-        // creyendo que la tiene incluida.
-        this.currentView = requested;
-        this.render();
-        this.notifyProBlocked("week view");
-        this.updateWatermark();               // el render acaba de vaciar el contenedor
-        return;
-      }
-      this.currentView = requested;
-      this.render();
-      this.updateWatermark();
+      const el = e.target as HTMLElement;
+      const viewBtn = el.closest("[data-view]") as HTMLElement | null;
+      const up = el.closest("[data-up]") as HTMLElement | null;
+      const mes = el.closest("[data-drill-month]") as HTMLElement | null;
+      const sem = el.closest("[data-drill-week]") as HTMLElement | null;
+      const hoy = el.closest("[data-today]") as HTMLElement | null;
+      if (hoy) { this.currentDate = new Date(); this.render(); this.updateWatermark(); return; }
+      if (mes) { const d = this.parseKey(mes.dataset.drillMonth); if (d) this.currentDate = d; this.goTo("month"); return; }
+      if (sem) { const d = this.parseKey(sem.dataset.drillWeek); if (d) this.currentDate = d; this.goTo("week"); return; }
+      if (up) { this.goTo(up.dataset.up as "year" | "month"); return; }
+      if (viewBtn) this.goTo(viewBtn.dataset.view as "year" | "month" | "week");
     });
 
     // Keyboard navigation across the day grid
@@ -1195,11 +1105,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         return;
       }
 
-      // Jump a whole month (month view) or week (week view)
+      // Jump a whole month (month and year view) or week (week view)
       if (k === "PageUp" || k === "PageDown") {
         e.preventDefault();
         const dir = k === "PageUp" ? -1 : 1;
-        if (this.currentView === "month") {
+        if (this.currentView !== "week") {
           const y = current.getFullYear();
           const m = current.getMonth() + dir;
           const lastDay = new Date(y, m + 1, 0).getDate();
@@ -1217,8 +1127,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       switch (k) {
         case "ArrowLeft":  delta = -1; break;
         case "ArrowRight": delta = 1; break;
-        case "ArrowUp":    delta = this.currentView === "month" ? -7 : -1; break;
-        case "ArrowDown":  delta = this.currentView === "month" ? 7 : 1; break;
+        case "ArrowUp":    delta = this.currentView !== "week" ? -7 : -1; break;
+        case "ArrowDown":  delta = this.currentView !== "week" ? 7 : 1; break;
         case "Home":       delta = -posInWeek; break;
         case "End":        delta = 6 - posInWeek; break;
         default: return;
@@ -1242,7 +1152,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const items: powerbi.extensibility.VisualTooltipDataItem[] = [
           {
             displayName: "Date",
-            value: day.date.toLocaleDateString(this.loc()),
+            value: day.date.toLocaleDateString(self.loc()),
           },
         ];
         if (day.measureValue != null) {
@@ -1348,6 +1258,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const o: any = this.lastDataView?.metadata?.objects ?? {};
     const w: string[] = [];
     if (o.calendar?.view === "week") w.push("week view");
+    if (o.calendar?.view === "year") w.push("year view");
     if (parseInt(String(o.calendar?.monthsToShow ?? "1"), 10) > 1) w.push("several months");
     if ((o.events?.maxEventsVisible ?? 1) > 1) w.push("more than one event per day");
     if (o.events?.useGlobalColor !== undefined || o.events?.eventBgColor !== undefined ||
@@ -1832,6 +1743,216 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     });
 
     return container;
+  }
+
+  // ─── Vistas y navegación (1.2.0.0) ─────────────────────────────────────────
+
+  /** Cambia de vista respetando el plan: semana y año son Pro. Sin licencia y sin vista previa
+   *  se avisa con la notificación de Power BI; en vista previa se pinta y se avisa igual. */
+  private goTo(view: "year" | "month" | "week"): void {
+    if (view !== "month" && !this.isPro) {
+      const etiqueta = view === "week" ? "week view" : "year view";
+      if (!this.proPreview) { this.notifyProBlocked(etiqueta); return; }
+      this.currentView = view;
+      this.render();
+      this.notifyProBlocked(etiqueta);
+      this.updateWatermark();
+      return;
+    }
+    this.currentView = view;
+    this.render();
+    this.updateWatermark();
+  }
+
+  /** Número de semana: ISO 8601 (lunes, la semana con el primer jueves es la 1) o US (domingo,
+   *  la semana del 1 de enero es la 1). */
+  private weekNumber(d: Date): number {
+    if (this.settings.calendar.weekNumbers === "us") {
+      const ene1 = new Date(d.getFullYear(), 0, 1);
+      const dia = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() - ene1.getTime()) / 86400000);
+      return Math.floor((dia + ene1.getDay()) / 7) + 1;
+    }
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dow = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - dow);
+    const inicio = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return Math.ceil(((t.getTime() - inicio.getTime()) / 86400000 + 1) / 7);
+  }
+
+  /** Botón de la cabecera. */
+  private chromeButton(attr: string, value: string, text: string, label: string): HTMLButtonElement {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute(attr, value);
+    b.setAttribute("aria-label", label);
+    b.title = label;
+    b.style.cssText = this.navBtnStyle();
+    b.textContent = text;
+    return b;
+  }
+
+  /**
+   * Cabecera común: ← título Hoy →, los botones Year / Month / Week y las leyendas. El título
+   * sube un nivel (semana → mes → año) cuando `up` lo indica.
+   */
+  private buildChrome(outer: HTMLElement, label: string, up: "year" | "month" | null): void {
+    const v = this.currentView;
+    const header = document.createElement("div");
+    header.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px;flex-shrink:0;";
+    const prevTxt = v === "year" ? this.t("Cal_PrevYear", "Previous year") : v === "month" ? this.t("Cal_PrevMonth", "Previous month") : this.t("Cal_PrevWeek", "Previous week");
+    const nextTxt = v === "year" ? this.t("Cal_NextYear", "Next year") : v === "month" ? this.t("Cal_NextMonth", "Next month") : this.t("Cal_NextWeek", "Next week");
+    header.appendChild(this.chromeButton("data-nav", "prev", "←", prevTxt));
+
+    const centro = document.createElement("div");
+    centro.style.cssText = "display:flex;align-items:center;gap:8px;min-width:0;";
+    const titulo = document.createElement(up ? "button" : "span");
+    titulo.setAttribute("aria-live", "polite");
+    titulo.style.cssText = `font-weight:600;font-size:14px;color:${this.fg(null, "#3D3929")};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`
+      + (up ? "background:none;border:none;cursor:pointer;padding:0;text-decoration:underline dotted;text-underline-offset:3px;" : "");
+    titulo.textContent = label;
+    if (up) {
+      (titulo as HTMLButtonElement).type = "button";
+      titulo.setAttribute("data-up", up);
+      titulo.title = up === "year" ? this.t("Cal_GoYear", "Show the whole year") : this.t("Cal_GoMonth", "Show the month");
+    }
+    centro.appendChild(titulo);
+    const hoy = this.chromeButton("data-today", "1", this.t("Cal_Today", "Today"), this.t("Cal_GoToday", "Go to today"));
+    hoy.style.cssText = this.viewBtnStyle(false);
+    centro.appendChild(hoy);
+    header.appendChild(centro);
+    header.appendChild(this.chromeButton("data-nav", "next", "→", nextTxt));
+    outer.appendChild(header);
+
+    const viewRow = document.createElement("div");
+    viewRow.setAttribute("role", "group");
+    viewRow.setAttribute("aria-label", this.t("Cal_ViewGroup", "Calendar view"));
+    viewRow.style.cssText = "display:flex;gap:4px;margin-bottom:8px;flex-shrink:0;align-items:center;flex-wrap:wrap;";
+    const pro = this.isPro || this.proPreview;
+    const vistas: ["year" | "month" | "week", string, string, boolean][] = [
+      ["year", this.t("Cal_Year", "Year"), this.t("Cal_YearView", "Year view"), true],
+      ["month", this.t("Cal_Month", "Month"), this.t("Cal_MonthView", "Month view"), false],
+      ["week", this.t("Cal_Week", "Week"), this.t("Cal_WeekView", "Week view"), true]];
+    for (const [id, texto, aria, esPro] of vistas) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("data-view", id);
+      b.setAttribute("aria-label", esPro && !pro ? `${aria} (${this.t("Cal_ProFeature", "Pro feature")})` : aria);
+      b.setAttribute("aria-pressed", String(v === id));
+      b.style.cssText = this.viewBtnStyle(v === id);
+      b.textContent = texto;
+      viewRow.appendChild(b);
+    }
+    outer.appendChild(viewRow);
+
+    const legend = this.buildCategoryLegend();
+    if (legend) outer.appendChild(legend);
+    this.appendScaleLegend(outer, "top");
+  }
+
+  /**
+   * Leyenda de la escala de color: degradado del mínimo al máximo con sus valores (criterio
+   * de leyenda de OKviz). En alto contraste no hay degradado que explicar: no se pinta.
+   */
+  private appendScaleLegend(outer: HTMLElement, where: "top" | "bottom"): void {
+    const lg = this.settings.legend;
+    if (!lg.show || lg.position !== where || this.hc || this.calendarData.length === 0) return;
+    const fila = document.createElement("div");
+    fila.setAttribute("role", "img");
+    const minTxt = this.formatValue(this.valueMin), maxTxt = this.formatValue(this.valueMax);
+    fila.setAttribute("aria-label", this.t("Cal_ScaleLegend", "Color scale from {0} to {1}").replace("{0}", minTxt).replace("{1}", maxTxt));
+    fila.style.cssText = `display:flex;align-items:center;gap:6px;font-size:9px;color:${this.fg(null, "#83827D")};`
+      + (where === "top" ? "margin-bottom:6px;" : "margin-top:6px;") + "flex-shrink:0;";
+    const barra = document.createElement("span");
+    barra.style.cssText = `display:inline-block;width:110px;height:8px;border-radius:4px;`
+      + `background:linear-gradient(90deg,${this.sanitizeColor(this.settings.heatmap.colorMin, "#EDE9DE")},${this.sanitizeColor(this.settings.heatmap.colorMax, "#C96442")});`;
+    if (lg.showValues) { const a = document.createElement("span"); a.textContent = minTxt; fila.appendChild(a); }
+    fila.appendChild(barra);
+    if (lg.showValues) { const b = document.createElement("span"); b.textContent = maxTxt; fila.appendChild(b); }
+    outer.appendChild(fila);
+  }
+
+  /**
+   * Vista de año (Pro): los doce meses en miniatura, cada día coloreado por la medida. Un clic
+   * en el nombre de un mes lo abre (navegación jerárquica). Con calendario fiscal, el año empieza
+   * en el mes fiscal.
+   */
+  private buildYearView(): HTMLElement {
+    const fiscal = this.settings.calendar.fiscalEnabled;
+    const mesIni = fiscal ? Math.max(1, Math.min(12, this.settings.calendar.fiscalStartMonth || 1)) - 1 : 0;
+    const cur = this.currentDate;
+    const anioIni = cur.getMonth() >= mesIni ? cur.getFullYear() : cur.getFullYear() - 1;
+    const label = fiscal && mesIni > 0
+      ? `${this.t("Cal_FY", "FY")} ${anioIni + 1}`
+      : String(anioIni);
+    const weekStart = this.settings.calendar.weekStart;
+    const dayMap = new Map(this.calendarData.map(d => [this.dateKey(d.date), d]));
+    const today = this.dateKey(new Date());
+    const ac = this.accent(this.settings.navigation.activeColor, "#C96442");
+    const hol = this.fg(this.settings.dayNumber.holidayColor, "#C96442");
+    const iniciales = new Intl.DateTimeFormat(this.loc(), { weekday: "narrow" });
+
+    const outer = document.createElement("div");
+    outer.style.cssText = "display:flex;flex-direction:column;height:100%;min-height:280px;padding:8px;box-sizing:border-box;overflow:hidden;";
+    this.buildChrome(outer, label, null);
+
+    const cols = Math.max(2, Math.min(6, Math.floor((this.viewport.width - 16) / 170)));
+    const rejilla = document.createElement("div");
+    rejilla.style.cssText = `display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:12px;flex:1;min-height:0;overflow-y:auto;align-content:start;`;
+
+    for (let m = 0; m < 12; m++) {
+      const ini = new Date(anioIni, mesIni + m, 1);
+      const fin = new Date(ini.getFullYear(), ini.getMonth() + 1, 0);
+      const bloque = document.createElement("div");
+      bloque.style.cssText = "display:flex;flex-direction:column;gap:2px;min-width:0;";
+      const nombre = ini.toLocaleString(this.loc(), { month: "long" });
+      const t = document.createElement("button");
+      t.type = "button";
+      t.setAttribute("data-drill-month", this.dateKey(ini));
+      t.setAttribute("aria-label", this.t("Cal_OpenMonth", "Open {0}").replace("{0}", ini.toLocaleString(this.loc(), { month: "long", year: "numeric" })));
+      t.style.cssText = `border:none;background:none;cursor:pointer;padding:0 0 2px;text-align:left;font-size:11px;font-weight:600;`
+        + `color:${this.fg(null, "#3D3929")};text-transform:capitalize;`;
+      t.textContent = nombre;
+      bloque.appendChild(t);
+
+      const g = document.createElement("div");
+      g.setAttribute("role", "grid");
+      g.setAttribute("aria-label", `${this.t("Cal_Heatmap", "Calendar heatmap")}, ${nombre}`);
+      g.style.cssText = "display:grid;grid-template-columns:repeat(7,1fr);gap:2px;";
+      for (let i = 0; i < 7; i++) {
+        const h = document.createElement("div");
+        h.setAttribute("role", "columnheader");
+        h.style.cssText = `text-align:center;font-size:8px;color:${this.fg(null, "#83827D")};`;
+        h.textContent = iniciales.format(new Date(2024, 0, 7 + ((i + weekStart) % 7)));
+        g.appendChild(h);
+      }
+      const hueco = (ini.getDay() - weekStart + 7) % 7;
+      for (let i = 0; i < hueco; i++) { const e = document.createElement("div"); e.setAttribute("aria-hidden", "true"); g.appendChild(e); }
+      for (let d = 1; d <= fin.getDate(); d++) {
+        const fecha = new Date(ini.getFullYear(), ini.getMonth(), d);
+        const key = this.dateKey(fecha);
+        const day = dayMap.get(key);
+        const chrome = this.cellChrome(day, key === today, day?.isHoliday ?? false, ac, hol);
+        const c = document.createElement("div");
+        c.setAttribute("data-date", key);
+        c.setAttribute("data-has-data", day ? "1" : "0");
+        c.setAttribute("role", "gridcell");
+        c.setAttribute("tabindex", "-1");
+        c.setAttribute("aria-label", this.cellAriaLabel(fecha, day));
+        c.setAttribute("aria-selected", "false");
+        c.style.cssText = `aspect-ratio:1;border-radius:2px;box-sizing:border-box;background-color:${chrome.bg};border:${chrome.border};`
+          + `font-size:7px;line-height:1;color:${this.fg(this.settings.dayNumber.color, "#3D3929")};display:flex;align-items:center;justify-content:center;`
+          + `overflow:hidden;cursor:${day ? "pointer" : "default"};`;
+        if ((day?.events?.length ?? 0) > 0 && this.settings.events.showEvents) {
+          c.style.boxShadow = `inset 0 -2px 0 ${this.sanitizeColor(day!.events[0].color, "#C96442")}`;
+        }
+        g.appendChild(c);
+      }
+      bloque.appendChild(g);
+      rejilla.appendChild(bloque);
+    }
+    outer.appendChild(rejilla);
+    this.appendScaleLegend(outer, "bottom");
+    return outer;
   }
 
   private navBtnStyle(): string {

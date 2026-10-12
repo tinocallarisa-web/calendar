@@ -16,11 +16,13 @@ export function matchesPlan(spIdentifier: unknown, planId: string): boolean {
 
 export interface CalendarSettings {
   calendar: {
-    view: "month" | "week";
+    view: "year" | "month" | "week";
     monthsToShow: number;
     fiscalEnabled: boolean;
     fiscalStartMonth: number;
     weekStart: 0 | 1;
+    /** Número de semana a la izquierda de cada fila del mes (1.2.0.0). */
+    weekNumbers: "none" | "iso" | "us";
   };
   heatmap: {
     colorMin: string;
@@ -28,6 +30,12 @@ export interface CalendarSettings {
     colorNull: string;
     /** Constant side of the "Day Color" conditional-formatting property. Null = use the gradient. */
     dayColor: string | null;
+  };
+  /** Leyenda de la escala de color (1.2.0.0). */
+  legend: {
+    show: boolean;
+    position: "top" | "bottom";
+    showValues: boolean;
   };
   dayNumber: {
     fontSize: number;
@@ -62,12 +70,18 @@ export const defaultSettings: CalendarSettings = {
     fiscalEnabled: false,
     fiscalStartMonth: 1,
     weekStart: 1,
+    weekNumbers: "none",
   },
   heatmap: {
     colorMin: "#EDE9DE",
     colorMax: "#C96442",
     colorNull: "#F5F3ED",
     dayColor: null,
+  },
+  legend: {
+    show: true,
+    position: "top",
+    showValues: true,
   },
   dayNumber: {
     fontSize: 11,
@@ -122,17 +136,23 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
 
   return {
     calendar: {
-      view: (obj["calendar"]?.["view"] as "month" | "week") ?? defaultSettings.calendar.view,
+      view: (obj["calendar"]?.["view"] as "year" | "month" | "week") ?? defaultSettings.calendar.view,
       monthsToShow: parseInt(String(obj["calendar"]?.["monthsToShow"] ?? defaultSettings.calendar.monthsToShow), 10) || defaultSettings.calendar.monthsToShow,
       fiscalEnabled: (obj["calendar"]?.["fiscalEnabled"] as boolean) ?? defaultSettings.calendar.fiscalEnabled,
       fiscalStartMonth: (obj["calendar"]?.["fiscalStartMonth"] as number) ?? defaultSettings.calendar.fiscalStartMonth,
       weekStart: (parseInt(String(obj["calendar"]?.["weekStart"] ?? defaultSettings.calendar.weekStart), 10) || 0) as 0 | 1,
+      weekNumbers: (obj["calendar"]?.["weekNumbers"] as "none" | "iso" | "us") ?? defaultSettings.calendar.weekNumbers,
     },
     heatmap: {
       colorMin: (obj["heatmap"]?.["colorMin"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMin,
       colorMax: (obj["heatmap"]?.["colorMax"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMax,
       colorNull: (obj["heatmap"]?.["colorNull"] as any)?.solid?.color ?? defaultSettings.heatmap.colorNull,
       dayColor: (obj["heatmap"]?.["dayColor"] as any)?.solid?.color ?? null,
+    },
+    legend: {
+      show: (obj["legend"]?.["show"] as boolean) ?? defaultSettings.legend.show,
+      position: (obj["legend"]?.["position"] as "top" | "bottom") ?? defaultSettings.legend.position,
+      showValues: (obj["legend"]?.["showValues"] as boolean) ?? defaultSettings.legend.showValues,
     },
     dayNumber: {
       fontSize: (obj["dayNumber"]?.["fontSize"] as number) ?? defaultSettings.dayNumber.fontSize,

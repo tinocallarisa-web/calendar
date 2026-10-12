@@ -48,12 +48,36 @@
       "table": {
         "rows": {
           "select": [
-            { "for": { "in": "date" } },
-            { "for": { "in": "mainMeasure" } },
-            { "for": { "in": "secondaryMeasures" } },
-            { "for": { "in": "eventName" } },
-            { "for": { "in": "eventCategory" } },
-            { "for": { "in": "holidayName" } }
+            {
+              "for": {
+                "in": "date"
+              }
+            },
+            {
+              "for": {
+                "in": "mainMeasure"
+              }
+            },
+            {
+              "for": {
+                "in": "secondaryMeasures"
+              }
+            },
+            {
+              "for": {
+                "in": "eventName"
+              }
+            },
+            {
+              "for": {
+                "in": "eventCategory"
+              }
+            },
+            {
+              "for": {
+                "in": "holidayName"
+              }
+            }
           ]
         }
       }
@@ -67,39 +91,104 @@
         "view": {
           "displayName": "Default View",
           "displayNameKey": "Visual_Calendar_View",
-          "type": { "enumeration": [
-            { "value": "month", "displayName": "Month" },
-            { "value": "week", "displayName": "Week [Pro]" }
-          ]}
+          "type": {
+            "enumeration": [
+              {
+                "value": "year",
+                "displayName": "Year [Pro]",
+                "displayNameKey": "Visual_Calendar_View_Year"
+              },
+              {
+                "value": "month",
+                "displayName": "Month"
+              },
+              {
+                "value": "week",
+                "displayName": "Week [Pro]"
+              }
+            ]
+          }
         },
         "monthsToShow": {
           "displayName": "Months to Display [Pro]",
           "displayNameKey": "Visual_Calendar_MonthsToShow",
-          "type": { "enumeration": [
-            { "value": "1",  "displayName": "1 month" },
-            { "value": "2",  "displayName": "2 months" },
-            { "value": "3",  "displayName": "3 months" },
-            { "value": "6",  "displayName": "6 months" },
-            { "value": "12", "displayName": "12 months" }
-          ]}
+          "type": {
+            "enumeration": [
+              {
+                "value": "1",
+                "displayName": "1 month"
+              },
+              {
+                "value": "2",
+                "displayName": "2 months"
+              },
+              {
+                "value": "3",
+                "displayName": "3 months"
+              },
+              {
+                "value": "6",
+                "displayName": "6 months"
+              },
+              {
+                "value": "12",
+                "displayName": "12 months"
+              }
+            ]
+          }
         },
         "fiscalEnabled": {
           "displayName": "Fiscal Calendar",
           "displayNameKey": "Visual_Calendar_FiscalEnabled",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "fiscalStartMonth": {
           "displayName": "Fiscal Year Start Month",
           "displayNameKey": "Visual_Calendar_FiscalStartMonth",
-          "type": { "numeric": true }
+          "type": {
+            "numeric": true
+          }
         },
         "weekStart": {
           "displayName": "Week Starts On",
           "displayNameKey": "Visual_Calendar_WeekStart",
-          "type": { "enumeration": [
-            { "value": "0", "displayName": "Sunday" },
-            { "value": "1", "displayName": "Monday" }
-          ]}
+          "type": {
+            "enumeration": [
+              {
+                "value": "0",
+                "displayName": "Sunday"
+              },
+              {
+                "value": "1",
+                "displayName": "Monday"
+              }
+            ]
+          }
+        },
+        "weekNumbers": {
+          "displayName": "Week Numbers",
+          "displayNameKey": "Visual_Calendar_WeekNumbers",
+          "type": {
+            "enumeration": [
+              {
+                "value": "none",
+                "displayName": "None",
+                "displayNameKey": "Visual_Calendar_WeekNumbers_None"
+              },
+              {
+                "value": "iso",
+                "displayName": "ISO 8601",
+                "displayNameKey": "Visual_Calendar_WeekNumbers_Iso"
+              },
+              {
+                "value": "us",
+                "displayName": "US (week of 1 January)",
+                "displayNameKey": "Visual_Calendar_WeekNumbers_Us"
+              }
+            ]
+          }
         }
       }
     },
@@ -110,29 +199,93 @@
         "colorMin": {
           "displayName": "Min Color",
           "displayNameKey": "Visual_Heatmap_ColorMin",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "colorMax": {
           "displayName": "Max Color",
           "displayNameKey": "Visual_Heatmap_ColorMax",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "colorNull": {
           "displayName": "No Data Color",
           "displayNameKey": "Visual_Heatmap_ColorNull",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "dayColor": {
           "displayName": "Day Color",
           "displayNameKey": "Visual_Heatmap_DayColor",
           "description": "Overrides the heatmap gradient for individual days. Use the fx button to color days by a rule.",
-          "type": { "fill": { "solid": { "color": true } } },
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          },
           "rule": {
             "inputRole": "mainMeasure",
             "output": {
               "property": "dayColor",
-              "selector": ["date"]
+              "selector": [
+                "date"
+              ]
             }
+          }
+        }
+      }
+    },
+    "legend": {
+      "displayName": "Color Legend",
+      "displayNameKey": "Visual_Legend",
+      "properties": {
+        "show": {
+          "displayName": "Show",
+          "displayNameKey": "Visual_Legend_Show",
+          "type": {
+            "bool": true
+          }
+        },
+        "position": {
+          "displayName": "Position",
+          "displayNameKey": "Visual_Legend_Position",
+          "type": {
+            "enumeration": [
+              {
+                "value": "top",
+                "displayName": "Top",
+                "displayNameKey": "Visual_Legend_Position_Top"
+              },
+              {
+                "value": "bottom",
+                "displayName": "Bottom",
+                "displayNameKey": "Visual_Legend_Position_Bottom"
+              }
+            ]
+          }
+        },
+        "showValues": {
+          "displayName": "Show min and max",
+          "displayNameKey": "Visual_Legend_ShowValues",
+          "type": {
+            "bool": true
           }
         }
       }
@@ -144,27 +297,51 @@
         "fontSize": {
           "displayName": "Font Size",
           "displayNameKey": "Visual_DayNumber_FontSize",
-          "type": { "numeric": true }
+          "type": {
+            "numeric": true
+          }
         },
         "fontFamily": {
           "displayName": "Font Family",
           "displayNameKey": "Visual_DayNumber_FontFamily",
-          "type": { "formatting": { "fontFamily": true } }
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
         },
         "color": {
           "displayName": "Color",
           "displayNameKey": "Visual_DayNumber_Color",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "weekendColor": {
           "displayName": "Weekend Color",
           "displayNameKey": "Visual_DayNumber_WeekendColor",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "holidayColor": {
           "displayName": "Holiday Color",
           "displayNameKey": "Visual_DayNumber_HolidayColor",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     },
@@ -175,17 +352,29 @@
         "fontSize": {
           "displayName": "Font Size",
           "displayNameKey": "Visual_Labels_FontSize",
-          "type": { "numeric": true }
+          "type": {
+            "numeric": true
+          }
         },
         "fontFamily": {
           "displayName": "Font Family",
           "displayNameKey": "Visual_Labels_FontFamily",
-          "type": { "formatting": { "fontFamily": true } }
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
         },
         "color": {
           "displayName": "Color",
           "displayNameKey": "Visual_Labels_Color",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     },
@@ -196,12 +385,24 @@
         "activeColor": {
           "displayName": "Active Button Color",
           "displayNameKey": "Visual_Navigation_ActiveColor",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "textColor": {
           "displayName": "Button Text Color",
           "displayNameKey": "Visual_Navigation_TextColor",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     },
@@ -212,32 +413,52 @@
         "showEvents": {
           "displayName": "Show Events",
           "displayNameKey": "Visual_Events_ShowEvents",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "maxEventsVisible": {
           "displayName": "Max Events per Day (month view) [Pro]",
           "displayNameKey": "Visual_Events_MaxEventsVisible",
-          "type": { "numeric": true }
+          "type": {
+            "numeric": true
+          }
         },
         "useGlobalColor": {
           "displayName": "Single color for all events [Pro]",
           "displayNameKey": "Visual_Events_UseGlobalColor",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "eventBgColor": {
           "displayName": "Event Color [Pro]",
           "displayNameKey": "Visual_Events_EventBgColor",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "eventFontColor": {
           "displayName": "Event Text Color [Pro]",
           "displayNameKey": "Visual_Events_EventFontColor",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "eventFontSize": {
           "displayName": "Event Font Size [Pro]",
           "displayNameKey": "Visual_Events_EventFontSize",
-          "type": { "numeric": true }
+          "type": {
+            "numeric": true
+          }
         }
       }
     },
@@ -245,14 +466,94 @@
       "displayName": "Event Category Colors [Pro]",
       "displayNameKey": "Visual_EventCategoryColors",
       "properties": {
-        "c0": { "displayName": "Category 1", "displayNameKey": "Visual_EventCategoryColors_C0", "type": { "fill": { "solid": { "color": true } } } },
-        "c1": { "displayName": "Category 2", "displayNameKey": "Visual_EventCategoryColors_C1", "type": { "fill": { "solid": { "color": true } } } },
-        "c2": { "displayName": "Category 3", "displayNameKey": "Visual_EventCategoryColors_C2", "type": { "fill": { "solid": { "color": true } } } },
-        "c3": { "displayName": "Category 4", "displayNameKey": "Visual_EventCategoryColors_C3", "type": { "fill": { "solid": { "color": true } } } },
-        "c4": { "displayName": "Category 5", "displayNameKey": "Visual_EventCategoryColors_C4", "type": { "fill": { "solid": { "color": true } } } },
-        "c5": { "displayName": "Category 6", "displayNameKey": "Visual_EventCategoryColors_C5", "type": { "fill": { "solid": { "color": true } } } },
-        "c6": { "displayName": "Category 7", "displayNameKey": "Visual_EventCategoryColors_C6", "type": { "fill": { "solid": { "color": true } } } },
-        "c7": { "displayName": "Category 8", "displayNameKey": "Visual_EventCategoryColors_C7", "type": { "fill": { "solid": { "color": true } } } }
+        "c0": {
+          "displayName": "Category 1",
+          "displayNameKey": "Visual_EventCategoryColors_C0",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "c1": {
+          "displayName": "Category 2",
+          "displayNameKey": "Visual_EventCategoryColors_C1",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "c2": {
+          "displayName": "Category 3",
+          "displayNameKey": "Visual_EventCategoryColors_C2",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "c3": {
+          "displayName": "Category 4",
+          "displayNameKey": "Visual_EventCategoryColors_C3",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "c4": {
+          "displayName": "Category 5",
+          "displayNameKey": "Visual_EventCategoryColors_C4",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "c5": {
+          "displayName": "Category 6",
+          "displayNameKey": "Visual_EventCategoryColors_C5",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "c6": {
+          "displayName": "Category 7",
+          "displayNameKey": "Visual_EventCategoryColors_C6",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "c7": {
+          "displayName": "Category 8",
+          "displayNameKey": "Visual_EventCategoryColors_C7",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
       }
     }
   },
