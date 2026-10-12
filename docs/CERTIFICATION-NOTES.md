@@ -1,4 +1,4 @@
-# Certification Notes — Calendar Events Heatmap v1.1.1.0
+# Certification Notes — Calendar Events Heatmap v1.2.0.0
 
 **Visual GUID:** `calendarTCViz022303184F264C8B9ACE6A13E838FFEB`  
 **Plan ID:** `calendar-tcviz`  
@@ -7,6 +7,33 @@
 **Submission date:** (fill on submission)
 
 ---
+
+## Release Notes — v1.2.0.0
+
+The text pasted into Partner Center is `docs/CERTIFICATION-NOTES-SHORT.txt`. The Free/Pro split below
+this section describes 1.1; the current split is the table in `docs/terms.html` and in the support page.
+
+- **Formatting model.** `enumerateObjectInstances` replaced by `getFormattingModel` (schema generated from
+  `capabilities.json` into `src/panel.ts`). On-object formatting (`supportsOnObjectFormatting`,
+  `enablePointerEventsFormatMode`): day, number, value, view buttons, legend and event marks. In format mode a
+  click formats and does not select.
+- **Conditional formatting.** The fx on `heatmap.dayColor` is removed: Microsoft documents that conditional
+  formatting is not supported for table-based visuals, and it never applied. `rules` (Color Rules, up to three
+  thresholds) replace it as the visual's own conditional formatting.
+- **Views and navigation.** Year view (Pro), drill up (title) and down (month name, week number), Today, ISO or
+  US week numbers.
+- **Selection.** Date ranges by drag, Shift+click or Shift+Enter: `select(ids[], multi)` with every day in range.
+- **Fiscal calendars.** `fiscalEnabled`/`fiscalStartMonth` were never read in 1.1; now applied. New
+  `fiscalType` (4-4-5, 4-5-4, 5-4-4): year starts on the week start nearest day 1 of the fiscal month; twelve
+  periods of whole weeks; in a 53-week year the extra week goes to period 12.
+- **Measure switching (Pro).** `state.activeMeasure`, persisted from the reader's change only.
+- **Persisted properties.** Only `style.template` and `style.guide` (setup guide) and `state.activeMeasure`,
+  always from a user click; never from `registerOnSelectCallback`.
+- **Localisation.** 12 languages. Texts the visual writes itself are resolved from `src/strings.ts` because
+  Desktop only resolves `getDisplayName` for keys declared in `capabilities.json`.
+- **Rendering events.** One started/finished-or-failed pair per `update()`; navigation, selection and guide
+  repaints go through `render()` and emit none.
+- **Tooling.** powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.5.4; npm audit 0 in production.
 
 ## Release Notes — Power BI feature support (v1.1.0.0)
 

@@ -1,6 +1,6 @@
 # Calendar Events Heatmap — Website Product Page Content
 
-**Version 1.0.0.0 · TCViz**
+**Version 1.2.0.0 · TCViz**
 
 ---
 
@@ -148,7 +148,7 @@ The visual uses a table dataViewMapping. All fields must share a common date key
 - Power BI Service (cloud)
 - Power BI Embedded
 - Power BI Mobile (read-only rendering)
-- API version: 5.11.0
+- API version: 5.11.1
 
 ### Performance
 
@@ -196,6 +196,10 @@ No external JavaScript libraries. No npm packages beyond the Power BI SDK. Fonts
 - Right-click Power BI context menu support
 - Freemium gating: Free (1 month, 1 event/day) vs Pro ($9.99/month, 30-day trial)
 - Full format pane: Calendar, Heatmap Colors, Day Number, Events, Measure Labels (Pro), View Buttons (Pro), Event Category Colors (Pro)
-- Fiscal calendar support
+- Fiscal calendars by month or in 4-4-5 / 4-5-4 / 5-4-4 weeks
+- Year, month and week views with drill up and down
+- Date-range filtering by dragging across days
+- Color rules, 10 color schemes and 5 style templates
+- Setup guide inside the visual, format on the canvas, 12 languages
 - Configurable week start (Sunday / Monday)
 - Keyboard accessibility

@@ -4,6 +4,8 @@
   "Aria_Events": "{0} events",
   "Aria_NoData": "No data",
   "Aria_OneEvent": "1 event",
+  "Aria_OneSelected": "1 day selected",
+  "Aria_Selected": "{0} days selected",
   "Cal_Default": "Default",
   "Cal_FY": "FY",
   "Cal_GoMonth": "Show the month",

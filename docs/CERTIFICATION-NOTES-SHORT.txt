@@ -1,46 +1,43 @@
-Calendar Events Heatmap 1.1.2.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
-Repo, branch certification: https://github.com/tinocallarisa-web/calendar/tree/certification
-Pages site: https://tinocallarisa-web.github.io/calendar/
-  -> support.html · privacy.html · terms.html
-Video: https://www.youtube.com/watch?v=FUELmlkAGNI
+Calendar Events Heatmap 1.2.0.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
 
-WHY THIS SUBMISSION
-Replaces 1.1.0.0 (1.1.1.0 was never sent; included here). Purchase notice fixed,
-watermarked Pro preview, new brand icon.
+SOURCE CODE
+github.com/tinocallarisa-web/calendar, branch "certification".
+PUBLIC: no credentials needed, none included here.
+Full notes: docs/CERTIFICATION-NOTES.md. Docs: tinocallarisa-web.github.io/calendar
 
-PLEASE READ FIRST - PRO PREVIEW
-Without a licence, IN EDIT MODE ONLY, Pro options render working under a "Pro preview"
-watermark, which the guidelines allow for paid features. Intentional, not missing gating.
-In reading view, before the licence resolves, and where licences cannot be read (Publish to
-Web, embed, export) the FREE result is drawn with no watermark, so a published report never
-uses an unpaid Pro feature.
+TESTING THE PREMIUM FEATURES - NO KEY NEEDED
+There is no activation key: Pro is granted by the AppSource plan through
+IVisualLicenseManager. Import this .pbiviz and open a report in EDIT mode without a
+licence: each Pro feature (Year and Week views, 2-12 months, Measure selector, several
+events per day, category colours) is drawn WORKING under a "Pro preview" watermark
+naming it, a banner names it and the Upgrade bar follows. Reading view shows the free
+result. Intentional, not missing gating.
 
-TESTING - FREE (no active plan)
-1. Date + Main Measure: heatmap renders. Add Event Name: 1 badge per day.
-2. In EDIT mode click Week: the week view renders under the watermark, a banner names the
-   feature and after ~10 s Power BI's Upgrade bar appears. Clicking Week always notifies.
-3. Months to Display [Pro] = 3: three months render under the watermark.
-4. Switch to reading view: month view, 1 badge per day, no watermark and no notice.
-5. Click a day: other visuals filter. Arrows move focus, Enter selects, Escape clears.
-6. Resize smaller: all week rows stay visible.
+TESTING
+1. Date + Main Measure: month heatmap. Add Event Name/Category: colour marks + legend.
+2. Click a day: other visuals filter. Drag across days (or Shift+click): the report
+   filters by the range. Ctrl+click adds; empty space clears.
+3. Click the month title: year view (Pro). Click a month name: back to that month.
+   Calendar > Week Numbers = ISO, click a week number: week view (Pro). Today button.
+4. Calendar > Fiscal Calendar on, start month 10: title shows FY and period.
+   Fiscal Periods = 4-4-5: the month view shows a fiscal period of whole weeks.
+5. Color Rules: rule 1 >= a value: those days repaint.
+6. Edit mode: a setup guide lists the wells and offers templates; Finish hides it.
+7. Format mode: click a day, its number or the legend to format it on the canvas.
+8. Resize to 300x260: compact layout, nothing cut.
 
-TESTING - PRO (active "calendar-tcviz" plan or its 30-day trial)
-1. Week view and 3 months: no watermark, no notice.
-2. Event Category Colors apply to badges and legend.
+WHY NO FX
+Power BI documents that conditional formatting (fx) is not supported for table-based
+visuals; 1.1 offered it on Day Color and it never applied. Color Rules replace it.
 
-PRIVACY/NETWORK
-No network calls, telemetry, cookies or storage. privileges: []. No innerHTML.
-ESLint (eslint-plugin-powerbi-visuals) clean.
+RENDERING EVENTS
+One renderingStarted and one renderingFinished/Failed per update(). Navigation,
+selection and the guide repaint through render(), emitting none.
+
+PRIVACY / NETWORK
+No external calls, telemetry or CDN; privileges: []. No innerHTML. The visual persists
+only style.template, style.guide and state.activeMeasure, from a user click.
 
 LICENSING
-IVisualLicenseManager only. Pro when the full Service ID ends in ".calendar-tcviz" and state
-is Active or Warning; the 30-day trial resolves as Active. Requested once after the first
-render, never blocks it; failure stays Free with no prompts. No licensing UI of our own.
-
-KNOWN GAPS
-1. npm audit reports 3 moderate findings, all from "ajv" inside powerbi-visuals-tools 5.6.
-   Forcing ajv 8 breaks the build: the ESLint bundled with those tools needs ajv 6. Went
-   from 14 findings (1 high) to 7 (0 high) via overrides.
-2. Format pane still uses enumerateObjectInstances; getFormattingModel planned.
-
-Full notes: docs/CERTIFICATION-NOTES.md.
+Plan calendar-tcviz, matched on the Service ID. Requested after the first paint; on
+failure it stays Free. No licensing UI of our own. npm audit: 0 in production.

@@ -1,5 +1,7 @@
 # Calendar Events Heatmap
 
+> **1.2.0.0:** year, month and week views with drill up and down, date-range filtering, fiscal calendars in months or 4-4-5 weeks, color rules, 10 color schemes, 5 style templates, a setup guide, format on the canvas and 12 languages. See the [changelog](https://tinocallarisa-web.github.io/calendar/changelog.html).
+
 **A Power BI custom visual by [TCViz](https://github.com/tinocallarisa-web).**
 Daily KPI intensity and dated business events on one calendar surface — promotions,
 campaigns and holidays shown alongside the measure they moved.
@@ -77,7 +79,7 @@ or a single colour for everything. A cap on badges per day keeps dense months re
 with a `+N` counter for the overflow.
 
 **Report integration** — standard tooltips and report tooltip pages, cross-page
-filtering with multi-select, bookmarks, conditional formatting on the day colour, and
+filtering with multi-select, bookmarks, color rules on the day's value, and
 the measure's own format string honoured throughout, including dynamic format strings.
 
 ![Three months side by side with a category legend and cross-filtering slicers](assets/Screenshot1.png)
@@ -108,7 +110,7 @@ The calendar is a real grid, not a picture of one.
 
 Everything below works without a licence, in both tiers: the KPI heatmap, event badges
 with automatic category colours, holiday overlay, tooltip measures and report tooltip
-pages, cross-page filtering, bookmarks, conditional formatting, keyboard navigation and
+pages, cross-page filtering, bookmarks, color rules, keyboard navigation and
 high contrast.
 
 **Pro** adds the week view, one to twelve months side by side, a configurable number of

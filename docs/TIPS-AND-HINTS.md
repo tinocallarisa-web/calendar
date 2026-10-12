@@ -1,157 +1,95 @@
-# Calendar Events Heatmap — Tips & Hints (v1.1.2.0)
+# Calendar Events Heatmap — Tips & Hints (v1.2.0.0)
 
-**Version 1.0.0.0 · TCViz**  
-Demo video: https://www.youtube.com/watch?v=FUELmlkAGNI
+Demo video: https://www.youtube.com/watch?v=FUELmlkAGNI  
+Same content as `TIPS-AND-HINTS-PLAIN.txt`, which is the one to paste into Power BI text boxes.
 
----
+
 
 ## Getting Started
 
-Calendar Events Heatmap is a Power BI custom visual that combines a KPI heatmap with event badges in a single calendar surface. You can see how your measures (sales, revenue, traffic) relate to promotions, campaigns, and holidays — all on the same day cell.
+Calendar Events Heatmap colours each day by your measure and puts
+promotions, campaigns and holidays on the day they happened.
 
-**Minimum to get a working calendar:**
+- Drag a Date column to Date and a measure to Main Measure.
+- Follow the setup guide inside the visual: it ticks off each
+    optional field as you add it and offers the style templates.
+    It only shows while you edit; reopen it from
+    Format > Style template > Setup guide.
 
-1. Add the visual to the report canvas
-2. Drag a **Date** column to the **Date** field well
-3. Drag a numeric measure to the **Main Measure** field well
+! If the year looks wrong, click the dropdown next to your Date
+  field and choose "Date" (not Date Hierarchy).
 
-The heatmap is now live. Add events and holidays to get the full picture.
 
-> ⚠️ **Auto Date/Time issue:** If your dates show as a year number (2024) instead of full dates, click the dropdown arrow next to your Date field and select **Date** (not Date Hierarchy). You can also disable Auto Date/Time globally in File → Options → Current file → Data Load.
-
----
 
 ## Field Wells
 
-| Field | Required | What it does |
-|---|---|---|
-| **Date** | Yes | Calendar days. One row per day in your data. |
-| **Main Measure** | Yes | Drives heatmap color. Higher = darker color. |
-| **Tooltip Measures** | No | Extra measures shown in the hover tooltip only. Add as many as needed. |
-| **Event Name** | No | Text shown as the event badge on the calendar day. |
-| **Event Category** | No | Groups events by type. Each category gets its own color. Up to 8 categories. |
-| **Holiday Name** | No | Holiday text. Uses the Date column for the date — no separate date column needed. |
+Date .............. Required. One row per day.
+Main Measure ...... Required. Colours each day.
+Tooltip Measures .. Optional. More figures on hover; with Pro, the
+                    Measure selector can show any of them.
+Event Name ........ Optional. The event on that day.
+Event Category .... Optional. One colour per category, with legend.
+Holiday Name ...... Optional. Marks the day as a holiday.
 
-**Key design note:** All fields share the same Date column. The recommended data model is a single merged/expanded table where each row represents one calendar day, with the event name, category, and holiday name already joined to that day's date.
+All fields share the Date column: expand each event to one row per
+day before connecting it.
 
-**Connecting events:** Your events table should be expanded per-day before connecting to the visual. If a promo runs Jan 10–15, you need 6 rows (one per day) with the same event name and category. The visual does not expand date ranges internally.
 
----
 
-## Format Pane Settings
+## Views And Navigation
 
-### Calendar
-- **Default View:** Start in Month or Week view. The view the user selects in the report is remembered — this setting only applies on first load.
-- **Months to Display** *(Pro)*: Show 1–12 months side by side. Great for quarterly reviews.
-- **Week Starts On:** Sunday or Monday.
-- **Fiscal Calendar:** Enable to offset the calendar to your fiscal year.
+Month ............. One month, or up to 12 side by side (Pro).
+Year (Pro) ........ The twelve months in miniature.
+Week (Pro) ........ Seven large days with every event written.
+Click the title to go up a level, a month name or a week number to
+go down. Today jumps to the current date.
 
-### Heatmap Colors
-- **Min Color / Max Color:** The gradient endpoints. Set to your brand colors for a polished look.
-- **No Data Color:** Days with no measure data use this color. Setting it close to Min Color gives a cleaner look.
 
-### Day Number
-- Style the day numbers independently from the measure labels.
-- **Weekend Color / Holiday Color:** Call out Saturdays, Sundays, and holidays with distinct colors.
 
-### Events *(some settings Pro)*
-- **Show Events:** Toggle all event badges on or off.
-- **Max Events per Day** *(Pro)*: Limit how many badges show per cell in month view.
-- **Single color for all events** *(Pro)*: When ON, all badges use the "Event Color" picker. When OFF, categories each get their own configurable color.
+## Filtering
 
-### Event Category Colors *(Pro)*
-One color picker per category (labeled Category 1 through Category 8), in order of first appearance in the data. A color legend is automatically rendered in the visual below the Month/Week buttons.
+- Click a day to filter the page; Ctrl+click adds.
+- Drag across days, or Shift+click, to filter by a date range.
+- Click empty space to clear.
 
-### Measure Labels / View Buttons *(Pro)*
-Full font and color control for the measure value labels and the Month/Week navigation buttons.
 
----
 
-## Free vs Pro
+## Colour
 
-| Feature | Free | Pro ($9.99/mo) |
-|---|---|---|
-| Month view | 1 month | 1–12 months |
-| Week view | — | ✅ |
-| KPI heatmap | ✅ | ✅ |
-| Event badges | 1/day | Configurable |
-| Per-category event colors | Auto palette | ✅ Configurable |
-| Holiday overlay | ✅ | ✅ |
-| Tooltip measures | ✅ | ✅ |
-| Cross-page filtering | ✅ | ✅ |
-| Full format pane | Basic | ✅ Full |
-| 30-day full trial | ✅ All Pro features | — |
+- Color scheme: ten palettes, Viridis and Cividis colour-blind safe.
+- Color Rules: paint the days above or below your thresholds.
+- Style template: Classic, Clean, Tiles, Minimal, TCViz.
+- Show events as: colour marks (month, year) or labels (week).
 
-**While you are editing the report without a licence**, Pro options render working under a
-*Pro preview* watermark, and Power BI shows its own notice with the purchase option. In
-reading view — and wherever Power BI cannot check licences, such as Publish to Web, embedding
-or export — the free result is shown with no watermark, so a published report never uses a
-Pro feature you have not paid for.
 
-To unlock Pro, use the Upgrade option in Power BI's own notice, or buy the plan on Microsoft
-AppSource. (The old lock icon was removed: Microsoft asks visuals not to draw their own
-licensing UI.)
 
----
+## Fiscal Calendars
 
-## Tips & Best Practices
+Calendar > Fiscal Calendar on, then the start month. The fiscal year
+is named after the year it ends in (Oct 2026 starts FY2027).
+Fiscal Periods = 4-4-5 / 4-5-4 / 5-4-4 shows periods of whole weeks.
 
-**Multi-month comparison:** Set Months to Display to 3 or 6 to compare quarterly patterns at a glance. Combine with a year slicer for year-over-year comparison.
 
-**Category color strategy:** Put your most important event type first in the data so it maps to Category 1 — then assign it your most prominent brand color.
 
-**Clean tooltips:** Add your secondary KPIs (margin, units) to the Tooltip Measures field instead of the main table. They'll appear in the hover tooltip without cluttering the badge.
+## Tips
 
-**Fiscal calendars:** If your fiscal year starts in April, enable Fiscal Calendar and set Fiscal Year Start Month to 4. All month labels and navigation will use fiscal naming.
+- Months to Display is a maximum: only the months that fit are drawn.
+- Small visual? Legends and day values step aside; the colour stays.
+- In format mode, click a day, its number or the legend to format it.
+- Esc clears the selection; Shift+Enter selects a range by keyboard.
 
-**Holiday overlap:** If a day is both a holiday and has events, the holiday color applies to the day number and event badges still show. You can distinguish holidays visually by using a bright Holiday Color in the Day Number section.
 
-**Performance tip:** For large datasets (multi-year with daily granularity), filter your Date table to the reporting period in Power Query before connecting. The visual renders all rows in the current dataView.
 
----
+## Free And Pro
 
-## Example Configurations
+Free: month view, heatmap, schemes, rules, templates, holidays, one
+event per day plus a count, date ranges, fiscal and 4-4-5 calendars,
+week numbers, setup guide, 12 languages.
+Pro: year and week views, up to 12 months, measure switching, several
+events per day, category, label and button colours.
+Without a licence, Pro features show working in edit mode under a
+"Pro preview" watermark.
 
-### Retail Promotion Calendar
-- Date → store calendar date  
-- Main Measure → daily sales revenue  
-- Event Name → promotion name  
-- Event Category → promotion type (Discount, Bundle, Clearance, Campaign)  
-- Holiday Name → public holidays  
-- Format: 3 months, Max Color = orange brand color, Category colors = traffic-light palette
+Questions: github.com/tinocallarisa-web/calendar/discussions
+Support: support@tcviz.com
 
-### Marketing Campaign Tracker
-- Date → campaign date  
-- Main Measure → daily website visits  
-- Tooltip Measures → conversions, spend  
-- Event Name → campaign name  
-- Event Category → channel (Paid, Organic, Email, Social)  
-- Format: Week view, single color per category matching channel brand colors
-
-### Operations Shift Calendar
-- Date → work date  
-- Main Measure → incidents count (higher = darker = worse)  
-- Event Name → incident type  
-- Holiday Name → public holidays (affects staffing)  
-- Format: Min Color = green, Max Color = red (reverse heatmap)
-
----
-
-## Troubleshooting
-
-**Events appear on wrong days**  
-Your events data likely uses a date range (start/end). Expand the table per-day in Power Query before connecting to the visual.
-
-**Category colors reset after saving**  
-Check that the Event Category field is still connected and that category values haven't changed. Colors are stored by position (Category 1, 2, ...) based on first-occurrence order in the data.
-
-**Heatmap shows all days the same color**  
-Your measure may have zero variance. Check the measure formula or try switching Min/Max colors to see the gradient.
-
-**Slicers stop working after clicking a day**  
-Click on an empty area of the visual to deselect. Day selection activates cross-filtering; deselecting restores slicer-driven filters.
-
-**Clicking Week shows a watermark**  
-Week view is a Pro feature. While you edit the report it renders under the *Pro preview*
-watermark so you can see what you would get, and Power BI shows its notice with the option to
-start the 30-day trial or buy Pro. In reading view it stays in month view with no watermark.
