@@ -1005,7 +1005,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       dnDiv.style.fontSize = `${dn.fontSize}px`;
       dnDiv.style.fontFamily = dnFont;
       dnDiv.style.fontWeight = "600";
-      dnDiv.style.color = dayNumColor;
+      dnDiv.style.color = this.hc ? dayNumColor : this.legible(dayNumColor, chrome.bg);
       dnDiv.style.whiteSpace = "nowrap";
       dnDiv.textContent = dayNames[i];
       cell.appendChild(dnDiv);
@@ -1015,7 +1015,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       numDiv.style.fontSize = `${Math.round(dn.fontSize * 1.6)}px`;
       numDiv.style.fontFamily = dnFont;
       numDiv.style.fontWeight = isToday ? "700" : "400";
-      numDiv.style.color = dnColor;
+      numDiv.style.color = this.hc ? dnColor : this.legible(dnColor, chrome.bg);
       numDiv.style.whiteSpace = "nowrap";
       numDiv.textContent = String(date.getDate()) + (isHoliday ? " ❆" : "");
       cell.appendChild(numDiv);
@@ -1026,7 +1026,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         valDiv.style.fontSize = `${lbl.fontSize}px`;
         valDiv.style.fontFamily = lblFont;
         valDiv.style.fontWeight = "600";
-        valDiv.style.color = lblColor;
+        valDiv.style.color = this.hc ? lblColor : this.legible(lblColor, chrome.bg);
         valDiv.style.whiteSpace = "nowrap";
         valDiv.style.overflow = "hidden";
         valDiv.style.textOverflow = "ellipsis";
@@ -1039,7 +1039,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const holDiv = document.createElement("div");
         holDiv.style.fontSize = `${lbl.fontSize}px`;
         holDiv.style.fontFamily = lblFont;
-        holDiv.style.color = dnHol;
+        holDiv.style.color = this.hc ? dnHol : this.legible(dnHol, chrome.bg);
         holDiv.style.whiteSpace = "nowrap";
         holDiv.style.overflow = "hidden";
         holDiv.style.textOverflow = "ellipsis";
@@ -1930,6 +1930,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private legible(deseado: string, fondo: string): string {
     const a = this.lum(deseado), f = this.lum(fondo);
     if (a === null || f === null) return deseado;
+    // Fondo oscuro: blanco siempre, como en Dynamic Matrix. Con la regla de contraste sola, un
+    // texto oscuro "justo" se quedaba sobre los días oscuros de paletas como Viridis o Activity.
+    if (f < 0.22) return "#FFFFFF";
     const ratio = (Math.max(a, f) + 0.05) / (Math.min(a, f) + 0.05);
     return ratio >= 3 ? deseado : (f < 0.3 ? "#FFFFFF" : "#252423");
   }
