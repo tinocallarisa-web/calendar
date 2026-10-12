@@ -7,6 +7,7 @@ import {
 } from "powerbi-visuals-utils-onobjectutils";
 import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES } from "./settings";
 import { PANEL, PanelProp } from "./panel";
+import { STRINGS } from "./strings";
 
 type IValueFormatter = ReturnType<typeof valueFormatter.create>;
 
@@ -142,7 +143,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // Root container
     this.container = document.createElement("div");
     this.container.className = "tcviz-calendar";
-    this.container.setAttribute("aria-label", "Calendar events heatmap");
+    this.container.setAttribute("aria-label", "Calendar Events Heatmap");
     this.container.style.cssText = `
       width: 100%;
       height: 100%;
@@ -156,7 +157,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // clics ni entra en el recorrido del lector de pantalla.
     this.watermarkEl = document.createElement("div");
     this.watermarkEl.setAttribute("aria-hidden", "true");
-    this.watermarkEl.textContent = "Pro preview";
+    this.watermarkEl.textContent = this.t("Msg_ProPreview", "Pro preview");
     this.watermarkEl.style.cssText =
       "position:absolute;left:0;top:0;right:0;bottom:0;display:none;align-items:center;" +
       "justify-content:center;pointer-events:none;z-index:5;font:700 32px 'Segoe UI',sans-serif;" +
@@ -553,11 +554,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const bodyEl = document.createElement("div");
 
       if (isYearValue) {
-        titleEl.textContent = "Connect the Date field as a Date, not as a Year hierarchy.";
-        bodyEl.textContent = "In the Field Well, click the ▼ next to your date field and select Date (not Date Hierarchy). Or: File → Options → Current file → Data Load → uncheck Auto date/time.";
+        titleEl.textContent = this.t("Msg_DateHierarchy", "Connect the Date field as a Date, not as a Year hierarchy.");
+        bodyEl.textContent = this.t("Msg_DateHierarchyHow", "In the Field Well, click the ▼ next to your date field and select Date (not Date Hierarchy). Or: File → Options → Current file → Data Load → uncheck Auto date/time.");
       } else {
-        titleEl.textContent = "No data received.";
-        bodyEl.textContent = "Connect a Date column and a Main Measure to this visual.";
+        titleEl.textContent = this.t("Msg_NoData", "No data received.");
+        bodyEl.textContent = this.t("Msg_NoDataHow", "Connect a Date column and a Main Measure to this visual.");
       }
 
       dbg.appendChild(titleEl);
@@ -590,7 +591,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // La vista previa cuenta como Pro a efectos de pintado: este gate se saltaba
     // proPreview y forzaba un mes aunque los ajustes ya trajeran tres.
     const n = (this.isPro || this.proPreview)
-      ? Math.max(1, this.settings.calendar.monthsToShow ?? 1)
+      ? Math.max(1, Math.min(this.settings.calendar.monthsToShow ?? 1,
+          // Meses a mostrar es un máximo (1.2.0.0): solo los que caben a unos 180 px cada uno.
+          Math.max(1, Math.floor((this.viewport.width - 16 + 12) / (200 + 12)))))
       : 1;
     const weekStart = this.settings.calendar.weekStart;
     const dayMap = new Map(this.calendarData.map(d => [this.dateKey(d.date), d]));
@@ -617,7 +620,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     }
 
     const outer = document.createElement("div");
-    outer.style.cssText = "display:flex;flex-direction:column;height:100%;min-height:380px;padding:8px;box-sizing:border-box;overflow:hidden;";
+    outer.style.cssText = `display:flex;flex-direction:column;height:100%;padding:${this.compact() ? 4 : 8}px;box-sizing:border-box;overflow:hidden;`;
 
     // ── Cabecera, vistas y leyendas (comunes a las tres vistas) ──
     this.buildChrome(outer, headerLabel, "year");
@@ -672,7 +675,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       grid.push(week);
     }
 
-    const showMeasure = totalMonths <= 6;
+    // En modo compacto el valor del día se retira: el color ya lo dice y el número no cabe.
+    // Ancho aproximado de un día: por debajo de ~40 px el valor salía truncado ("0.9…").
+    const anchoDia = ((this.viewport.width - 16 - (totalMonths - 1) * 12) / totalMonths
+      - (this.settings.calendar.weekNumbers !== "none" ? 28 : 0)) / 7;
+    const showMeasure = totalMonths <= 6 && !this.compact() && anchoDia >= 40;
     const showEvents = this.settings.events.showEvents && totalMonths <= 3;
     const minColW = totalMonths > 1 ? "180px" : "0px";
 
@@ -896,7 +903,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
     const gridWrap = document.createElement("div");
     gridWrap.setAttribute("role", "grid");
-    gridWrap.setAttribute("aria-label", `Calendar heatmap, ${monthName}`);
+    gridWrap.setAttribute("aria-label", `${this.t("Cal_Heatmap", "Calendar heatmap")}, ${monthName}`);
     gridWrap.setAttribute("aria-readonly", "true");
     gridWrap.style.cssText = "display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;";
     gridWrap.appendChild(dayNamesRow);
@@ -943,7 +950,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const evtFontSz   = `${Math.max(6, Math.min(24, evts.eventFontSize))}px`;
 
     const outer = document.createElement("div");
-    outer.style.cssText = "display:flex;flex-direction:column;height:100%;min-height:280px;padding:8px;box-sizing:border-box;overflow:hidden;";
+    outer.style.cssText = `display:flex;flex-direction:column;height:100%;padding:${this.compact() ? 4 : 8}px;box-sizing:border-box;overflow:hidden;`;
 
     // ── Cabecera, vistas y leyendas (comunes a las tres vistas) ──
     this.buildChrome(outer, weekLabel, "month");
@@ -951,7 +958,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // ── Days grid ──
     const daysGrid = document.createElement("div");
     daysGrid.setAttribute("role", "grid");
-    daysGrid.setAttribute("aria-label", `Calendar heatmap, week of ${weekLabel}`);
+    daysGrid.setAttribute("aria-label", `${this.t("Cal_Heatmap", "Calendar heatmap")}, ${weekLabel}`);
     daysGrid.setAttribute("aria-readonly", "true");
     daysGrid.style.cssText = "display:grid;grid-template-columns:repeat(7,1fr);gap:4px;flex:1;min-height:0;overflow:hidden;";
 
@@ -1089,11 +1096,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
     const title = document.createElement("div");
     title.style.cssText = `font-size:14px;font-weight:600;color:${this.fg(null, "#3D3929")};margin-bottom:4px;`;
-    title.textContent = "Calendar by TCViz";
+    title.textContent = "Calendar Events Heatmap";
 
     const sub = document.createElement("div");
     sub.style.cssText = "font-size:11px;line-height:1.5;max-width:200px;";
-    sub.textContent = "Add a Date field and a Measure to see your calendar heatmap with event overlays.";
+    sub.textContent = this.t("Msg_Landing", "Add a Date field and a Measure to see your calendar heatmap with event overlays.");
 
     const paso = document.createElement("div");
     paso.style.cssText = `font-size:11px;font-weight:700;color:${this.hc ? this.hcFg : "#2B6CB0"};margin-bottom:4px;`;
@@ -1325,18 +1332,18 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
         const items: powerbi.extensibility.VisualTooltipDataItem[] = [
           {
-            displayName: "Date",
+            displayName: self.t("Tip_Date", "Date"),
             value: day.date.toLocaleDateString(self.loc()),
           },
         ];
         if (day.measureValue != null) {
-          items.push({ displayName: "Value", value: self.formatFull(day.measureValue) });
+          items.push({ displayName: self.measureNames[self.activeMeasure] || self.t("Tip_Value", "Value"), value: self.formatFull(day.measureValue) });
         }
         if (day.isHoliday) {
-          items.push({ displayName: "Holiday", value: day.holidayName });
+          items.push({ displayName: self.t("Tip_Holiday", "Holiday"), value: day.holidayName });
         }
         if (day.events.length > 0) {
-          items.push({ displayName: "Events", value: day.events.map(e => e.name).join(", ") });
+          items.push({ displayName: self.t("Tip_Events", "Events"), value: day.events.map(e => e.name).join(", ") });
         }
         self.secondaryMeta.forEach((meta, i) => {
           items.push({ displayName: meta.name, value: self.formatSecondary(i, day.secondaryValues[i]) });
@@ -1471,10 +1478,13 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.licenseIconShown = true;
     this.lastBlockedNotice = wanted.join("|");
     const one = show0.length === 1;
-    const list = one ? show0[0] : show0.slice(0, -1).join(", ") + " and " + show0[show0.length - 1];
-    // El texto sale de stringResources; el literal queda como respaldo si falta la clave.
-    const tpl = this.localization?.getDisplayName(one ? "LicenceNotice_One" : "LicenceNotice_Many")
-      || `Calendar Events Heatmap: {0} ${one ? "is" : "are"} part of the Pro plan, shown as a watermarked preview.`;
+    // Nombres y frase en el idioma del informe (1.2.0.0). Antes la frase se pedía con
+    // getDisplayName a una clave que no está en capabilities.json, y Desktop no la resuelve.
+    const nombres = show0.map(w => this.t("Pro_" + w.replace(/[^A-Za-z]+/g, "_"), w));
+    const list = one ? nombres[0] : nombres.slice(0, -1).join(", ") + " " + this.t("Msg_And", "and") + " " + nombres[nombres.length - 1];
+    const tpl = this.t(one ? "LicenceNotice_One" : "LicenceNotice_Many",
+      one ? "Calendar Events Heatmap: {0} is part of the Pro plan, shown as a watermarked preview."
+          : "Calendar Events Heatmap: {0} are part of the Pro plan, shown as a watermarked preview.");
     const msg = tpl.replace("{0}", list);
 
     const show = () => {
@@ -1676,12 +1686,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         weekday: "long", day: "numeric", month: "long", year: "numeric",
       }),
     ];
-    if (day?.measureValue != null) parts.push(`Value ${this.formatFull(day.measureValue)}`);
-    else parts.push("No data");
-    if (day?.isHoliday && day.holidayName) parts.push(`Holiday: ${day.holidayName}`);
+    if (day?.measureValue != null) parts.push(`${this.measureNames[this.activeMeasure] || this.t("Tip_Value", "Value")} ${this.formatFull(day.measureValue)}`);
+    else parts.push(this.t("Aria_NoData", "No data"));
+    if (day?.isHoliday && day.holidayName) parts.push(`${this.t("Tip_Holiday", "Holiday")}: ${day.holidayName}`);
     const evs = day?.events ?? [];
-    if (evs.length === 1) parts.push(`1 event: ${evs[0].name}`);
-    else if (evs.length > 1) parts.push(`${evs.length} events: ${evs.map(e => e.name).join(", ")}`);
+    if (evs.length === 1) parts.push(`${this.t("Aria_OneEvent", "1 event")}: ${evs[0].name}`);
+    else if (evs.length > 1) parts.push(`${this.t("Aria_Events", "{0} events").replace("{0}", String(evs.length))}: ${evs.map(e => e.name).join(", ")}`);
     return parts.join(". ");
   }
 
@@ -1770,7 +1780,23 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   }
 
   /** Paints aria-selected, the selection outline and the dimming of unselected days. */
+  /** Anuncio para lector de pantalla del número de días seleccionados (1.2.0.0, útil con rangos). */
+  private announceSelection(): void {
+    let vivo = this.container.querySelector(".tcviz-live") as HTMLElement | null;
+    if (!vivo) {
+      vivo = document.createElement("div");
+      vivo.className = "tcviz-live";
+      vivo.setAttribute("aria-live", "polite");
+      vivo.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;";
+      this.container.appendChild(vivo);
+    }
+    const n = this.selectedKeys.size;
+    vivo.textContent = n === 0 ? "" : n === 1 ? this.t("Aria_OneSelected", "1 day selected")
+      : this.t("Aria_Selected", "{0} days selected").replace("{0}", String(n));
+  }
+
   private applySelectionStyles(): void {
+    this.announceSelection();
     const outline = this.hc
       ? this.hcFgSel
       : this.sanitizeColor(this.settings.navigation.activeColor, "#C96442");
@@ -1986,7 +2012,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
     const container = document.createElement("div");
     container.setAttribute("role", "list");
-    container.setAttribute("aria-label", "Event categories");
+    container.setAttribute("aria-label", this.t("Aria_EventCategories", "Event categories"));
     container.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;flex-shrink:0;";
 
     this.uniqueEventCategories.slice(0, 8).forEach(cat => {
@@ -1994,7 +2020,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       const item = document.createElement("span");
       item.setAttribute("role", "listitem");
-      item.setAttribute("aria-label", `Event category: ${cat || "Default"}`);
+      item.setAttribute("aria-label", `${this.t("Aria_EventCategory", "Event category")}: ${cat || this.t("Cal_Default", "Default")}`);
       item.style.cssText = `display:inline-flex;align-items:center;gap:3px;font-size:9px;color:${this.fg(null, "#83827D")};white-space:nowrap;`;
 
       const swatch = document.createElement("span");
@@ -2007,7 +2033,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       swatch.style.flexShrink = "0";
 
       const labelEl = document.createElement("span");
-      labelEl.textContent = cat || "(Default)";   // safe: textContent, never innerHTML
+      labelEl.textContent = cat || `(${this.t("Cal_Default", "Default")})`;   // safe: textContent, never innerHTML
 
       item.appendChild(swatch);
       item.appendChild(labelEl);
@@ -2416,7 +2442,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     }
     outer.appendChild(viewRow);
 
-    const legend = this.buildCategoryLegend();
+    const legend = this.compact() ? null : this.buildCategoryLegend();
     if (legend) {
       this.subSelectable(legend, "events", this.t("OO_Events", "Events"), powerbi.visuals.SubSelectionStylesType.Shape);
       outer.appendChild(legend);
@@ -2428,7 +2454,17 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
    * Leyenda de la escala de color: degradado del mínimo al máximo con sus valores (criterio
    * de leyenda de OKviz). En alto contraste no hay degradado que explicar: no se pinta.
    */
+  /**
+   * Modo compacto (1.2.0.0): por debajo de 320 px de ancho o de alto se retiran las leyendas y el
+   * valor de cada día, y se reduce el margen. Antes la vista de mes exigía 380 px de alto y en un
+   * visual más bajo se cortaba.
+   */
+  private compact(): boolean {
+    return this.viewport.width < 320 || this.viewport.height < 320;
+  }
+
   private appendScaleLegend(outer: HTMLElement, where: "top" | "bottom"): void {
+    if (this.compact()) return;
     const lg = this.settings.legend;
     if (!lg.show || lg.position !== where || this.hc || this.calendarData.length === 0) return;
     const fila = document.createElement("div");
@@ -2469,7 +2505,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const iniciales = new Intl.DateTimeFormat(this.loc(), { weekday: "narrow" });
 
     const outer = document.createElement("div");
-    outer.style.cssText = "display:flex;flex-direction:column;height:100%;min-height:280px;padding:8px;box-sizing:border-box;overflow:hidden;";
+    outer.style.cssText = `display:flex;flex-direction:column;height:100%;padding:${this.compact() ? 4 : 8}px;box-sizing:border-box;overflow:hidden;`;
     this.buildChrome(outer, label, null);
 
     const cols = Math.max(2, Math.min(6, Math.floor((this.viewport.width - 16) / 170)));
@@ -2553,13 +2589,30 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   // ─── Panel de formato (modelo de formato, 1.2.0.0) ────────────────────────
 
   /** Texto en el idioma de Power BI; las claves del panel están en capabilities.json. */
+  /**
+   * Texto en el idioma de Power BI. Primero la tabla del bundle (src/strings.ts): Desktop solo
+   * resuelve con getDisplayName las claves declaradas en capabilities.json, y los textos del
+   * propio visual —botones, asistente, avisos— no lo están (visto en KPI Card 2.2). Después el
+   * gestor de Power BI (claves del panel) y, si nada responde, el inglés.
+   */
   private t(key: string, fallback: string): string {
+    const propio = this.stringsFor()?.[key];
+    if (propio) return propio;
     try {
       const v = this.localization?.getDisplayName(key);
       return v && v !== key ? v : fallback;
     } catch (_) {
       return fallback;
     }
+  }
+
+  private stringsFor(): Record<string, string> | undefined {
+    const loc = this.loc();
+    if (/^en/i.test(loc)) return undefined;
+    if (STRINGS[loc]) return STRINGS[loc];
+    const lang = loc.split("-")[0].toLowerCase();
+    const k = Object.keys(STRINGS).sort().find(x => x.toLowerCase().startsWith(lang + "-"));
+    return k ? STRINGS[k] : undefined;
   }
 
   /**
