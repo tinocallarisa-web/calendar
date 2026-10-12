@@ -20,6 +20,8 @@ export interface CalendarSettings {
     monthsToShow: number;
     fiscalEnabled: boolean;
     fiscalStartMonth: number;
+    /** Periodos fiscales: meses de calendario o semanas 4-4-5 y variantes (1.2.0.0). */
+    fiscalType: "months" | "445" | "454" | "544";
     weekStart: 0 | 1;
     /** Número de semana a la izquierda de cada fila del mes (1.2.0.0). */
     weekNumbers: "none" | "iso" | "us";
@@ -69,6 +71,7 @@ export const defaultSettings: CalendarSettings = {
     monthsToShow: 1,
     fiscalEnabled: false,
     fiscalStartMonth: 1,
+    fiscalType: "months",
     weekStart: 1,
     weekNumbers: "none",
   },
@@ -140,6 +143,7 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
       monthsToShow: parseInt(String(obj["calendar"]?.["monthsToShow"] ?? defaultSettings.calendar.monthsToShow), 10) || defaultSettings.calendar.monthsToShow,
       fiscalEnabled: (obj["calendar"]?.["fiscalEnabled"] as boolean) ?? defaultSettings.calendar.fiscalEnabled,
       fiscalStartMonth: (obj["calendar"]?.["fiscalStartMonth"] as number) ?? defaultSettings.calendar.fiscalStartMonth,
+      fiscalType: (obj["calendar"]?.["fiscalType"] as "months" | "445" | "454" | "544") ?? defaultSettings.calendar.fiscalType,
       weekStart: (parseInt(String(obj["calendar"]?.["weekStart"] ?? defaultSettings.calendar.weekStart), 10) || 0) as 0 | 1,
       weekNumbers: (obj["calendar"]?.["weekNumbers"] as "none" | "iso" | "us") ?? defaultSettings.calendar.weekNumbers,
     },

@@ -151,6 +151,34 @@
             "numeric": true
           }
         },
+        "fiscalType": {
+          "displayName": "Fiscal Periods",
+          "displayNameKey": "Visual_Calendar_FiscalType",
+          "type": {
+            "enumeration": [
+              {
+                "value": "months",
+                "displayName": "Calendar months",
+                "displayNameKey": "Visual_Calendar_FiscalType_Months"
+              },
+              {
+                "value": "445",
+                "displayName": "4-4-5 weeks",
+                "displayNameKey": "Visual_Calendar_FiscalType_445"
+              },
+              {
+                "value": "454",
+                "displayName": "4-5-4 weeks",
+                "displayNameKey": "Visual_Calendar_FiscalType_454"
+              },
+              {
+                "value": "544",
+                "displayName": "5-4-4 weeks",
+                "displayNameKey": "Visual_Calendar_FiscalType_544"
+              }
+            ]
+          }
+        },
         "weekStart": {
           "displayName": "Week Starts On",
           "displayNameKey": "Visual_Calendar_WeekStart",

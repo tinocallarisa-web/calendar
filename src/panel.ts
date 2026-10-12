@@ -37,6 +37,12 @@ export const PANEL: PanelCard[] = [
                 "en": "Fiscal Year Start Month"
             },
             {
+                "p": "fiscalType",
+                "kind": "drop",
+                "key": "Visual_Calendar_FiscalType",
+                "en": "Fiscal Periods"
+            },
+            {
                 "p": "weekStart",
                 "kind": "drop",
                 "key": "Visual_Calendar_WeekStart",

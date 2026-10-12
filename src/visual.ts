@@ -567,7 +567,19 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + n - 1, 1);
     const startLabel = startDate.toLocaleString(this.loc(), { month: "long", year: "numeric" });
     const endLabel = endDate.toLocaleString(this.loc(), { month: "long", year: "numeric" });
-    const headerLabel = n > 1 ? `${startLabel} – ${endLabel}` : startLabel;
+    // Calendario fiscal (1.2.0.0): por meses, el título añade año y periodo fiscal; en semanas
+    // (4-4-5 y variantes), la vista muestra periodos en lugar de meses.
+    const periodos = this.retailPattern() ? this.periodsFrom(this.currentDate, n) : null;
+    let headerLabel = n > 1 ? `${startLabel} – ${endLabel}` : startLabel;
+    if (periodos) {
+      const a = periodos[0], z = periodos[periodos.length - 1];
+      headerLabel = n > 1
+        ? `${this.t("Cal_FY", "FY")}${a.fy} P${a.n} – ${this.t("Cal_FY", "FY")}${z.fy} P${z.n}`
+        : `${this.t("Cal_FY", "FY")}${a.fy} · P${a.n} (${this.shortRange(a.start, a.end)})`;
+    } else if (this.settings.calendar.fiscalEnabled) {
+      const f = this.fiscalMonthOf(startDate);
+      headerLabel += ` · ${this.t("Cal_FY", "FY")}${f.fy} P${f.n}`;
+    }
 
     const outer = document.createElement("div");
     outer.style.cssText = "display:flex;flex-direction:column;height:100%;min-height:380px;padding:8px;box-sizing:border-box;overflow:hidden;";
@@ -580,6 +592,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     gridsContainer.style.cssText = "display:flex;flex-direction:row;gap:12px;flex:1;overflow:hidden;min-height:0;";
 
     for (let m = 0; m < n; m++) {
+      if (periodos) {
+        const pr = periodos[m];
+        gridsContainer.appendChild(this.buildSingleMonthGrid(0, 0, dayNames, dayMap, today, n,
+          { start: pr.start, end: pr.end, title: `P${pr.n} · ${this.shortRange(pr.start, pr.end)}` }));
+        continue;
+      }
       const totalMonths = startDate.getMonth() + m;
       const yr = startDate.getFullYear() + Math.floor(totalMonths / 12);
       const mo = totalMonths % 12;
@@ -598,18 +616,20 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     dayMap: Map<string, CalendarDay>,
     today: string,
     totalMonths: number,
+    rango?: { start: Date; end: Date; title: string },
   ): HTMLElement {
     const weekStart = this.settings.calendar.weekStart;
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const monthName = firstDay.toLocaleString(this.loc(), { month: "long", year: "numeric" });
+    // Un mes de calendario, o un periodo fiscal de semanas completas (4-4-5 y variantes).
+    const firstDay = rango ? rango.start : new Date(year, month, 1);
+    const lastDay = rango ? rango.end : new Date(year, month + 1, 0);
+    const monthName = rango ? rango.title : firstDay.toLocaleString(this.loc(), { month: "long", year: "numeric" });
 
     const grid: (Date | null)[][] = [];
     let week: (Date | null)[] = [];
     const startOffset = (firstDay.getDay() - weekStart + 7) % 7;
     for (let i = 0; i < startOffset; i++) week.push(null);
-    for (let d = 1; d <= lastDay.getDate(); d++) {
-      week.push(new Date(year, month, d));
+    for (let d = new Date(firstDay); d <= lastDay; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+      week.push(d);
       if (week.length === 7) { grid.push(week); week = []; }
     }
     if (week.length) {
@@ -1091,6 +1111,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const dir = nav.dataset.nav === "next" ? 1 : -1;
       if (this.currentView === "year") {
         this.currentDate = new Date(this.currentDate.getFullYear() + dir, this.currentDate.getMonth(), 1);
+      } else if (this.currentView === "month" && this.retailPattern()) {
+        const pr = this.periodOf(this.currentDate);
+        this.currentDate = dir > 0 ? new Date(pr.end.getFullYear(), pr.end.getMonth(), pr.end.getDate() + 1)
+                                   : this.periodOf(new Date(pr.start.getFullYear(), pr.start.getMonth(), pr.start.getDate() - 1)).start;
       } else if (this.currentView === "month") {
         this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + dir, 1);
       } else {
@@ -1891,6 +1915,81 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return Math.ceil(((t.getTime() - inicio.getTime()) / 86400000 + 1) / 7);
   }
 
+  // ─── Calendario fiscal (1.2.0.0) ───────────────────────────────────────────
+
+  /** Semanas por periodo en un trimestre (4-4-5, 4-5-4, 5-4-4), o null si el fiscal es por meses. */
+  private retailPattern(): number[] | null {
+    const c = this.settings.calendar;
+    if (!c.fiscalEnabled || !c.fiscalType || c.fiscalType === "months") return null;
+    return c.fiscalType === "454" ? [4, 5, 4] : c.fiscalType === "544" ? [5, 4, 4] : [4, 4, 5];
+  }
+
+  private fiscalStartIndex(): number {
+    return Math.max(1, Math.min(12, this.settings.calendar.fiscalStartMonth || 1)) - 1;
+  }
+
+  /**
+   * Inicio del año fiscal FY{fy}. El año fiscal se nombra por el año en que termina. En semanas
+   * (4-4-5) empieza el día de inicio de semana más cercano al día 1 del mes fiscal: así todos los
+   * periodos tienen semanas completas y hay años de 52 y de 53 semanas.
+   */
+  private fiscalYearStart(fy: number): Date {
+    const m = this.fiscalStartIndex();
+    const y = m > 0 ? fy - 1 : fy;
+    const ancla = new Date(y, m, 1);
+    if (!this.retailPattern()) return ancla;
+    const dif = (ancla.getDay() - this.settings.calendar.weekStart + 7) % 7;
+    return dif <= 3 ? new Date(y, m, 1 - dif) : new Date(y, m, 1 + (7 - dif));
+  }
+
+  private fiscalYearOf(d: Date): number {
+    let fy = d.getFullYear() + (this.fiscalStartIndex() > 0 && d.getMonth() >= this.fiscalStartIndex() ? 1 : 0);
+    while (d < this.fiscalYearStart(fy)) fy--;
+    while (d >= this.fiscalYearStart(fy + 1)) fy++;
+    return fy;
+  }
+
+  /** Mes fiscal (por meses de calendario): año fiscal y número de periodo 1..12. */
+  private fiscalMonthOf(d: Date): { fy: number; n: number } {
+    return { fy: this.fiscalYearOf(d), n: ((d.getMonth() - this.fiscalStartIndex() + 12) % 12) + 1 };
+  }
+
+  /** Los 12 periodos del año fiscal en semanas; en un año de 53, la semana extra va al último. */
+  private periods(fy: number): { fy: number; n: number; start: Date; end: Date }[] {
+    const pat = this.retailPattern() ?? [4, 4, 5];
+    const ini = this.fiscalYearStart(fy), sig = this.fiscalYearStart(fy + 1);
+    const semanas = Math.round((sig.getTime() - ini.getTime()) / (7 * 86400000));
+    const out: { fy: number; n: number; start: Date; end: Date }[] = [];
+    let cursor = new Date(ini);
+    for (let i = 0; i < 12; i++) {
+      const w = pat[i % 3] + (i === 11 && semanas > 52 ? 1 : 0);
+      const fin = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + w * 7 - 1);
+      out.push({ fy, n: i + 1, start: cursor, end: fin });
+      cursor = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate() + 1);
+    }
+    return out;
+  }
+
+  private periodOf(d: Date): { fy: number; n: number; start: Date; end: Date } {
+    const ps = this.periods(this.fiscalYearOf(d));
+    return ps.find(p => d >= p.start && d <= new Date(p.end.getFullYear(), p.end.getMonth(), p.end.getDate(), 23, 59)) ?? ps[0];
+  }
+
+  /** n periodos consecutivos desde el que contiene d. */
+  private periodsFrom(d: Date, n: number): { fy: number; n: number; start: Date; end: Date }[] {
+    const out = [this.periodOf(d)];
+    while (out.length < n) {
+      const u = out[out.length - 1];
+      out.push(this.periodOf(new Date(u.end.getFullYear(), u.end.getMonth(), u.end.getDate() + 1)));
+    }
+    return out;
+  }
+
+  private shortRange(a: Date, b: Date): string {
+    const f = new Intl.DateTimeFormat(this.loc(), { day: "numeric", month: "short" });
+    return `${f.format(a)} – ${f.format(b)}`;
+  }
+
   /** Botón de la cabecera. */
   private chromeButton(attr: string, value: string, text: string, label: string): HTMLButtonElement {
     const b = document.createElement("button");
@@ -2015,8 +2114,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const mesIni = fiscal ? Math.max(1, Math.min(12, this.settings.calendar.fiscalStartMonth || 1)) - 1 : 0;
     const cur = this.currentDate;
     const anioIni = cur.getMonth() >= mesIni ? cur.getFullYear() : cur.getFullYear() - 1;
-    const label = fiscal && mesIni > 0
-      ? `${this.t("Cal_FY", "FY")} ${anioIni + 1}`
+    const retail = this.retailPattern() ? this.periods(this.fiscalYearOf(cur)) : null;
+    const label = retail ? `${this.t("Cal_FY", "FY")}${retail[0].fy}`
+      : fiscal && mesIni > 0 ? `${this.t("Cal_FY", "FY")}${anioIni + 1}`
       : String(anioIni);
     const weekStart = this.settings.calendar.weekStart;
     const dayMap = new Map(this.calendarData.map(d => [this.dateKey(d.date), d]));
@@ -2034,11 +2134,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     rejilla.style.cssText = `display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:12px;flex:1;min-height:0;overflow-y:auto;align-content:start;`;
 
     for (let m = 0; m < 12; m++) {
-      const ini = new Date(anioIni, mesIni + m, 1);
-      const fin = new Date(ini.getFullYear(), ini.getMonth() + 1, 0);
+      const ini = retail ? retail[m].start : new Date(anioIni, mesIni + m, 1);
+      const fin = retail ? retail[m].end : new Date(ini.getFullYear(), ini.getMonth() + 1, 0);
       const bloque = document.createElement("div");
       bloque.style.cssText = "display:flex;flex-direction:column;gap:2px;min-width:0;";
-      const nombre = ini.toLocaleString(this.loc(), { month: "long" });
+      const nombre = retail ? `P${retail[m].n} · ${this.shortRange(ini, fin)}` : ini.toLocaleString(this.loc(), { month: "long" });
       const t = document.createElement("button");
       t.type = "button";
       t.setAttribute("data-drill-month", this.dateKey(ini));
@@ -2061,8 +2161,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       }
       const hueco = (ini.getDay() - weekStart + 7) % 7;
       for (let i = 0; i < hueco; i++) { const e = document.createElement("div"); e.setAttribute("aria-hidden", "true"); g.appendChild(e); }
-      for (let d = 1; d <= fin.getDate(); d++) {
-        const fecha = new Date(ini.getFullYear(), ini.getMonth(), d);
+      for (let fecha = new Date(ini); fecha <= fin; fecha = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate() + 1)) {
         const key = this.dateKey(fecha);
         const day = dayMap.get(key);
         const chrome = this.cellChrome(day, key === today, day?.isHoliday ?? false, ac, hol);
