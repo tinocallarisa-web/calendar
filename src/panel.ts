@@ -8,6 +8,19 @@ export interface PanelProp { p: string; kind: PanelKind; key: string; en: string
 export interface PanelCard { o: string; key: string; en: string; props: PanelProp[]; }
 export const PANEL: PanelCard[] = [
     {
+        "o": "style",
+        "key": "Visual_Style",
+        "en": "Style template",
+        "props": [
+            {
+                "p": "template",
+                "kind": "drop",
+                "key": "Visual_Style_Template",
+                "en": "Template"
+            }
+        ]
+    },
+    {
         "o": "calendar",
         "key": "Visual_Calendar",
         "en": "Calendar",
@@ -61,6 +74,12 @@ export const PANEL: PanelCard[] = [
         "key": "Visual_Heatmap",
         "en": "Heatmap Colors",
         "props": [
+            {
+                "p": "scheme",
+                "kind": "drop",
+                "key": "Visual_Heatmap_Scheme",
+                "en": "Color scheme"
+            },
             {
                 "p": "colorMin",
                 "kind": "color",
@@ -188,6 +207,25 @@ export const PANEL: PanelCard[] = [
                 "kind": "toggle",
                 "key": "Visual_Legend_ShowValues",
                 "en": "Show min and max"
+            }
+        ]
+    },
+    {
+        "o": "layout",
+        "key": "Visual_Layout",
+        "en": "Layout",
+        "props": [
+            {
+                "p": "cellRadius",
+                "kind": "num",
+                "key": "Visual_Layout_CellRadius",
+                "en": "Day corner radius (px)"
+            },
+            {
+                "p": "cellGap",
+                "kind": "num",
+                "key": "Visual_Layout_CellGap",
+                "en": "Space between days (px)"
             }
         ]
     },

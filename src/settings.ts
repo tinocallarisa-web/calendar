@@ -14,7 +14,44 @@ export function matchesPlan(spIdentifier: unknown, planId: string): boolean {
 // La prueba de 30 días la gestiona el plan de Partner Center (se ve como plan Active):
 // el visual no lleva lógica de prueba propia.
 
+/** Paletas de tres puntos (bajo, medio, alto). "custom" usa los colores mínimo y máximo del panel. */
+export const SCHEMES: Record<string, [string, string, string]> = {
+  blues: ["#F7FBFF", "#6BAED6", "#08306B"],
+  greens: ["#F7FCF5", "#74C476", "#00441B"],
+  purples: ["#FCFBFD", "#9E9AC8", "#3F007D"],
+  greys: ["#FFFFFF", "#969696", "#252525"],
+  trafficUp: ["#D73027", "#FEE08B", "#1A9850"],
+  trafficDown: ["#1A9850", "#FEE08B", "#D73027"],
+  viridis: ["#440154", "#21918C", "#FDE725"],
+  cividis: ["#00224E", "#7D7C78", "#FEE838"],
+  github: ["#EBEDF0", "#40C463", "#216E39"],
+  tcviz: ["#EAF2FB", "#5B9BD5", "#1F4E80"],
+};
+
+/**
+ * Plantillas de estilo (1.2.0.0, gratis): [tarjeta, propiedad, valor]. Solo rellenan lo que el
+ * autor no ha tocado (lo que no está en metadata.objects): un ajuste a mano siempre gana.
+ * "classic" es el aspecto de siempre, y es el valor por defecto: los informes no cambian.
+ */
+export const TEMPLATES: Record<string, [string, string, unknown][]> = {
+  classic: [],
+  clean: [["heatmap", "scheme", "blues"], ["heatmap", "colorNull", "#F3F5F8"], ["layout", "cellRadius", 6], ["layout", "cellGap", 3],
+          ["dayNumber", "color", "#1F2937"], ["dayNumber", "weekendColor", "#6B7280"], ["dayNumber", "holidayColor", "#2B6CB0"],
+          ["navigation", "activeColor", "#2B6CB0"], ["navigation", "textColor", "#374151"]],
+  tiles: [["heatmap", "scheme", "github"], ["heatmap", "colorNull", "#F1F3F5"], ["layout", "cellRadius", 8], ["layout", "cellGap", 4],
+          ["dayNumber", "color", "#24292F"], ["dayNumber", "weekendColor", "#57606A"], ["dayNumber", "holidayColor", "#1A7F37"],
+          ["navigation", "activeColor", "#216E39"], ["navigation", "textColor", "#24292F"]],
+  minimal: [["heatmap", "scheme", "greys"], ["heatmap", "colorNull", "#FFFFFF"], ["layout", "cellRadius", 0], ["layout", "cellGap", 1],
+            ["dayNumber", "color", "#3D3D3D"], ["dayNumber", "weekendColor", "#8A8886"], ["dayNumber", "holidayColor", "#3D3D3D"],
+            ["navigation", "activeColor", "#3D3D3D"], ["navigation", "textColor", "#3D3D3D"]],
+  tcviz: [["heatmap", "scheme", "tcviz"], ["heatmap", "colorNull", "#F4F7FB"], ["layout", "cellRadius", 6], ["layout", "cellGap", 3],
+          ["dayNumber", "color", "#1F4E80"], ["dayNumber", "weekendColor", "#3E9C5B"], ["dayNumber", "holidayColor", "#3E9C5B"],
+          ["navigation", "activeColor", "#2B6CB0"], ["navigation", "textColor", "#1F4E80"]],
+};
+
 export interface CalendarSettings {
+  style: { template: string };
+  layout: { cellRadius: number; cellGap: number };
   calendar: {
     view: "year" | "month" | "week";
     monthsToShow: number;
@@ -27,6 +64,7 @@ export interface CalendarSettings {
     weekNumbers: "none" | "iso" | "us";
   };
   heatmap: {
+    scheme: string;
     colorMin: string;
     colorMax: string;
     colorNull: string;
@@ -71,6 +109,8 @@ export interface CalendarSettings {
 }
 
 export const defaultSettings: CalendarSettings = {
+  style: { template: "classic" },
+  layout: { cellRadius: 4, cellGap: 2 },
   calendar: {
     view: "month",
     monthsToShow: 1,
@@ -81,6 +121,7 @@ export const defaultSettings: CalendarSettings = {
     weekNumbers: "none",
   },
   heatmap: {
+    scheme: "custom",
     colorMin: "#EDE9DE",
     colorMax: "#C96442",
     colorNull: "#F5F3ED",
@@ -149,6 +190,11 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
   const obj = dataView.metadata.objects;
 
   return {
+    style: { template: (obj["style"]?.["template"] as string) ?? defaultSettings.style.template },
+    layout: {
+      cellRadius: (obj["layout"]?.["cellRadius"] as number) ?? defaultSettings.layout.cellRadius,
+      cellGap: (obj["layout"]?.["cellGap"] as number) ?? defaultSettings.layout.cellGap,
+    },
     calendar: {
       view: (obj["calendar"]?.["view"] as "year" | "month" | "week") ?? defaultSettings.calendar.view,
       monthsToShow: parseInt(String(obj["calendar"]?.["monthsToShow"] ?? defaultSettings.calendar.monthsToShow), 10) || defaultSettings.calendar.monthsToShow,
@@ -159,6 +205,7 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
       weekNumbers: (obj["calendar"]?.["weekNumbers"] as "none" | "iso" | "us") ?? defaultSettings.calendar.weekNumbers,
     },
     heatmap: {
+      scheme: (obj["heatmap"]?.["scheme"] as string) ?? defaultSettings.heatmap.scheme,
       colorMin: (obj["heatmap"]?.["colorMin"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMin,
       colorMax: (obj["heatmap"]?.["colorMax"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMax,
       colorNull: (obj["heatmap"]?.["colorNull"] as any)?.solid?.color ?? defaultSettings.heatmap.colorNull,
@@ -201,4 +248,14 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
       eventFontSize: (obj["events"]?.["eventFontSize"] as number) ?? defaultSettings.events.eventFontSize,
     },
   };
+}
+
+/** Aplica la plantilla elegida a lo que el autor no ha fijado en el panel. */
+export function applyTemplate(s: CalendarSettings, objects: powerbi.DataViewObjects | undefined): CalendarSettings {
+  const out: any = JSON.parse(JSON.stringify(s));
+  for (const [card, prop, val] of TEMPLATES[s.style.template] ?? []) {
+    if ((objects as any)?.[card]?.[prop] !== undefined) continue;
+    if (out[card]) out[card][prop] = val;
+  }
+  return out as CalendarSettings;
 }

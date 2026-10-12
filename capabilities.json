@@ -84,6 +84,45 @@
     }
   ],
   "objects": {
+    "style": {
+      "displayName": "Style template",
+      "displayNameKey": "Visual_Style",
+      "properties": {
+        "template": {
+          "displayName": "Template",
+          "displayNameKey": "Visual_Style_Template",
+          "type": {
+            "enumeration": [
+              {
+                "value": "classic",
+                "displayName": "Classic",
+                "displayNameKey": "Visual_Style_Template_Classic"
+              },
+              {
+                "value": "clean",
+                "displayName": "Clean",
+                "displayNameKey": "Visual_Style_Template_Clean"
+              },
+              {
+                "value": "tiles",
+                "displayName": "Tiles",
+                "displayNameKey": "Visual_Style_Template_Tiles"
+              },
+              {
+                "value": "minimal",
+                "displayName": "Minimal",
+                "displayNameKey": "Visual_Style_Template_Minimal"
+              },
+              {
+                "value": "tcviz",
+                "displayName": "TCViz",
+                "displayNameKey": "Visual_Style_Template_Tcviz"
+              }
+            ]
+          }
+        }
+      }
+    },
     "calendar": {
       "displayName": "Calendar",
       "displayNameKey": "Visual_Calendar",
@@ -224,6 +263,69 @@
       "displayName": "Heatmap Colors",
       "displayNameKey": "Visual_Heatmap",
       "properties": {
+        "scheme": {
+          "displayName": "Color scheme",
+          "displayNameKey": "Visual_Heatmap_Scheme",
+          "type": {
+            "enumeration": [
+              {
+                "value": "custom",
+                "displayName": "Custom (colors below)",
+                "displayNameKey": "Visual_Heatmap_Scheme_Custom"
+              },
+              {
+                "value": "blues",
+                "displayName": "Blues",
+                "displayNameKey": "Visual_Heatmap_Scheme_Blues"
+              },
+              {
+                "value": "greens",
+                "displayName": "Greens",
+                "displayNameKey": "Visual_Heatmap_Scheme_Greens"
+              },
+              {
+                "value": "purples",
+                "displayName": "Purples",
+                "displayNameKey": "Visual_Heatmap_Scheme_Purples"
+              },
+              {
+                "value": "greys",
+                "displayName": "Greys",
+                "displayNameKey": "Visual_Heatmap_Scheme_Greys"
+              },
+              {
+                "value": "trafficUp",
+                "displayName": "Red - yellow - green",
+                "displayNameKey": "Visual_Heatmap_Scheme_TrafficUp"
+              },
+              {
+                "value": "trafficDown",
+                "displayName": "Green - yellow - red",
+                "displayNameKey": "Visual_Heatmap_Scheme_TrafficDown"
+              },
+              {
+                "value": "viridis",
+                "displayName": "Viridis (colour-blind safe)",
+                "displayNameKey": "Visual_Heatmap_Scheme_Viridis"
+              },
+              {
+                "value": "cividis",
+                "displayName": "Cividis (colour-blind safe)",
+                "displayNameKey": "Visual_Heatmap_Scheme_Cividis"
+              },
+              {
+                "value": "github",
+                "displayName": "Activity (GitHub style)",
+                "displayNameKey": "Visual_Heatmap_Scheme_Github"
+              },
+              {
+                "value": "tcviz",
+                "displayName": "TCViz blue",
+                "displayNameKey": "Visual_Heatmap_Scheme_Tcviz"
+              }
+            ]
+          }
+        },
         "colorMin": {
           "displayName": "Min Color",
           "displayNameKey": "Visual_Heatmap_ColorMin",
@@ -449,6 +551,26 @@
           "displayNameKey": "Visual_Legend_ShowValues",
           "type": {
             "bool": true
+          }
+        }
+      }
+    },
+    "layout": {
+      "displayName": "Layout",
+      "displayNameKey": "Visual_Layout",
+      "properties": {
+        "cellRadius": {
+          "displayName": "Day corner radius (px)",
+          "displayNameKey": "Visual_Layout_CellRadius",
+          "type": {
+            "numeric": true
+          }
+        },
+        "cellGap": {
+          "displayName": "Space between days (px)",
+          "displayNameKey": "Visual_Layout_CellGap",
+          "type": {
+            "numeric": true
           }
         }
       }

@@ -1,7 +1,7 @@
 /// <reference types="powerbi-visuals-api" />
 import powerbi from "powerbi-visuals-api";
 import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
-import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings } from "./settings";
+import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES } from "./settings";
 import { PANEL, PanelProp } from "./panel";
 
 type IValueFormatter = ReturnType<typeof valueFormatter.create>;
@@ -232,8 +232,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       this.editing = typeof viewMode === "number" && viewMode !== 0;
       this.proPreview = this.computePreview();
 
-      this.rawSettings = parseSettings(dataView);
-      this.settings = (this.isPro || this.proPreview) ? this.rawSettings : freeSettings(this.rawSettings);
+      // La plantilla se aplica dos veces: sobre lo leído y, sin licencia, después de devolver lo
+      // Pro a su valor por defecto. Así una plantilla se ve completa también en Free, pero un
+      // color Pro elegido a mano no.
+      const objs = dataView?.metadata?.objects;
+      this.rawSettings = applyTemplate(parseSettings(dataView), objs);
+      this.settings = (this.isPro || this.proPreview) ? this.rawSettings : applyTemplate(freeSettings(this.rawSettings), objs);
       // Apply "Default View" only on first load; after that preserve user's choice
       if (!this.viewInitialized) {
         this.currentView = this.settings.calendar.view;
@@ -670,7 +674,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     dayNamesRow.setAttribute("role", "row");
     const semanas = this.settings.calendar.weekNumbers !== "none";
     const columnas = semanas ? "26px repeat(7,1fr)" : "repeat(7,1fr)";
-    dayNamesRow.style.cssText = `display:grid;grid-template-columns:${columnas};gap:2px;margin-bottom:4px;flex-shrink:0;`;
+    const hueco = `${Math.max(0, Math.min(12, this.settings.layout.cellGap))}px`;
+    const radio = `${Math.max(0, Math.min(16, this.settings.layout.cellRadius))}px`;
+    dayNamesRow.style.cssText = `display:grid;grid-template-columns:${columnas};gap:${hueco};margin-bottom:4px;flex-shrink:0;`;
     if (semanas) {
       const wk = document.createElement("div");
       wk.setAttribute("role", "columnheader");
@@ -690,12 +696,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // Grid body
     const gridBody = document.createElement("div");
     gridBody.setAttribute("role", "rowgroup");
-    gridBody.style.cssText = "display:flex;flex-direction:column;gap:2px;flex:1;min-height:0;overflow:hidden;";
+    gridBody.style.cssText = `display:flex;flex-direction:column;gap:${hueco};flex:1;min-height:0;overflow:hidden;`;
 
     grid.forEach(wk => {
       const weekRow = document.createElement("div");
       weekRow.setAttribute("role", "row");
-      weekRow.style.cssText = `display:grid;grid-template-columns:${columnas};gap:2px;flex:1;min-height:0;`;
+      weekRow.style.cssText = `display:grid;grid-template-columns:${columnas};gap:${hueco};flex:1;min-height:0;`;
       if (semanas) {
         // Número de semana: un clic abre esa semana (navegación jerárquica año → mes → semana).
         const primero = wk.find(d => d !== null) as Date;
@@ -745,7 +751,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         cell.setAttribute("aria-label", this.cellAriaLabel(date, day));
         cell.setAttribute("aria-selected", "false");
         cell.style.backgroundColor = chrome.bg;
-        cell.style.borderRadius = "4px";
+        cell.style.borderRadius = radio;
         cell.style.padding = "3px";
         cell.style.cursor = day ? "pointer" : "default";
         cell.style.display = "flex";
@@ -759,8 +765,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         numDiv.style.fontSize = numSz;
         numDiv.style.fontFamily = numFont;
         numDiv.style.fontWeight = isToday ? "700" : "400";
-        const oscuro = !this.hc && this.isDark(chrome.bg);
-        numDiv.style.color = oscuro ? "#FFFFFF" : dayNumColor;
+        numDiv.style.color = this.hc ? dayNumColor : this.legible(dayNumColor, chrome.bg);
         numDiv.style.lineHeight = "1";
         numDiv.style.whiteSpace = "nowrap";
         numDiv.style.flexShrink = "0";
@@ -772,7 +777,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           const valDiv = document.createElement("div");
           valDiv.style.fontSize = lblSz;
           valDiv.style.fontFamily = lblFont;
-          valDiv.style.color = oscuro ? "#FFFFFF" : lblColor;
+          valDiv.style.color = this.hc ? lblColor : this.legible(lblColor, chrome.bg);
           valDiv.style.fontWeight = "600";
           valDiv.style.lineHeight = "1.2";
           valDiv.style.whiteSpace = "nowrap";
@@ -1760,10 +1765,20 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return s || fallback;
   }
 
+  /** Puntos de la escala: los de la paleta elegida (bajo, medio, alto) o mínimo y máximo a mano. */
+  private scaleStops(): string[] {
+    const sc = SCHEMES[this.settings.heatmap.scheme];
+    return sc ? sc.slice() : [this.settings.heatmap.colorMin, this.settings.heatmap.colorMax];
+  }
+
   private heatmapColor(value: number | null, min: number, max: number): string {
     if (value === null || min === max) return this.settings.heatmap.colorNull;
     const t = Math.max(0, Math.min(1, (value - min) / (max - min)));
-    return this.interpolateColor(this.settings.heatmap.colorMin, this.settings.heatmap.colorMax, t);
+    const st = this.scaleStops();
+    if (st.length === 3) {
+      return t < 0.5 ? this.interpolateColor(st[0], st[1], t * 2) : this.interpolateColor(st[1], st[2], (t - 0.5) * 2);
+    }
+    return this.interpolateColor(st[0], st[1], t);
   }
 
   private interpolateColor(hex1: string, hex2: string, t: number): string {
@@ -1809,15 +1824,36 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
    * condicional del visual: Power BI no ofrece el fx a los visuales que leen los datos como tabla
    * (documentado por Microsoft), y el de la 1.1 nunca llegaba a aplicarse.
    */
-  /** ¿Fondo oscuro? Para poner el texto en blanco encima (reglas de color con tonos intensos). */
-  private isDark(color: string | null | undefined): boolean {
-    const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(color || ""));
-    if (!m) return false;
-    const [r, g, b] = [m[1], m[2], m[3]].map(h => {
-      const v = parseInt(h, 16) / 255;
+  /** Luminancia relativa de #rrggbb o rgb(r,g,b) (el degradado se calcula como rgb()). */
+  private lum(color: string | null | undefined): number | null {
+    const txt = String(color || "");
+    const hex = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(txt);
+    const rgb = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i.exec(txt);
+    const canales = hex ? [hex[1], hex[2], hex[3]].map(h => parseInt(h, 16)) : rgb ? [rgb[1], rgb[2], rgb[3]].map(Number) : null;
+    if (!canales) return null;
+    const [r, g, b] = canales.map(c => {
+      const v = c / 255;
       return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
     });
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.3;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
+  /** ¿Fondo oscuro? Para poner el texto en blanco encima (reglas y paletas con tonos intensos). */
+  private isDark(color: string | null | undefined): boolean {
+    const l = this.lum(color);
+    return l !== null && l < 0.3;
+  }
+
+  /**
+   * El color de texto pedido si se lee sobre el fondo (contraste 3:1 o más); si no, oscuro o
+   * blanco según el fondo. Los números de fin de semana en naranja desaparecían sobre los días
+   * naranjas de la paleta por defecto.
+   */
+  private legible(deseado: string, fondo: string): string {
+    const a = this.lum(deseado), f = this.lum(fondo);
+    if (a === null || f === null) return deseado;
+    const ratio = (Math.max(a, f) + 0.05) / (Math.min(a, f) + 0.05);
+    return ratio >= 3 ? deseado : (f < 0.3 ? "#FFFFFF" : "#252423");
   }
 
   private ruleFor(value: number | null): string | null {
@@ -2158,7 +2194,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       + (where === "top" ? "margin-bottom:6px;" : "margin-top:6px;") + "flex-shrink:0;";
     const barra = document.createElement("span");
     barra.style.cssText = `display:inline-block;width:110px;height:8px;border-radius:4px;`
-      + `background:linear-gradient(90deg,${this.sanitizeColor(this.settings.heatmap.colorMin, "#EDE9DE")},${this.sanitizeColor(this.settings.heatmap.colorMax, "#C96442")});`;
+      + `background:linear-gradient(90deg,${this.scaleStops().map(c => this.sanitizeColor(c, "#C96442")).join(",")});`;
     if (lg.showValues) { const a = document.createElement("span"); a.textContent = minTxt; fila.appendChild(a); }
     fila.appendChild(barra);
     if (lg.showValues) { const b = document.createElement("span"); b.textContent = maxTxt; fila.appendChild(b); }
