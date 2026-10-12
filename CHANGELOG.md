@@ -4,6 +4,38 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## [1.2.0.0] — 2026-10-12
+
+### Added
+- **Year view (Pro).** The twelve months in miniature, each day coloured by the measure. Click a month to open it.
+- **Drill up and down.** The title goes up a level (week → month → year); a week number opens that week; **Today** jumps to the current date.
+- **Week numbers**, ISO 8601 or US, to the left of each week in the month view.
+- **Date-range selection (free).** Drag across days, or click one and Shift+click another: every day in between filters the report. Shift+Enter does it from the keyboard.
+- **Measure switching (Pro).** With measures in Tooltip Measures, a Measure selector lets the reader choose which one colours the days; the choice is saved with the report.
+- **Fiscal periods in weeks: 4-4-5, 4-5-4 and 5-4-4 (free).** Twelve periods of whole weeks, the year starting on the first day of the week closest to day 1 of the fiscal month; in a 53-week year the extra week goes to period 12.
+- **Color Rules (free).** Up to three thresholds on the day's value, each with its colour — the visual's conditional formatting.
+- **Color schemes:** Blues, Greens, Purples, Greys, Red-yellow-green and its reverse, Viridis and Cividis (colour-blind safe), Activity (GitHub style), TCViz blue, or Custom.
+- **Style templates:** Classic (the default look), Clean, Tiles, Minimal and TCViz. A template only fills what you have not set yourself.
+- **Color Legend** for the scale, with minimum and maximum, at the top or the bottom; **Layout** with corner radius and space between days.
+- **Events as colour marks.** *Show events as*: Auto (marks in month and year, labels in week), Color marks or Labels.
+- **Setup guide inside the visual**, in edit mode only: it ticks off each field as you add it and offers the templates.
+- **Format on the canvas:** click a day, its number or value, the view buttons, the legend or the event marks to format them.
+- **Twelve languages** for the Format pane, the buttons, tooltips, messages and the licence notice; day and month names follow the report's locale.
+
+### Changed
+- **New Format pane.** The visual moves from the legacy property API to the formatting model.
+- **The layout adapts to the size of the visual.** *Months to Display* is a maximum: only the months that fit are drawn. Day values hide when a day is too narrow to read them, and below 320 px the visual turns compact. The 380 px minimum height that cut the month view in short visuals is gone.
+- **Category colours** follow the order of appearance over eight distinct tones (before, a hash over six could give two categories the same colour) and no longer reuse the heatmap's own orange.
+- **Text stays readable**: a day number or value that would not read on its day turns dark or white.
+- **Screen readers** announce how many days are selected.
+- **Tooling**: powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.5.4; npm audit from 20 findings to 6 (development only, none in the package).
+
+### Fixed
+- **Fiscal Calendar did nothing.** The setting was in the Format pane but never read. It now labels months with the fiscal year and period (FY2027 P1) and starts the year view at the fiscal month.
+- **The fx button on Day Color never applied.** Power BI does not offer conditional formatting to visuals that read data as a table. Replaced by Color Rules; Day Color remains as a fixed colour.
+- **Day names were always in English** and month names followed the browser instead of the report.
+- **The licence notice** asked Power BI for a text key it does not resolve; it now comes in the report's language.
+
 ## [1.1.2.0] — 2026-09-20
 
 ### Added

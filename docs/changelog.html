@@ -37,7 +37,7 @@
     <text x="258" y="246" font-family="'Segoe UI',sans-serif" font-weight="700" font-size="196" letter-spacing="-4"><tspan fill="url(#g)">tc</tspan><tspan fill="#fff">viz</tspan></text>
   </svg>
   <h1>Calendar Events Heatmap — Changelog</h1>
-  <span>v1.1.2.0 &middot; TCViz</span>
+  <span>v1.2.0.0 &middot; TCViz</span>
 </header>
 <nav>
   <a href="https://tinocallarisa-web.github.io/calendar/support.html">Support &amp; Docs</a>
@@ -51,6 +51,40 @@
 <main>
   <p>All notable changes to this project are documented in this file.</p>
   <hr>
+  <h2 id="1-2-0-0-2026-10-12">[1.2.0.0] — 2026-10-12</h2>
+  <h3 id="added">Added</h3>
+  <ul>
+  <li><strong>Year view (Pro).</strong> The twelve months in miniature, each day coloured by the measure. Click a month to open it.</li>
+  <li><strong>Drill up and down.</strong> The title goes up a level (week → month → year); a week number opens that week; <strong>Today</strong> jumps to the current date.</li>
+  <li><strong>Week numbers</strong>, ISO 8601 or US, to the left of each week in the month view.</li>
+  <li><strong>Date-range selection (free).</strong> Drag across days, or click one and Shift+click another: every day in between filters the report. Shift+Enter does it from the keyboard.</li>
+  <li><strong>Measure switching (Pro).</strong> With measures in Tooltip Measures, a Measure selector lets the reader choose which one colours the days; the choice is saved with the report.</li>
+  <li><strong>Fiscal periods in weeks: 4-4-5, 4-5-4 and 5-4-4 (free).</strong> Twelve periods of whole weeks, the year starting on the first day of the week closest to day 1 of the fiscal month; in a 53-week year the extra week goes to period 12.</li>
+  <li><strong>Color Rules (free).</strong> Up to three thresholds on the day's value, each with its colour — the visual's conditional formatting.</li>
+  <li><strong>Color schemes:</strong> Blues, Greens, Purples, Greys, Red-yellow-green and its reverse, Viridis and Cividis (colour-blind safe), Activity (GitHub style), TCViz blue, or Custom.</li>
+  <li><strong>Style templates:</strong> Classic (the default look), Clean, Tiles, Minimal and TCViz. A template only fills what you have not set yourself.</li>
+  <li><strong>Color Legend</strong> for the scale, with minimum and maximum, at the top or the bottom; <strong>Layout</strong> with corner radius and space between days.</li>
+  <li><strong>Events as colour marks.</strong> *Show events as*: Auto (marks in month and year, labels in week), Color marks or Labels.</li>
+  <li><strong>Setup guide inside the visual</strong>, in edit mode only: it ticks off each field as you add it and offers the templates.</li>
+  <li><strong>Format on the canvas:</strong> click a day, its number or value, the view buttons, the legend or the event marks to format them.</li>
+  <li><strong>Twelve languages</strong> for the Format pane, the buttons, tooltips, messages and the licence notice; day and month names follow the report's locale.</li>
+  </ul>
+  <h3 id="changed">Changed</h3>
+  <ul>
+  <li><strong>New Format pane.</strong> The visual moves from the legacy property API to the formatting model.</li>
+  <li><strong>The layout adapts to the size of the visual.</strong> *Months to Display* is a maximum: only the months that fit are drawn. Day values hide when a day is too narrow to read them, and below 320 px the visual turns compact. The 380 px minimum height that cut the month view in short visuals is gone.</li>
+  <li><strong>Category colours</strong> follow the order of appearance over eight distinct tones (before, a hash over six could give two categories the same colour) and no longer reuse the heatmap's own orange.</li>
+  <li><strong>Text stays readable</strong>: a day number or value that would not read on its day turns dark or white.</li>
+  <li><strong>Screen readers</strong> announce how many days are selected.</li>
+  <li><strong>Tooling</strong>: powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.5.4; npm audit from 20 findings to 6 (development only, none in the package).</li>
+  </ul>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li><strong>Fiscal Calendar did nothing.</strong> The setting was in the Format pane but never read. It now labels months with the fiscal year and period (FY2027 P1) and starts the year view at the fiscal month.</li>
+  <li><strong>The fx button on Day Color never applied.</strong> Power BI does not offer conditional formatting to visuals that read data as a table. Replaced by Color Rules; Day Color remains as a fixed colour.</li>
+  <li><strong>Day names were always in English</strong> and month names followed the browser instead of the report.</li>
+  <li><strong>The licence notice</strong> asked Power BI for a text key it does not resolve; it now comes in the report's language.</li>
+  </ul>
   <h2 id="1-1-2-0-2026-09-20">[1.1.2.0] — 2026-09-20</h2>
   <h3 id="added">Added</h3>
   <ul>
@@ -228,7 +262,7 @@
   <a href="https://tinocallarisa-web.github.io/calendar/terms.html">Terms</a> &middot;
   <a href="https://github.com/tinocallarisa-web/calendar">GitHub</a> &middot;
   <a href="https://github.com/tinocallarisa-web/calendar/issues">Issues</a><br><br>
-  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.1.2.0
+  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.2.0.0
 </footer>
 </body>
 </html>
