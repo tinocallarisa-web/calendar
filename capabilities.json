@@ -896,5 +896,7 @@
   "supportsLandingPage": true,
   "supportsKeyboardFocus": true,
   "supportsMultiVisualSelection": true,
-  "privileges": []
+  "privileges": [],
+  "supportsOnObjectFormatting": true,
+  "enablePointerEventsFormatMode": true
 }

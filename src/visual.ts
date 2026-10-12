@@ -1,6 +1,10 @@
 /// <reference types="powerbi-visuals-api" />
 import powerbi from "powerbi-visuals-api";
 import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
+import {
+  HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute,
+  SubSelectableObjectNameAttribute, SubSelectableTypeAttribute,
+} from "powerbi-visuals-utils-onobjectutils";
 import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES } from "./settings";
 import { PANEL, PanelProp } from "./panel";
 
@@ -99,6 +103,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private measureNames: string[] = [];
   /** Paso del asistente de configuración (2 = campos opcionales, 3 = estilo). El 1 es la pantalla de inicio. */
   private guideStep = 2;
+  /** Formato sobre el lienzo (1.2.0.0). */
+  public visualOnObjectFormatting: powerbi.extensibility.visual.VisualOnObjectFormatting;
+  private subSelectionHelper: HtmlSubSelectionHelper;
+  private formatMode = false;
   /** Measure range of the current dataset, used for the high-contrast intensity ramp. */
   private valueMin: number = 0;
   private valueMax: number = 0;
@@ -120,6 +128,16 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.licenseManager = (options.host as any).licenseManager;
     // Localización de los textos que muestra el visual en tiempo de ejecución.
     this.localization = options.host.createLocalizationManager();
+    this.subSelectionHelper = HtmlSubSelectionHelper.createHtmlSubselectionHelper({
+      hostElement: options.element,
+      subSelectionService: (options.host as any).subSelectionService,
+      selectionIdCallback: () => undefined,
+    });
+    this.visualOnObjectFormatting = {
+      getSubSelectionStyles: (subs) => this.getSubSelectionStyles(subs),
+      getSubSelectionShortcuts: (subs) => this.getSubSelectionShortcuts(subs),
+      getSubSelectables: (filter) => this.subSelectionHelper.getAllSubSelectables(filter),
+    };
 
     // Root container
     this.container = document.createElement("div");
@@ -232,6 +250,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       // ahí un cliente que paga se leería como Free.
       const viewMode = (options as any).viewMode;
       this.editing = typeof viewMode === "number" && viewMode !== 0;
+      this.formatMode = !!(options as any).formatMode;
+      this.subSelectionHelper.setFormatMode(this.formatMode);
       this.proPreview = this.computePreview();
 
       // La plantilla se aplica dos veces: sobre lo leído y, sin licencia, después de devolver lo
@@ -274,6 +294,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       this.requestLicenseDeferred();
       this.notifyProBlocked();
       this.updateWatermark();
+      if (this.formatMode) {
+        const subs = (options as any).subSelections as powerbi.visuals.CustomVisualSubSelection[] | undefined;
+        this.subSelectionHelper.updateOutlinesFromSubSelections(subs ?? [], true);
+      }
 
       this.events.renderingFinished(options);
     } catch (e) {
@@ -546,7 +570,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.applySelectionStyles();
 
     // Asistente de configuración (1.2.0.0): solo editando y con datos; nunca en lectura.
-    if (this.editing && this.calendarData.length > 0 && this.rawSettings.style.guide && this.interactionsAllowed()) {
+    if (this.editing && !this.formatMode && this.calendarData.length > 0 && this.rawSettings.style.guide && this.interactionsAllowed()) {
       this.container.appendChild(this.buildGuide());
     }
 
@@ -757,6 +781,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         cell.setAttribute("tabindex", "-1");
         cell.setAttribute("aria-label", this.cellAriaLabel(date, day));
         cell.setAttribute("aria-selected", "false");
+        this.subSelectable(cell, "heatmap", this.t("OO_Day", "Day colour"), powerbi.visuals.SubSelectionStylesType.Shape);
         cell.style.backgroundColor = chrome.bg;
         cell.style.borderRadius = radio;
         cell.style.padding = "3px";
@@ -769,6 +794,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
         // Day number
         const numDiv = document.createElement("div");
+        this.subSelectable(numDiv, "dayNumber", this.t("OO_DayNumber", "Day number"), powerbi.visuals.SubSelectionStylesType.Text);
         numDiv.style.fontSize = numSz;
         numDiv.style.fontFamily = numFont;
         numDiv.style.fontWeight = isToday ? "700" : "400";
@@ -782,6 +808,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         // Measure value
         if (showMeasure && day?.measureValue != null) {
           const valDiv = document.createElement("div");
+          this.subSelectable(valDiv, "labels", this.t("OO_Value", "Day value"), powerbi.visuals.SubSelectionStylesType.Text);
           valDiv.style.fontSize = lblSz;
           valDiv.style.fontFamily = lblFont;
           valDiv.style.color = this.hc ? lblColor : this.legible(lblColor, chrome.bg);
@@ -800,6 +827,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const comoMarcas = this.settings.events.display !== "labels";
         if (comoMarcas && showEvents && eventsArr.length > 0) {
           const pie = document.createElement("div");
+          this.subSelectable(pie, "events", this.t("OO_Events", "Events"), powerbi.visuals.SubSelectionStylesType.Shape);
           pie.style.cssText = "display:flex;gap:2px;margin-top:auto;align-items:center;flex-shrink:0;";
           const vistos = new Set<string>();
           const colores: string[] = [];
@@ -1090,7 +1118,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // Rango arrastrando: se marca mientras se arrastra y se selecciona al soltar.
     wrapper.style.userSelect = "none";
     wrapper.addEventListener("mousedown", (e: MouseEvent) => {
-      if (e.button !== 0 || !this.interactionsAllowed()) return;
+      if (e.button !== 0 || !this.interactionsAllowed() || this.formatMode) return;
       const c = (e.target as HTMLElement).closest("[data-date]") as HTMLElement | null;
       this.dragStart = c && c.dataset.hasData === "1" ? c.dataset.date! : null;
       this.dragOver = null;
@@ -1113,7 +1141,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
     wrapper.addEventListener("click", (e: MouseEvent) => {
       if (this.suppressClick) { this.suppressClick = false; return; }
-      if (!this.interactionsAllowed()) return;
+      if (!this.interactionsAllowed() || this.formatMode) return;
       const target = (e.target as HTMLElement).closest("[data-date]") as HTMLElement;
 
       // Click on empty background → clear any active selection so slicers work again
@@ -1989,6 +2017,75 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return container;
   }
 
+  // ─── Formato sobre el lienzo (1.2.0.0) ────────────────────────────────────
+
+  private subSelectable(el: Element, objectName: string, displayName: string, type: powerbi.visuals.SubSelectionStylesType): void {
+    if (!this.formatMode) return;
+    el.classList.add(HtmlSubSelectableClass);
+    el.setAttribute(SubSelectableObjectNameAttribute, objectName);
+    el.setAttribute(SubSelectableDisplayNameAttribute, displayName);
+    el.setAttribute(SubSelectableTypeAttribute, String(type));
+  }
+
+  private getSubSelectionStyles(subs: powerbi.visuals.CustomVisualSubSelection[]): powerbi.visuals.SubSelectionStyles | undefined {
+    const name = subs[0]?.customVisualObjects[0]?.objectName;
+    const ref = (objectName: string, propertyName: string, label: string) => ({ reference: { objectName, propertyName }, label });
+    switch (name) {
+      case "dayNumber":
+        return { type: powerbi.visuals.SubSelectionStylesType.Text,
+          fontFamily: ref("dayNumber", "fontFamily", this.t("OO_Font", "Font")),
+          fontSize: ref("dayNumber", "fontSize", this.t("OO_Size", "Size")),
+          fontColor: ref("dayNumber", "color", this.t("OO_Color", "Color")) } as any;
+      case "labels":
+        return { type: powerbi.visuals.SubSelectionStylesType.Text,
+          fontFamily: ref("labels", "fontFamily", this.t("OO_Font", "Font")),
+          fontSize: ref("labels", "fontSize", this.t("OO_Size", "Size")),
+          fontColor: ref("labels", "color", this.t("OO_Color", "Color")) } as any;
+      case "navigation":
+        return { type: powerbi.visuals.SubSelectionStylesType.Text,
+          fontColor: ref("navigation", "textColor", this.t("OO_Color", "Color")) } as any;
+      case "heatmap":
+        return { type: powerbi.visuals.SubSelectionStylesType.Shape,
+          fill: ref("heatmap", "colorMax", this.t("OO_MaxColor", "Max color")) } as any;
+      case "events":
+        return { type: powerbi.visuals.SubSelectionStylesType.Shape,
+          fill: ref("events", "eventBgColor", this.t("OO_Color", "Color")) } as any;
+      case "legend":
+        return { type: powerbi.visuals.SubSelectionStylesType.Shape } as any;
+    }
+    return undefined;
+  }
+
+  private getSubSelectionShortcuts(subs: powerbi.visuals.CustomVisualSubSelection[]): powerbi.visuals.VisualSubSelectionShortcuts | undefined {
+    const name = subs[0]?.customVisualObjects[0]?.objectName;
+    const id = (objectName: string, propertyName: string) => ({ objectName, propertyName });
+    const nav = (card: string, label: string) => ({ type: powerbi.visuals.VisualShortcutType.Navigate, destinationInfo: { cardUid: "Visual-" + card + "-card" }, label });
+    const reset = (ids: { objectName: string; propertyName: string }[]) => ({ type: powerbi.visuals.VisualShortcutType.Reset, relatedResetFormattingIds: ids });
+    const mas = this.t("OO_More", "More options");
+    switch (name) {
+      case "dayNumber":
+        return [reset([id("dayNumber", "fontFamily"), id("dayNumber", "fontSize"), id("dayNumber", "color")]), nav("dayNumber", mas)] as any;
+      case "labels":
+        return [reset([id("labels", "fontFamily"), id("labels", "fontSize"), id("labels", "color")]), nav("labels", mas)] as any;
+      case "navigation":
+        return [{ type: powerbi.visuals.VisualShortcutType.Picker, ...id("calendar", "view"), label: this.t("OO_DefaultView", "Default view") },
+                { type: powerbi.visuals.VisualShortcutType.Divider }, nav("navigation", mas)] as any;
+      case "heatmap":
+        return [{ type: powerbi.visuals.VisualShortcutType.Picker, ...id("heatmap", "scheme"), label: this.t("OO_Scheme", "Color scheme") },
+                { type: powerbi.visuals.VisualShortcutType.Picker, ...id("style", "template"), label: this.t("OO_Template", "Template") },
+                { type: powerbi.visuals.VisualShortcutType.Divider }, nav("rules", this.t("OO_Rules", "Color rules")), nav("heatmap", mas)] as any;
+      case "events":
+        return [{ type: powerbi.visuals.VisualShortcutType.Picker, ...id("events", "display"), label: this.t("OO_EventsAs", "Show events as") },
+                { type: powerbi.visuals.VisualShortcutType.Toggle, ...id("events", "showEvents"), label: this.t("OO_ShowEvents", "Show events") },
+                { type: powerbi.visuals.VisualShortcutType.Divider }, nav("events", mas)] as any;
+      case "legend":
+        return [{ type: powerbi.visuals.VisualShortcutType.Toggle, ...id("legend", "show"), label: this.t("OO_ShowLegend", "Show legend") },
+                { type: powerbi.visuals.VisualShortcutType.Picker, ...id("legend", "position"), label: this.t("OO_Position", "Position") },
+                { type: powerbi.visuals.VisualShortcutType.Divider }, nav("legend", mas)] as any;
+    }
+    return undefined;
+  }
+
   // ─── Asistente de configuración (1.2.0.0) ─────────────────────────────────
 
   /**
@@ -2278,6 +2375,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const viewRow = document.createElement("div");
     viewRow.setAttribute("role", "group");
     viewRow.setAttribute("aria-label", this.t("Cal_ViewGroup", "Calendar view"));
+    this.subSelectable(viewRow, "navigation", this.t("OO_Buttons", "View buttons"), powerbi.visuals.SubSelectionStylesType.Text);
     viewRow.style.cssText = "display:flex;gap:4px;margin-bottom:8px;flex-shrink:0;align-items:center;flex-wrap:wrap;";
     const pro = this.isPro || this.proPreview;
     const vistas: ["year" | "month" | "week", string, string, boolean][] = [
@@ -2319,7 +2417,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     outer.appendChild(viewRow);
 
     const legend = this.buildCategoryLegend();
-    if (legend) outer.appendChild(legend);
+    if (legend) {
+      this.subSelectable(legend, "events", this.t("OO_Events", "Events"), powerbi.visuals.SubSelectionStylesType.Shape);
+      outer.appendChild(legend);
+    }
     this.appendScaleLegend(outer, "top");
   }
 
@@ -2331,6 +2432,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const lg = this.settings.legend;
     if (!lg.show || lg.position !== where || this.hc || this.calendarData.length === 0) return;
     const fila = document.createElement("div");
+    this.subSelectable(fila, "legend", this.t("OO_Legend", "Color legend"), powerbi.visuals.SubSelectionStylesType.Shape);
     fila.setAttribute("role", "img");
     const minTxt = this.formatValue(this.valueMin), maxTxt = this.formatValue(this.valueMax);
     fila.setAttribute("aria-label", this.t("Cal_ScaleLegend", "Color scale from {0} to {1}").replace("{0}", minTxt).replace("{1}", maxTxt));

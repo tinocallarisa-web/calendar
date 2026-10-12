@@ -14,7 +14,8 @@
     "d3-color": "^3.1.0",
     "d3-interpolate": "^3.0.1",
     "d3-scale": "^4.0.2",
-    "powerbi-visuals-utils-formattingutils": "^6.1.2"
+    "powerbi-visuals-utils-formattingutils": "^6.1.2",
+    "powerbi-visuals-utils-onobjectutils": "^6.0.3"
   },
   "devDependencies": {
     "eslint": "^9.11.1",
