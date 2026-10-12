@@ -87,6 +87,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private restoreFocus: boolean = false;
   /** Day keys currently selected, mirrored for aria-selected and dimming. */
   private selectedKeys: Set<string> = new Set<string>();
+  /** Selección de rango (1.2.0.0): el último día elegido, y el arrastre en curso. */
+  private anchorKey: string | null = null;
+  private dragStart: string | null = null;
+  private dragOver: string | null = null;
+  private suppressClick = false;
   /** Measure range of the current dataset, used for the high-contrast intensity ramp. */
   private valueMin: number = 0;
   private valueMax: number = 0;
@@ -994,7 +999,32 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
   private attachInteractions(wrapper: HTMLElement): void {
     // Day click → filter / clear selection
+    // Rango arrastrando: se marca mientras se arrastra y se selecciona al soltar.
+    wrapper.style.userSelect = "none";
+    wrapper.addEventListener("mousedown", (e: MouseEvent) => {
+      if (e.button !== 0 || !this.interactionsAllowed()) return;
+      const c = (e.target as HTMLElement).closest("[data-date]") as HTMLElement | null;
+      this.dragStart = c && c.dataset.hasData === "1" ? c.dataset.date! : null;
+      this.dragOver = null;
+    });
+    wrapper.addEventListener("mouseover", (e: MouseEvent) => {
+      if (!this.dragStart || (e.buttons & 1) === 0) return;
+      const c = (e.target as HTMLElement).closest("[data-date]") as HTMLElement | null;
+      if (!c || c.dataset.date === this.dragOver) return;
+      this.dragOver = c.dataset.date!;
+      this.previewRange(this.dragStart, this.dragOver);
+    });
+    wrapper.addEventListener("mouseup", (e: MouseEvent) => {
+      if (this.dragStart && this.dragOver && this.dragOver !== this.dragStart) {
+        this.selectRange(this.dragStart, this.dragOver, e.ctrlKey || e.metaKey);
+        this.suppressClick = true;   // el click que sigue al mouseup no debe deshacerlo
+      }
+      this.dragStart = null;
+      this.dragOver = null;
+    });
+
     wrapper.addEventListener("click", (e: MouseEvent) => {
+      if (this.suppressClick) { this.suppressClick = false; return; }
       if (!this.interactionsAllowed()) return;
       const target = (e.target as HTMLElement).closest("[data-date]") as HTMLElement;
 
@@ -1011,8 +1041,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       if (!day?.selectionId) return;
 
       const multi = e.ctrlKey || e.metaKey;
+      if (e.shiftKey && this.anchorKey) { this.selectRange(this.anchorKey, dateKey, multi); return; }
       this.selectionManager.select(day.selectionId, multi);
       this.focusedKey = dateKey;
+      this.anchorKey = dateKey;
       this.trackSelection(dateKey, multi);
       this.setRovingTabindex();
       this.applySelectionStyles();
@@ -1078,7 +1110,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const day = this.calendarData.find(d => this.dateKey(d.date) === dateKey);
         if (!day?.selectionId) return;
         const multi = e.ctrlKey || e.metaKey;
+        if (e.shiftKey && this.anchorKey) { this.selectRange(this.anchorKey, dateKey, multi); return; }
         this.selectionManager.select(day.selectionId, multi);
+        this.anchorKey = dateKey;
         this.trackSelection(dateKey, multi);
         this.applySelectionStyles();
         return;
@@ -1550,6 +1584,40 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   }
 
   /** Keeps our mirror of the selection in sync with selectionManager's toggle semantics. */
+  /** Días con datos entre dos fechas, ambas incluidas (las claves yyyy-mm-dd se ordenan como texto). */
+  private daysBetween(a: string, b: string): CalendarDay[] {
+    const [lo, hi] = a <= b ? [a, b] : [b, a];
+    return this.calendarData.filter(d => { const k = this.dateKey(d.date); return k >= lo && k <= hi; });
+  }
+
+  /**
+   * Selecciona un rango de fechas (criterio FT.CAL01): filtra el informe por todos los días entre
+   * los dos extremos. Con Ctrl se añade a lo que ya había.
+   */
+  private selectRange(a: string, b: string, multi: boolean): void {
+    const dias = this.daysBetween(a, b).filter(d => d.selectionId);
+    if (dias.length === 0) return;
+    this.selectionManager.select(dias.map(d => d.selectionId!) as any, multi);
+    if (!multi) this.selectedKeys.clear();
+    dias.forEach(d => this.selectedKeys.add(this.dateKey(d.date)));
+    this.anchorKey = a;
+    this.focusedKey = b;
+    this.setRovingTabindex();
+    this.applySelectionStyles();
+  }
+
+  /** Marca provisional del rango mientras se arrastra. */
+  private previewRange(a: string, b: string): void {
+    const [lo, hi] = a <= b ? [a, b] : [b, a];
+    const color = this.hc ? this.hcFgSel : this.sanitizeColor(this.settings.navigation.activeColor, "#C96442");
+    (Array.from(this.container.querySelectorAll("[data-date]")) as HTMLElement[]).forEach(el => {
+      const k = el.dataset.date ?? "";
+      const dentro = k >= lo && k <= hi && el.dataset.hasData === "1";
+      el.style.outline = dentro ? `2px dashed ${color}` : (this.selectedKeys.has(k) ? el.style.outline : "");
+      el.style.outlineOffset = dentro ? "-2px" : el.style.outlineOffset;
+    });
+  }
+
   private trackSelection(key: string, multi: boolean): void {
     if (multi) {
       if (this.selectedKeys.has(key)) this.selectedKeys.delete(key);
