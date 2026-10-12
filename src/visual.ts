@@ -835,28 +835,27 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         if (comoMarcas && showEvents && eventsArr.length > 0) {
           const pie = document.createElement("div");
           this.subSelectable(pie, "events", this.t("OO_Events", "Events"), powerbi.visuals.SubSelectionStylesType.Shape);
-          pie.style.cssText = "display:flex;gap:2px;margin-top:auto;align-items:center;flex-shrink:0;";
-          const vistos = new Set<string>();
-          const colores: string[] = [];
-          eventsArr.forEach(e => {
-            const col = this.sanitizeColor(
-              (this.settings.events.useGlobalColor && this.settings.events.eventBgColor) ? this.settings.events.eventBgColor : e.color, "#C96442");
-            if (!vistos.has(col)) { vistos.add(col); colores.push(col); }
-          });
-          // Varios eventos por día es Pro: en Free, la marca del primero y "+n" con el resto.
+          // Franjas apiladas en vertical, a todo el ancho del día: con 4 eventos en fila no cabían
+          // en un día estrecho y se salían del borde (Tino, 12-10-2026).
+          pie.style.cssText = "display:flex;flex-direction:column;gap:2px;margin-top:auto;flex-shrink:0;";
+          const colores = this.eventColors(eventsArr);
+          // Varios eventos por día es Pro: en Free, la franja del primero y "+n" con el resto.
           const tope = (this.isPro || this.proPreview) ? 4 : 1;
-          colores.slice(0, tope).forEach(col => {
+          colores.slice(0, tope).forEach((col, i) => {
+            const fila = document.createElement("div");
+            fila.style.cssText = "display:flex;align-items:center;gap:3px;";
             const m = document.createElement("span");
-            m.style.cssText = `display:inline-block;width:14px;height:4px;border-radius:2px;background:${this.hc ? this.hcFg : col};flex-shrink:0;`
+            m.style.cssText = `display:block;flex:1;height:3px;border-radius:2px;background:${this.hc ? this.hcFg : col};`
               + "box-shadow:0 0 0 1px rgba(255,255,255,0.85);";
-            pie.appendChild(m);
+            fila.appendChild(m);
+            if (i === 0 && colores.length > tope) {
+              const mas = document.createElement("span");
+              mas.style.cssText = `font-size:8px;line-height:1;color:${this.legible("#83827D", chrome.bg)};`;
+              mas.textContent = `+${colores.length - tope}`;
+              fila.appendChild(mas);
+            }
+            pie.appendChild(fila);
           });
-          if (colores.length > tope) {
-            const mas = document.createElement("span");
-            mas.style.cssText = `font-size:8px;color:${this.legible("#83827D", chrome.bg)};`;
-            mas.textContent = `+${colores.length - tope}`;
-            pie.appendChild(mas);
-          }
           cell.appendChild(pie);
         }
 
@@ -1905,6 +1904,18 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
 
+  /** Un color por categoría distinta de los eventos del día, en orden. */
+  private eventColors(evs: CalendarEvent[]): string[] {
+    const vistos = new Set<string>();
+    const out: string[] = [];
+    evs.forEach(e => {
+      const col = this.sanitizeColor(
+        (this.settings.events.useGlobalColor && this.settings.events.eventBgColor) ? this.settings.events.eventBgColor : e.color, "#C96442");
+      if (!vistos.has(col)) { vistos.add(col); out.push(col); }
+    });
+    return out;
+  }
+
   /** ¿Fondo oscuro? Para poner el texto en blanco encima (reglas y paletas con tonos intensos). */
   private isDark(color: string | null | undefined): boolean {
     const l = this.lum(color);
@@ -2557,7 +2568,17 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           + `font-size:7px;line-height:1;color:${this.fg(this.settings.dayNumber.color, "#3D3929")};display:flex;align-items:center;justify-content:center;`
           + `overflow:hidden;cursor:${day ? "pointer" : "default"};`;
         if ((day?.events?.length ?? 0) > 0 && this.settings.events.showEvents) {
-          c.style.boxShadow = `inset 0 -2px 0 ${this.sanitizeColor(day!.events[0].color, "#C96442")}`;
+          // Franjas apiladas al pie, como en el mes (hasta 3 en Pro; 1 en Free).
+          const cols = this.eventColors(day!.events).slice(0, (this.isPro || this.proPreview) ? 3 : 1);
+          c.style.position = "relative";
+          const pie = document.createElement("div");
+          pie.style.cssText = "position:absolute;left:1px;right:1px;bottom:1px;display:flex;flex-direction:column;gap:1px;";
+          cols.forEach(col => {
+            const m = document.createElement("span");
+            m.style.cssText = `display:block;height:2px;border-radius:1px;background:${this.hc ? this.hcFg : col};`;
+            pie.appendChild(m);
+          });
+          c.appendChild(pie);
         }
         g.appendChild(c);
       }
