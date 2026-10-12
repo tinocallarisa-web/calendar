@@ -41,7 +41,7 @@ WHAT IS NEW IN 1.2
 • Fiscal calendars that follow your year: by month, or in 4-4-5, 4-5-4 and 5-4-4 weeks
 • Color rules: paint the days above or below your thresholds
 • Ten colour schemes, two of them colour-blind safe, and five style templates
-• Events as colour marks, so the heatmap stays readable; the legend names each colour
+• Events as colour marks in five clearly distinct palettes, so the heatmap stays readable; the legend names each colour
 • A setup guide inside the visual, format on the canvas, and twelve languages
 
 A CALENDAR THAT READS LIKE A HEATMAP

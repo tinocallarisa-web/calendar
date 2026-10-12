@@ -17,7 +17,8 @@ All notable changes to this project are documented in this file.
 - **Color schemes:** Blues, Greens, Purples, Greys, Red-yellow-green and its reverse, Viridis and Cividis (colour-blind safe), Activity (GitHub style), TCViz blue, or Custom.
 - **Style templates:** Classic (the default look), Clean, Tiles, Minimal and TCViz. A template only fills what you have not set yourself.
 - **Color Legend** for the scale, with minimum and maximum, at the top or the bottom; **Layout** with corner radius and space between days.
-- **Events as colour marks.** *Show events as*: Auto (marks in month and year, labels in week), Color marks or Labels.
+- **Events as colour marks.** *Show events as*: Auto (marks in month and year, labels in week), Color marks or Labels. Marks are full-width stripes stacked on the day, so four events always fit.
+- **Event palettes:** Vivid (Okabe-Ito, colour-blind safe, the default), Bold, Bright, Dark or Classic — eight clearly different colours each.
 - **Setup guide inside the visual**, in edit mode only: it ticks off each field as you add it and offers the templates.
 - **Format on the canvas:** click a day, its number or value, the view buttons, the legend or the event marks to format them.
 - **Twelve languages** for the Format pane, the buttons, tooltips, messages and the licence notice; day and month names follow the report's locale.
