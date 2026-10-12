@@ -17,6 +17,12 @@ export const PANEL: PanelCard[] = [
                 "kind": "drop",
                 "key": "Visual_Style_Template",
                 "en": "Template"
+            },
+            {
+                "p": "guide",
+                "kind": "toggle",
+                "key": "Visual_Style_Guide",
+                "en": "Setup guide"
             }
         ]
     },

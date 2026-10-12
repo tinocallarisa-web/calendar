@@ -1,7 +1,7 @@
 /// <reference types="powerbi-visuals-api" />
 import powerbi from "powerbi-visuals-api";
 import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
-import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES } from "./settings";
+import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES } from "./settings";
 import { PANEL, PanelProp } from "./panel";
 
 type IValueFormatter = ReturnType<typeof valueFormatter.create>;
@@ -97,6 +97,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private activeMeasureLoaded = false;
   /** Nombres de las medidas en el orden de los pozos: principal y secundarias. */
   private measureNames: string[] = [];
+  /** Paso del asistente de configuración (2 = campos opcionales, 3 = estilo). El 1 es la pantalla de inicio. */
+  private guideStep = 2;
   /** Measure range of the current dataset, used for the high-contrast intensity ramp. */
   private valueMin: number = 0;
   private valueMax: number = 0;
@@ -542,6 +544,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.attachInteractions(wrapper);
     this.setRovingTabindex();
     this.applySelectionStyles();
+
+    // Asistente de configuración (1.2.0.0): solo editando y con datos; nunca en lectura.
+    if (this.editing && this.calendarData.length > 0 && this.rawSettings.style.guide && this.interactionsAllowed()) {
+      this.container.appendChild(this.buildGuide());
+    }
 
     // A keyboard move that crossed a month/week boundary re-rendered the grid;
     // put focus back on the day the user navigated to.
@@ -1060,7 +1067,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     sub.style.cssText = "font-size:11px;line-height:1.5;max-width:200px;";
     sub.textContent = "Add a Date field and a Measure to see your calendar heatmap with event overlays.";
 
+    const paso = document.createElement("div");
+    paso.style.cssText = `font-size:11px;font-weight:700;color:${this.hc ? this.hcFg : "#2B6CB0"};margin-bottom:4px;`;
+    paso.textContent = this.t("Guide_Step", "Setup · step {0} of 3").replace("{0}", "1");
     inner.appendChild(icon);
+    inner.appendChild(paso);
     inner.appendChild(title);
     inner.appendChild(sub);
     wrapper.appendChild(inner);
@@ -1976,6 +1987,139 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     });
 
     return container;
+  }
+
+  // ─── Asistente de configuración (1.2.0.0) ─────────────────────────────────
+
+  /**
+   * Panel flotante que guía la configuración mientras se edita. No puede tocar los pozos (eso
+   * solo lo hace el usuario): comprueba lo que hay, explica qué aporta cada campo y aplica la
+   * plantilla elegida. Terminar o cerrar guarda style.guide = false; se reabre desde
+   * Formato → Style template. persistProperties solo desde un clic del usuario.
+   */
+  private buildGuide(): HTMLElement {
+    const azul = this.hc ? this.hcFgSel : "#2B6CB0";
+    const fg = this.hc ? this.hcFg : "#252423";
+    const muted = this.hc ? this.hcFg : "#605E5C";
+    const g = document.createElement("div");
+    g.className = "tcviz-guide";
+    g.setAttribute("role", "dialog");
+    g.setAttribute("aria-label", this.t("Guide_Title", "Setup guide"));
+    g.style.cssText = "position:absolute;left:8px;right:8px;bottom:8px;max-height:calc(100% - 16px);overflow:auto;"
+      + `background:${this.hc ? this.hcBg : "#FFFFFF"};border:1px solid ${azul};border-radius:8px;`
+      + "box-shadow:0 4px 16px rgba(0,0,0,0.18);padding:10px 12px;box-sizing:border-box;z-index:20;"
+      + `font:12px/1.4 'Segoe UI',sans-serif;color:${fg};text-align:left;cursor:default;`;
+    g.addEventListener("click", e => e.stopPropagation());
+    g.addEventListener("keydown", e => e.stopPropagation());
+
+    const terminar = () => {
+      this.guideStep = 2;
+      this.host.persistProperties({ merge: [{ objectName: "style", selector: null as any, properties: { guide: false } }] });
+    };
+    const boton = (texto: string, principal: boolean, accion: () => void): HTMLButtonElement => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = texto;
+      b.style.cssText = "font:600 12px 'Segoe UI',sans-serif;border-radius:4px;padding:3px 12px;cursor:pointer;"
+        + (principal ? `background:${azul};color:${this.hc ? this.hcBg : "#FFFFFF"};border:1px solid ${azul};`
+                     : `background:transparent;color:${azul};border:1px solid ${azul};`);
+      b.addEventListener("click", accion);
+      return b;
+    };
+
+    const cab = document.createElement("div");
+    cab.style.cssText = "display:flex;align-items:center;gap:8px;margin-bottom:4px;";
+    const paso = document.createElement("div");
+    paso.textContent = this.t("Guide_Step", "Setup · step {0} of 3").replace("{0}", String(this.guideStep));
+    paso.style.cssText = `font-weight:700;color:${azul};flex:1;`;
+    const cerrar = document.createElement("button");
+    cerrar.type = "button";
+    cerrar.textContent = "✕";
+    cerrar.title = this.t("Guide_Close", "Close the guide");
+    cerrar.setAttribute("aria-label", cerrar.title);
+    cerrar.style.cssText = `border:none;background:transparent;color:${muted};cursor:pointer;font-size:13px;`;
+    cerrar.addEventListener("click", terminar);
+    cab.appendChild(paso); cab.appendChild(cerrar);
+    g.appendChild(cab);
+
+    const titulo = document.createElement("div");
+    titulo.style.cssText = "font-weight:600;font-size:13px;margin-bottom:6px;";
+    g.appendChild(titulo);
+    const pie = document.createElement("div");
+    pie.style.cssText = "display:flex;gap:8px;justify-content:flex-end;margin-top:8px;";
+
+    if (this.guideStep !== 3) {
+      titulo.textContent = this.t("Guide_Optional", "Add what gives the days context");
+      const cols = (this.lastDataView?.table?.columns ?? []) as powerbi.DataViewMetadataColumn[];
+      const tiene = (rol: string) => cols.some(c => (c.roles ?? {})[rol]);
+      const items: [boolean, string, string][] = [
+        [tiene("eventName"), this.t("Guide_Events", "Event Name"), this.t("Guide_EventsWhy", "promotions, campaigns or incidents marked on their day")],
+        [tiene("eventCategory"), this.t("Guide_Category", "Event Category"), this.t("Guide_CategoryWhy", "one colour per category, with a legend")],
+        [tiene("holidayName"), this.t("Guide_Holidays", "Holiday Name"), this.t("Guide_HolidaysWhy", "public holidays highlighted")],
+        [tiene("secondaryMeasures"), this.t("Guide_Tooltips", "Tooltip Measures"), this.t("Guide_TooltipsWhy", "more figures on hover, and switching the measure in the visual (Pro)")],
+      ];
+      const lista = document.createElement("div");
+      lista.setAttribute("role", "list");
+      for (const [hecho, nombre, porque] of items) {
+        const f = document.createElement("div");
+        f.setAttribute("role", "listitem");
+        f.style.cssText = "display:flex;gap:6px;align-items:baseline;margin:2px 0;";
+        const marca = document.createElement("span");
+        marca.textContent = hecho ? "✓" : "○";
+        marca.setAttribute("aria-label", hecho ? this.t("Guide_Done", "added") : this.t("Guide_Todo", "not added"));
+        marca.style.cssText = `font-weight:700;color:${hecho ? (this.hc ? this.hcFg : "#107C10") : muted};width:12px;flex-shrink:0;`;
+        const txt = document.createElement("span");
+        const b = document.createElement("b");
+        b.textContent = nombre;
+        txt.appendChild(b);
+        txt.appendChild(document.createTextNode(" — " + porque));
+        txt.style.color = hecho ? muted : fg;
+        f.appendChild(marca); f.appendChild(txt);
+        lista.appendChild(f);
+      }
+      g.appendChild(lista);
+      const nota = document.createElement("div");
+      nota.textContent = this.t("Guide_Wells", "Drag the fields into the field wells; this list updates by itself. All optional.");
+      nota.style.cssText = `color:${muted};font-size:11px;margin-top:4px;`;
+      g.appendChild(nota);
+      pie.appendChild(boton(this.t("Guide_Next", "Next"), true, () => { this.guideStep = 3; this.render(); this.updateWatermark(); }));
+    } else {
+      titulo.textContent = this.t("Guide_Style", "Pick a style");
+      const actual = this.rawSettings.style.template;
+      const rejilla = document.createElement("div");
+      rejilla.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px;";
+      for (const nombre of Object.keys(TEMPLATES)) {
+        const valor = (card: string, prop: string, def: unknown) =>
+          ((TEMPLATES[nombre].find(([c2, p2]) => c2 === card && p2 === prop) || [])[2] ?? def) as any;
+        const esquema = SCHEMES[String(valor("heatmap", "scheme", "custom"))] ?? [this.rawSettings.heatmap.colorMin, "#E0A080", this.rawSettings.heatmap.colorMax];
+        const radio = Math.min(4, Number(valor("layout", "cellRadius", 4)));
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.setAttribute("aria-pressed", String(nombre === actual));
+        chip.style.cssText = `border:${nombre === actual ? 2 : 1}px solid ${nombre === actual ? azul : "#C8C6C4"};`
+          + "border-radius:6px;padding:6px;cursor:pointer;text-align:left;background:#FFFFFF;";
+        const mini = document.createElement("div");
+        mini.style.cssText = "display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;";
+        [0, 1, 2, 1, 2, 2, 0, 1, 0, 2, 1, 2, 2, 1].forEach(i => {
+          const sq = document.createElement("span");
+          sq.style.cssText = `display:block;aspect-ratio:1;border-radius:${radio}px;background:${esquema[i]};`;
+          mini.appendChild(sq);
+        });
+        const etq = document.createElement("div");
+        etq.textContent = nombre === "tcviz" ? "TCViz" : nombre.charAt(0).toUpperCase() + nombre.slice(1);
+        etq.style.cssText = `font:11px 'Segoe UI',sans-serif;color:${fg};`;
+        chip.appendChild(mini); chip.appendChild(etq);
+        chip.addEventListener("click", () => {
+          this.host.persistProperties({ merge: [{ objectName: "style", selector: null as any, properties: { template: nombre } }] });
+        });
+        rejilla.appendChild(chip);
+      }
+      g.appendChild(rejilla);
+      pie.appendChild(boton(this.t("Guide_Back", "Back"), false, () => { this.guideStep = 2; this.render(); this.updateWatermark(); }));
+      pie.appendChild(boton(this.t("Guide_Finish", "Finish"), true, terminar));
+    }
+    g.appendChild(pie);
+    return g;
   }
 
   // ─── Vistas y navegación (1.2.0.0) ─────────────────────────────────────────

@@ -50,7 +50,7 @@ export const TEMPLATES: Record<string, [string, string, unknown][]> = {
 };
 
 export interface CalendarSettings {
-  style: { template: string };
+  style: { template: string; guide: boolean };
   layout: { cellRadius: number; cellGap: number };
   calendar: {
     view: "year" | "month" | "week";
@@ -109,7 +109,7 @@ export interface CalendarSettings {
 }
 
 export const defaultSettings: CalendarSettings = {
-  style: { template: "classic" },
+  style: { template: "classic", guide: true },
   layout: { cellRadius: 4, cellGap: 2 },
   calendar: {
     view: "month",
@@ -186,11 +186,14 @@ export function freeSettings(s: CalendarSettings): CalendarSettings {
 }
 
 export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
-  if (!dataView?.metadata?.objects) return defaultSettings;
+  if (!dataView?.metadata?.objects) return JSON.parse(JSON.stringify(defaultSettings));
   const obj = dataView.metadata.objects;
 
   return {
-    style: { template: (obj["style"]?.["template"] as string) ?? defaultSettings.style.template },
+    style: {
+      template: (obj["style"]?.["template"] as string) ?? defaultSettings.style.template,
+      guide: (obj["style"]?.["guide"] as boolean) ?? defaultSettings.style.guide,
+    },
     layout: {
       cellRadius: (obj["layout"]?.["cellRadius"] as number) ?? defaultSettings.layout.cellRadius,
       cellGap: (obj["layout"]?.["cellGap"] as number) ?? defaultSettings.layout.cellGap,

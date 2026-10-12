@@ -120,6 +120,13 @@
               }
             ]
           }
+        },
+        "guide": {
+          "displayName": "Setup guide",
+          "displayNameKey": "Visual_Style_Guide",
+          "type": {
+            "bool": true
+          }
         }
       }
     },
