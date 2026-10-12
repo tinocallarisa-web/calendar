@@ -843,16 +843,18 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
               (this.settings.events.useGlobalColor && this.settings.events.eventBgColor) ? this.settings.events.eventBgColor : e.color, "#C96442");
             if (!vistos.has(col)) { vistos.add(col); colores.push(col); }
           });
-          colores.slice(0, 4).forEach(col => {
+          // Varios eventos por día es Pro: en Free, la marca del primero y "+n" con el resto.
+          const tope = (this.isPro || this.proPreview) ? 4 : 1;
+          colores.slice(0, tope).forEach(col => {
             const m = document.createElement("span");
             m.style.cssText = `display:inline-block;width:14px;height:4px;border-radius:2px;background:${this.hc ? this.hcFg : col};flex-shrink:0;`
               + "box-shadow:0 0 0 1px rgba(255,255,255,0.85);";
             pie.appendChild(m);
           });
-          if (colores.length > 4) {
+          if (colores.length > tope) {
             const mas = document.createElement("span");
-            mas.style.cssText = `font-size:8px;color:${this.fg(null, "#83827D")};`;
-            mas.textContent = `+${colores.length - 4}`;
+            mas.style.cssText = `font-size:8px;color:${this.legible("#83827D", chrome.bg)};`;
+            mas.textContent = `+${colores.length - tope}`;
             pie.appendChild(mas);
           }
           cell.appendChild(pie);
