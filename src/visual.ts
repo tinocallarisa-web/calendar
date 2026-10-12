@@ -92,6 +92,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private dragStart: string | null = null;
   private dragOver: string | null = null;
   private suppressClick = false;
+  /** Medida que manda en el color: 0 = la principal, i = la secundaria i (1.2.0.0, Pro). */
+  private activeMeasure = 0;
+  private activeMeasureLoaded = false;
+  /** Nombres de las medidas en el orden de los pozos: principal y secundarias. */
+  private measureNames: string[] = [];
   /** Measure range of the current dataset, used for the high-contrast intensity ramp. */
   private valueMin: number = 0;
   private valueMax: number = 0;
@@ -278,7 +283,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
     const cols = table.columns;
     const dateIdx = cols.findIndex(c => c.roles["date"]);
-    const measureIdx = cols.findIndex(c => c.roles["mainMeasure"]);
+    let measureIdx = cols.findIndex(c => c.roles["mainMeasure"]);
     const eventNameIdx = cols.findIndex(c => c.roles["eventName"]);
     const eventCatIdx = cols.findIndex(c => c.roles["eventCategory"]);
     const holidayNameIdx = cols.findIndex(c => c.roles["holidayName"]);
@@ -288,6 +293,24 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       .map((c, i) => ({ c, i }))
       .filter(({ c }) => c.roles["secondaryMeasures"])
       .map(({ i }) => i);
+
+    // CAMBIO DE MEDIDA (1.2.0.0, Pro): la elegida pasa a mandar en el color y las cifras, y la
+    // principal ocupa su sitio en la ayuda emergente. Se intercambian los índices y el resto del
+    // parseo no cambia.
+    const limpio = (i: number) => String(cols[i]?.displayName ?? "").replace(/[\x00-\x1f\x7f]/g, "");
+    this.measureNames = measureIdx >= 0 ? [limpio(measureIdx), ...secondaryIdxs.map(limpio)] : [];
+    if (!this.activeMeasureLoaded) {
+      const st = (dataView.metadata?.objects as any)?.state?.activeMeasure;
+      if (typeof st === "number") this.activeMeasure = st;
+      this.activeMeasureLoaded = true;
+    }
+    if (this.activeMeasure > secondaryIdxs.length) this.activeMeasure = 0;
+    const k = this.activeMeasure;
+    if (k > 0 && measureIdx >= 0 && (this.isPro || this.proPreview)) {
+      const elegida = secondaryIdxs[k - 1];
+      secondaryIdxs[k - 1] = measureIdx;
+      measureIdx = elegida;
+    }
 
     // Format strings are re-read on every update, which is what makes dynamic format
     // strings work: Power BI resolves the DAX expression and puts the result on the
@@ -1092,6 +1115,26 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       if (viewBtn) this.goTo(viewBtn.dataset.view as "year" | "month" | "week");
     });
 
+    // Cambio de medida (Pro): se guarda en el informe desde el clic del usuario.
+    wrapper.addEventListener("change", (e: Event) => {
+      const sel = (e.target as HTMLElement).closest("[data-measure]") as HTMLSelectElement | null;
+      if (!sel) return;
+      const k = parseInt(sel.value, 10) || 0;
+      if (k > 0 && !this.isPro && !this.proPreview) {
+        sel.value = "0";
+        this.notifyProBlocked("measure switching");
+        return;
+      }
+      this.activeMeasure = k;
+      this.host.persistProperties({ merge: [{ objectName: "state", selector: null as any, properties: { activeMeasure: k } }] });
+      if (this.lastDataView) {
+        this.calendarData = this.parseDataView(this.lastDataView);
+        this.render();
+        this.updateWatermark();
+      }
+      if (k > 0 && !this.isPro) this.notifyProBlocked("measure switching");
+    });
+
     // Keyboard navigation across the day grid
     wrapper.addEventListener("keydown", (e: KeyboardEvent) => {
       const cell = ((e.target as HTMLElement)?.closest?.("[data-date]") ?? null) as HTMLElement | null;
@@ -1293,6 +1336,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const w: string[] = [];
     if (o.calendar?.view === "week") w.push("week view");
     if (o.calendar?.view === "year") w.push("year view");
+    if ((o.state?.activeMeasure ?? 0) > 0) w.push("measure switching");
     if (parseInt(String(o.calendar?.monthsToShow ?? "1"), 10) > 1) w.push("several months");
     if ((o.events?.maxEventsVisible ?? 1) > 1) w.push("more than one event per day");
     if (o.events?.useGlobalColor !== undefined || o.events?.eventBgColor !== undefined ||
@@ -1909,6 +1953,28 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       b.style.cssText = this.viewBtnStyle(v === id);
       b.textContent = texto;
       viewRow.appendChild(b);
+    }
+    if (this.measureNames.length > 1) {
+      const sep = document.createElement("span");
+      sep.style.cssText = "flex:1;";
+      viewRow.appendChild(sep);
+      const etq = document.createElement("label");
+      etq.style.cssText = `font-size:11px;color:${this.fg(this.settings.navigation.textColor, "#535146")};display:flex;align-items:center;gap:4px;`;
+      etq.textContent = this.t("Cal_Measure", "Measure");
+      const sel = document.createElement("select");
+      sel.setAttribute("data-measure", "1");
+      sel.setAttribute("aria-label", this.t("Cal_MeasureAria", "Measure shown in the calendar")
+        + (pro ? "" : ` (${this.t("Cal_ProFeature", "Pro feature")})`));
+      sel.style.cssText = this.viewBtnStyle(false) + "padding:1px 4px;";
+      this.measureNames.forEach((n, i) => {
+        const o = document.createElement("option");
+        o.value = String(i);
+        o.textContent = n;
+        sel.appendChild(o);
+      });
+      sel.value = String(pro ? this.activeMeasure : 0);
+      etq.appendChild(sel);
+      viewRow.appendChild(etq);
     }
     outer.appendChild(viewRow);
 

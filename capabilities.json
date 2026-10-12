@@ -555,6 +555,19 @@
           }
         }
       }
+    },
+    "state": {
+      "displayName": "State",
+      "displayNameKey": "Visual_State",
+      "properties": {
+        "activeMeasure": {
+          "displayName": "Active measure",
+          "displayNameKey": "Visual_State_ActiveMeasure",
+          "type": {
+            "numeric": true
+          }
+        }
+      }
     }
   },
   "tooltips": {
