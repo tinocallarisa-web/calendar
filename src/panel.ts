@@ -334,6 +334,12 @@ export const PANEL: PanelCard[] = [
                 "en": "Show events as"
             },
             {
+                "p": "palette",
+                "kind": "drop",
+                "key": "Visual_Events_Palette",
+                "en": "Event palette"
+            },
+            {
                 "p": "maxEventsVisible",
                 "kind": "num",
                 "key": "Visual_Events_MaxEventsVisible",

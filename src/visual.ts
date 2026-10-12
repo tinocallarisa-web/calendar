@@ -5,7 +5,7 @@ import {
   HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute,
   SubSelectableObjectNameAttribute, SubSelectableTypeAttribute,
 } from "powerbi-visuals-utils-onobjectutils";
-import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES } from "./settings";
+import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES, EVENT_PALETTES } from "./settings";
 import { PANEL, PanelProp } from "./panel";
 import { STRINGS } from "./strings";
 
@@ -845,7 +845,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
             const fila = document.createElement("div");
             fila.style.cssText = "display:flex;align-items:center;gap:3px;";
             const m = document.createElement("span");
-            m.style.cssText = `display:block;flex:1;height:3px;border-radius:2px;background:${this.hc ? this.hcFg : col};`
+            m.style.cssText = `display:block;flex:1;height:4px;border-radius:2px;background:${this.hc ? this.hcFg : col};`
               + "box-shadow:0 0 0 1px rgba(255,255,255,0.85);";
             fila.appendChild(m);
             if (i === 0 && colores.length > tope) {
@@ -1996,8 +1996,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   }
 
   private categoryColor(category: string): string {
-    // Sin el teja del mapa de calor (#C96442): una marca de ese color desaparecía sobre un día "caliente".
-    const palette = ["#9C87F5", "#4BA3C3", "#E8A838", "#5BAD6F", "#D06E8C", "#2B6CB0", "#8C8C3E", "#6B4E9B"];
+    // Paleta elegida en Events → Event palette (1.2.0.0); Vivid por defecto.
+    const palette = EVENT_PALETTES[this.settings.events.palette] ?? EVENT_PALETTES.vivid;
     if (!category) return palette[0];
     // Por orden de aparición (1.2.0.0): hasta 8 categorías nunca comparten color. Antes era un
     // hash del nombre sobre 6 colores y dos categorías podían salir iguales.

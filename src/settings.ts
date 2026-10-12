@@ -49,6 +49,19 @@ export const TEMPLATES: Record<string, [string, string, unknown][]> = {
           ["navigation", "activeColor", "#2B6CB0"], ["navigation", "textColor", "#1F4E80"]],
 };
 
+/**
+ * Paletas categóricas para los eventos: colores muy distintos entre sí, para que cada categoría
+ * se reconozca de un vistazo en una franja de 3 px. Vivid es la de Okabe-Ito (apta para daltonismo),
+ * con el amarillo al final porque sobre fondos claros es el que menos se ve.
+ */
+export const EVENT_PALETTES: Record<string, string[]> = {
+  vivid: ["#0072B2", "#E69F00", "#009E73", "#CC79A7", "#D55E00", "#56B4E9", "#000000", "#F0E442"],
+  bold: ["#4E79A7", "#F28E2B", "#E15759", "#76B7B2", "#59A14F", "#EDC948", "#B07AA1", "#FF9DA7"],
+  bright: ["#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#A65628", "#F781BF", "#999999"],
+  dark: ["#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666"],
+  classic: ["#9C87F5", "#4BA3C3", "#E8A838", "#5BAD6F", "#D06E8C", "#2B6CB0", "#8C8C3E", "#6B4E9B"],
+};
+
 export interface CalendarSettings {
   style: { template: string; guide: boolean };
   layout: { cellRadius: number; cellGap: number };
@@ -100,6 +113,8 @@ export interface CalendarSettings {
     showEvents: boolean;
     /** Eventos como etiquetas o como marcas de color (auto: marcas en mes y año, etiquetas en semana). */
     display: "auto" | "marks" | "labels";
+    /** Paleta categórica de los eventos (1.2.0.0, gratis). */
+    palette: string;
     maxEventsVisible: number;
     useGlobalColor: boolean;   // false = per-category colors; true = single global color
     eventBgColor: string | null;
@@ -156,6 +171,7 @@ export const defaultSettings: CalendarSettings = {
   events: {
     showEvents: true,
     display: "auto",
+    palette: "vivid",
     maxEventsVisible: 1,
     useGlobalColor: false,
     eventBgColor: null,
@@ -244,6 +260,7 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
     events: {
       showEvents: (obj["events"]?.["showEvents"] as boolean) ?? defaultSettings.events.showEvents,
       display: (obj["events"]?.["display"] as "auto" | "marks" | "labels") ?? defaultSettings.events.display,
+      palette: (obj["events"]?.["palette"] as string) ?? defaultSettings.events.palette,
       maxEventsVisible: (obj["events"]?.["maxEventsVisible"] as number) ?? defaultSettings.events.maxEventsVisible,
       useGlobalColor: (obj["events"]?.["useGlobalColor"] as boolean) ?? defaultSettings.events.useGlobalColor,
       eventBgColor: (obj["events"]?.["eventBgColor"] as any)?.solid?.color ?? null,

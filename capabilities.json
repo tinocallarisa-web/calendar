@@ -732,6 +732,39 @@
             ]
           }
         },
+        "palette": {
+          "displayName": "Event palette",
+          "displayNameKey": "Visual_Events_Palette",
+          "type": {
+            "enumeration": [
+              {
+                "value": "vivid",
+                "displayName": "Vivid (colour-blind safe)",
+                "displayNameKey": "Visual_Events_Palette_Vivid"
+              },
+              {
+                "value": "bold",
+                "displayName": "Bold",
+                "displayNameKey": "Visual_Events_Palette_Bold"
+              },
+              {
+                "value": "bright",
+                "displayName": "Bright",
+                "displayNameKey": "Visual_Events_Palette_Bright"
+              },
+              {
+                "value": "dark",
+                "displayName": "Dark",
+                "displayNameKey": "Visual_Events_Palette_Dark"
+              },
+              {
+                "value": "classic",
+                "displayName": "Classic",
+                "displayNameKey": "Visual_Events_Palette_Classic"
+              }
+            ]
+          }
+        },
         "maxEventsVisible": {
           "displayName": "Max Events per Day (month view) [Pro]",
           "displayNameKey": "Visual_Events_MaxEventsVisible",
