@@ -34,6 +34,11 @@ Holiday Name ...... Optional. Marks the day as a holiday.
 All fields share the Date column: expand each event to one row per
 day before connecting it.
 
+Sales and events in two tables? Relate them by Date and give the
+events table every day (empty event on days without one), or merge
+them in Power Query. Rows of the same day = Automatic counts the
+day's value once.
+
 
 
 ## Views And Navigation
@@ -51,6 +56,11 @@ go down. Today jumps to the current date.
 - Click a day to filter the page; Ctrl+click adds.
 - Drag across days, or Shift+click, to filter by a date range.
 - Click empty space to clear.
+- Click a category in the event legend to hide its marks. The day
+  values and the report do not change. Saved with the report, not
+  with bookmarks (Power BI bookmarks keep filters and selection).
+- A slicer on Event Category removes the days without that category.
+  Use the legend, or Edit interactions > None on the calendar.
 
 
 
