@@ -1887,7 +1887,13 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.selectedKeys.clear();
     ids.forEach(id => {
       const k = porClave.get(this.keyOfId(id));
-      if (k) this.selectedKeys.add(k);
+      if (k) { this.selectedKeys.add(k); return; }
+      // Un marcador puede devolver la identidad con otra forma que la del clic (la clave no coincide):
+      // se compara entonces con equals/includes de la propia API, día a día.
+      const igual = (x: powerbi.visuals.ISelectionId) =>
+        !!((x as any).equals?.(id) || (id as any).equals?.(x) || (id as any).includes?.(x, true) || (x as any).includes?.(id, true));
+      const dia = this.calendarData.find(d => d.selectionIds.some(igual));
+      if (dia) this.selectedKeys.add(this.dateKey(dia.date));
     });
     const ahora = Array.from(this.selectedKeys).sort();
     if (navegar && ahora.length > 0 && !this.container.querySelector(`[data-date="${ahora[0]}"]`)) {
