@@ -17,18 +17,26 @@ this section describes 1.1; the current split is the table in `docs/terms.html` 
   `capabilities.json` into `src/panel.ts`). On-object formatting (`supportsOnObjectFormatting`,
   `enablePointerEventsFormatMode`): day, number, value, view buttons, legend and event marks. In format mode a
   click formats and does not select.
-- **Conditional formatting.** The fx on `heatmap.dayColor` is removed: Microsoft documents that conditional
-  formatting is not supported for table-based visuals, and it never applied. `rules` (Color Rules, up to three
-  thresholds) replace it as the visual's own conditional formatting.
+- **Conditional formatting.** The `heatmap.dayColor` property and its fx are removed: Microsoft documents that
+  conditional formatting is not supported for table-based visuals, so the rule never applied, and its constant
+  painted every day the same. `rules` (Color Rules, up to three thresholds) replace it.
+- **Rows of the same day.** `heatmap.dayAggregation` (auto/sum/avg/max). Auto counts the day's value once when
+  every row of the day repeats it (sales and events in two related tables) and sums otherwise.
+- **Event legend.** A click on a category hides or shows its marks inside the visual only: no filter, no
+  selection, the day values do not change. Saved in `state.hiddenCategories` from that click.
+- **Row limit.** `dataReductionAlgorithm: top 30000` on the table rows (1.1 left the default).
 - **Views and navigation.** Year view (Pro), drill up (title) and down (month name, week number), Today, ISO or
   US week numbers.
-- **Selection.** Date ranges by drag, Shift+click or Shift+Enter: `select(ids[], multi)` with every day in range.
+- **Selection.** A day selects every row it aggregates; a second click clears it. Date ranges by drag,
+  Shift+click or Shift+Enter: `select(ids[])` with every day in range.
+- **Bookmarks.** The selection is re-read on every `update()` and in `registerOnSelectCallback`; restored ids
+  are matched with `equals`/`includes` because Desktop returns them with a different key than the click.
 - **Fiscal calendars.** `fiscalEnabled`/`fiscalStartMonth` were never read in 1.1; now applied. New
   `fiscalType` (4-4-5, 4-5-4, 5-4-4): year starts on the week start nearest day 1 of the fiscal month; twelve
   periods of whole weeks; in a 53-week year the extra week goes to period 12.
 - **Measure switching (Pro).** `state.activeMeasure`, persisted from the reader's change only.
-- **Persisted properties.** Only `style.template` and `style.guide` (setup guide) and `state.activeMeasure`,
-  always from a user click; never from `registerOnSelectCallback`.
+- **Persisted properties.** Only `style.template`, `style.guide` (setup guide), `state.activeMeasure` and
+  `state.hiddenCategories`, always from a user click; never from `registerOnSelectCallback`.
 - **Localisation.** 12 languages. Texts the visual writes itself are resolved from `src/strings.ts` because
   Desktop only resolves `getDisplayName` for keys declared in `capabilities.json`.
 - **Rendering events.** One started/finished-or-failed pair per `update()`; navigation, selection and guide

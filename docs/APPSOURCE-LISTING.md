@@ -59,7 +59,8 @@ Switch on the fiscal calendar and pick the start month: months show their fiscal
 WORKS LIKE A NATIVE VISUAL
 
 • Click a day to cross-filter; Ctrl+click to add; drag or Shift+click for a range
-• Bookmarks restore the selection; "Edit interactions" is respected
+• Bookmarks restore the selected days; "Edit interactions" is respected
+• Click a category in the event legend to hide its marks; the day values do not change
 • Highlighting from other visuals and the native right-click menu
 • Format on the canvas: click a day, a number or a legend to format it
 • Keyboard navigation through days, weeks and months, with screen-reader labels
@@ -122,7 +123,7 @@ Canonical YouTube URL only (policy 100.3.3.3). **Correcting it here does not cor
 
 | Asset | File | Notes |
 |---|---|---|
-| Offer screenshots | `assets/infographic.png`, `assets/infographic-styles.png` | 1366×768, regenerated for 1.2.0.0 |
+| Offer screenshots | `assets/infographic.png`, `assets/infographic-styles.png`, `assets/Screenshot1.png` (week), `Screenshot2.png` (month), `Screenshot3.png` (year) | 1366×768, all for 1.2.0.0 |
 | Offer logo | `assets/tcviz-icono-calendar-300x300.png` | Uploaded by hand: it does not travel in the package |
 | Package icon | `assets/icon.png` | Embedded in the `.pbiviz` |
 
@@ -133,5 +134,5 @@ Canonical YouTube URL only (policy 100.3.3.3). **Correcting it here does not cor
 1. **Description** and **Search results summary** — both change.
 2. **Keywords** — `calendar heatmap`, `4-4-5 calendar`, `promotion calendar`.
 3. **Certification notes** — `docs/CERTIFICATION-NOTES-SHORT.txt`. Cleared on every resubmission.
-4. **Screenshots** — the two 1366×768 infographics in `assets/`.
+4. **Screenshots** — the two infographics and Screenshot1-3 in `assets/` (1366×768).
 5. **Video** — unchanged: `https://www.youtube.com/watch?v=FUELmlkAGNI`.

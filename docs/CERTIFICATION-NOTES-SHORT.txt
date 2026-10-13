@@ -15,6 +15,7 @@ result. Intentional, not missing gating.
 
 TESTING
 1. Date + Main Measure: month heatmap. Add Event Name/Category: colour marks + legend.
+   Click a legend category: its marks hide; day values stay.
 2. Click a day: other visuals filter. Drag across days (or Shift+click): the report
    filters by the range. Ctrl+click adds; empty space clears.
 3. Click the month title: year view (Pro). Click a month name: back to that month.
@@ -28,7 +29,8 @@ TESTING
 
 WHY NO FX
 Power BI documents that conditional formatting (fx) is not supported for table-based
-visuals; 1.1 offered it on Day Color and it never applied. Color Rules replace it.
+visuals; 1.1 offered it on Day Color and it never applied. Day Color is removed;
+Color Rules replace it.
 
 RENDERING EVENTS
 One renderingStarted and one renderingFinished/Failed per update(). Navigation,
@@ -36,7 +38,8 @@ selection and the guide repaint through render(), emitting none.
 
 PRIVACY / NETWORK
 No external calls, telemetry or CDN; privileges: []. No innerHTML. The visual persists
-only style.template, style.guide and state.activeMeasure, from a user click.
+only style.template, style.guide, state.activeMeasure and state.hiddenCategories,
+from a user click.
 
 LICENSING
 Plan calendar-tcviz, matched on the Service ID. Requested after the first paint; on

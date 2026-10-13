@@ -66,8 +66,8 @@ One visual. One story.
 **KPI Heatmap**
 Gradient coloring from min to max across all visible days. Instant pattern recognition — peaks, dips, and dead days are visible at a glance. Fully configurable min, max, and no-data colors.
 
-**Event Badges**
-Event names appear as colored badges on calendar day cells. Up to 8 event categories, each with its own color. A color legend is rendered automatically in the visual — no external legend needed.
+**Event Marks**
+Events appear as colour marks stacked at the bottom of each day (labels in the week view), one colour per category from five clearly distinct palettes. The legend names each colour; click a category to hide its marks without changing the day values.
 
 **Holiday Overlay**
 Connect a holiday name column and holiday days are immediately highlighted with a configurable color on the day number. Works alongside event badges — no conflict.
@@ -92,7 +92,7 @@ Display 1 to 12 months side by side. Ideal for quarterly or seasonal analysis. C
 Switch to a week-level calendar showing one week at a time, with the same heatmap and event badges. Perfect for operations and shift-level analysis.
 
 **Per-Category Event Colors**
-Up to 8 event categories, each with a fully configurable color picker in the Format pane. A color legend with category names is rendered below the Month/Week navigation buttons.
+Up to 8 event categories, each with a fully configurable color picker in the Format pane. The legend with category names goes at the top or the bottom of the visual.
 
 **Configurable Events per Day**
 Control how many event badges appear per day cell in month view. Free tier shows 1; Pro is configurable.
@@ -184,9 +184,9 @@ No external JavaScript libraries. No npm packages beyond the Power BI SDK. Fonts
 
 **Added**
 - Month view with KPI heatmap (configurable min/max/null colors)
-- Event badges with automatic per-category color palette
+- Event marks with five per-category palettes; click the legend to hide a category
 - Per-category event colors with configurable color pickers (up to 8 categories) — Pro
-- Color legend rendered in-visual below navigation buttons
+- Legends at the top or the bottom, in every view
 - Single global color mode for events (toggle in Format pane)
 - Week view — Pro
 - Multi-month view: 1–12 months side by side — Pro

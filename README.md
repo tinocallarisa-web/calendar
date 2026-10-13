@@ -15,7 +15,7 @@ campaigns and holidays shown alongside the measure they moved.
 [Report an issue](https://github.com/tinocallarisa-web/calendar/issues) ·
 [Questions & ideas](https://github.com/tinocallarisa-web/calendar/discussions)
 
-![Month view: each day shaded by the measure, with event badges and holiday markers](assets/Screenshot3.png)
+![Year view: twelve months, each day shaded by the measure, with colour marks for the events](assets/Screenshot3.png)
 
 ---
 
@@ -74,17 +74,19 @@ week start, and fiscal calendars with a custom year-start month.
 **Heatmap** — gradient from your min to max colour across the visible range, with a
 separate colour for days that have no data, so an empty day never reads as a low one.
 
-**Events** — badges inside the day cell, coloured per category with an in-visual legend,
-or a single colour for everything. A cap on badges per day keeps dense months readable,
-with a `+N` counter for the overflow.
+**Events** — colour marks stacked at the bottom of the day (or labels in the week view), one
+colour per category from five distinct palettes, with an in-visual legend. Click a category in
+the legend to hide its marks: the day values do not change. Free shows one event per day with a
+`+N` counter; Pro shows several. Sales and events in two tables related by date are counted once
+per day (*Heatmap Colors → Rows of the same day*).
 
 **Report integration** — standard tooltips and report tooltip pages, cross-page
 filtering with multi-select, bookmarks, color rules on the day's value, and
 the measure's own format string honoured throughout, including dynamic format strings.
 
-![Three months side by side with a category legend and cross-filtering slicers](assets/Screenshot1.png)
+![Week view: one card per day with its value and every event written on it](assets/Screenshot1.png)
 
-![Week view: one card per day with the holiday name and every event on it](assets/Screenshot2.png)
+![Month view with week numbers, events written on their day and a category legend at the bottom](assets/Screenshot2.png)
 
 ---
 
