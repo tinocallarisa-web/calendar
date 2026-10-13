@@ -723,7 +723,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     }
 
     outer.appendChild(gridsContainer);
-    this.appendScaleLegend(outer, "bottom");
+    this.appendBottomLegends(outer);
     return outer;
   }
 
@@ -1158,6 +1158,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     });
 
     outer.appendChild(daysGrid);
+    this.appendBottomLegends(outer);
     return outer;
   }
 
@@ -2679,12 +2680,23 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     }
     outer.appendChild(viewRow);
 
-    const legend = this.compact() ? null : this.buildCategoryLegend();
-    if (legend) {
-      this.subSelectable(legend, "events", this.t("OO_Events", "Events"), powerbi.visuals.SubSelectionStylesType.Shape);
-      outer.appendChild(legend);
-    }
+    if (this.settings.legend.position !== "bottom") this.appendCategoryLegend(outer);
     this.appendScaleLegend(outer, "top");
+  }
+
+  private appendCategoryLegend(outer: HTMLElement): void {
+    const legend = this.compact() ? null : this.buildCategoryLegend();
+    if (!legend) return;
+    this.subSelectable(legend, "events", this.t("OO_Events", "Events"), powerbi.visuals.SubSelectionStylesType.Shape);
+    if (this.settings.legend.position === "bottom") { legend.style.marginBottom = "0"; legend.style.marginTop = "6px"; }
+    outer.appendChild(legend);
+  }
+
+  /** Color Legend → Position = Bottom (1.2.0.0): la leyenda de categorías y la escala van debajo, en las tres vistas. */
+  private appendBottomLegends(outer: HTMLElement): void {
+    if (this.settings.legend.position !== "bottom") return;
+    this.appendCategoryLegend(outer);
+    this.appendScaleLegend(outer, "bottom");
   }
 
   /**
@@ -2815,7 +2827,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       rejilla.appendChild(bloque);
     }
     outer.appendChild(rejilla);
-    this.appendScaleLegend(outer, "bottom");
+    this.appendBottomLegends(outer);
     return outer;
   }
 

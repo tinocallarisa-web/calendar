@@ -34,6 +34,7 @@ All notable changes to this project are documented in this file.
 - **Tooling**: powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.5.4; npm audit from 20 findings to 6 (development only, none in the package).
 
 ### Fixed
+- **Color Legend → Position = Bottom** moved only the scale, and not in the week view. The event categories now go to the bottom with it, in the month, year and week views.
 - **A second click on the selected day did not clear the filter** when the day had several rows (a day with events). It now clears it, and Ctrl+click on a selected day removes just that day.
 - **Row limit.** The visual did not declare how many rows it reads, so Power BI applied its default and a long date range — or one row per day and category — could arrive cut. It now asks for up to 30,000 rows.
 - **Day values in millions.** One day above 100,000 made every label switch to millions ("0.02M" for 20,000). The display unit now follows the typical day.
