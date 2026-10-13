@@ -399,6 +399,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const events: CalendarEvent[] = [];
     // Filas con valor por día (medida principal y secundarias), para el promedio.
     const nFilas = new Map<string, number[]>();
+    // Modo automático: ¿cada día con varias filas repite el mismo valor en todas? Pasa con dos tablas
+    // (ventas y eventos) relacionadas por la fecha: una fila por evento, cada una con el día entero.
+    const primeros = new Map<string, (number | null)[]>();
+    const repetido = [true, ...secondaryIdxs.map(() => true)];
+    let hayVarias = false;
     const modo = this.settings.heatmap.dayAggregation;
     const junta = (a: number | null, b: number): number => a === null ? b : (modo === "max" ? Math.max(a, b) : a + b);
     const holidays = new Map<string, string>(); // dateKey → name
@@ -464,6 +469,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
             .withTable(table, r)
             .createSelectionId();
 
+          primeros.set(key, [rowMeasure, ...secondaryIdxs.map(i => (typeof row[i] === "number" && isFinite(row[i] as number)) ? row[i] as number : null)]);
           nFilas.set(key, [rowMeasure !== null ? 1 : 0, ...secondaryIdxs.map(i => (typeof row[i] === "number" && isFinite(row[i] as number)) ? 1 : 0)]);
           dayMap.set(key, {
             date,
@@ -488,8 +494,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           // day's value is repeated on every row (a table merged in Power Query, one row per event).
           const existing = dayMap.get(key)!;
           const n = nFilas.get(key)!;
+          const p0 = primeros.get(key)!;
+          hayVarias = true;
           existing.selectionIds.push(this.host.createSelectionIdBuilder().withTable(table, r).createSelectionId());
           if (rowMeasure !== null) {
+            if (p0[0] !== null && rowMeasure !== p0[0]) repetido[0] = false;
             existing.measureValue = junta(existing.measureValue, rowMeasure);
             n[0]++;
           }
@@ -499,6 +508,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           secondaryIdxs.forEach((colIdx, tipIdx) => {
             const v = row[colIdx];
             if (typeof v === "number" && isFinite(v)) {
+              if (p0[tipIdx + 1] !== null && v !== p0[tipIdx + 1]) repetido[tipIdx + 1] = false;
               existing.secondaryValues[tipIdx] = junta(existing.secondaryValues[tipIdx] ?? null, v);
               n[tipIdx + 1]++;
             }
@@ -507,12 +517,14 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       }
     }
 
-    if (modo === "avg") {
+    // Promedio, o Automático con el valor repetido en todas las filas del día: se cuenta una vez.
+    const divide = (m: number) => modo === "avg" || (modo === "auto" && hayVarias && repetido[m]);
+    if (divide(0) || secondaryIdxs.some((_, i) => divide(i + 1))) {
       dayMap.forEach((d, k) => {
         const n = nFilas.get(k);
         if (!n) return;
-        if (d.measureValue !== null && n[0] > 1) d.measureValue /= n[0];
-        d.secondaryValues = d.secondaryValues.map((x, i) => (x !== null && n[i + 1] > 1) ? x / n[i + 1] : x);
+        if (divide(0) && d.measureValue !== null && n[0] > 1) d.measureValue /= n[0];
+        d.secondaryValues = d.secondaryValues.map((x, i) => (divide(i + 1) && x !== null && n[i + 1] > 1) ? x / n[i + 1] : x);
       });
     }
 
@@ -545,7 +557,14 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.valueMax = maxVal;
     // Display units are chosen from the largest value, so "1.2M" style abbreviation is
     // kept while the measure's own format (currency, percent, decimals) is honoured.
-    this.labelFormatter = this.makeFormatter(this.mainFormat, Math.max(Math.abs(minVal), Math.abs(maxVal)));
+    // Las unidades salen del día típico (mediana), no del máximo: con un pico de más de 100.000,
+    // Power BI pasaba a millones y un día de 20.000 se leía "0.02M".
+    const absOrden = values.map(Math.abs).sort((x, y) => x - y);
+    const tipico = absOrden.length ? absOrden[Math.floor(absOrden.length / 2)] : 0;
+    // Power BI pasa a la unidad siguiente a partir de 0,1 de ella (150.000 → "0.15M"): se le da un
+    // valor de muestra dentro de la unidad del día típico (K, M o bn).
+    const unidad = tipico >= 1e9 ? 1e9 : tipico >= 1e6 ? 1e6 : tipico >= 1e3 ? 1e3 : 0;
+    this.labelFormatter = this.makeFormatter(this.mainFormat, unidad ? unidad * 99.9 : tipico);
 
     dayMap.forEach(day => {
       day.heatmapColor = this.heatmapColor(day.measureValue, minVal, maxVal);

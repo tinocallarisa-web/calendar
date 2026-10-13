@@ -390,10 +390,15 @@
         "dayAggregation": {
           "displayName": "Rows of the same day",
           "displayNameKey": "Visual_Heatmap_DayAgg",
-          "description": "How to combine several rows of the same day: Sum when each row holds its own share, Average or Maximum when the day's value is repeated on every row.",
+          "description": "How to combine several rows of the same day. Automatic counts the value once when every row of the day repeats it, and adds the rows otherwise.",
           "descriptionKey": "Visual_Heatmap_DayAgg_Desc",
           "type": {
             "enumeration": [
+              {
+                "value": "auto",
+                "displayName": "Automatic",
+                "displayNameKey": "Visual_Heatmap_DayAgg_Auto"
+              },
               {
                 "value": "sum",
                 "displayName": "Sum",

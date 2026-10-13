@@ -84,7 +84,7 @@ export interface CalendarSettings {
     /** Constant side of the "Day Color" conditional-formatting property. Null = use the gradient. */
     dayColor: string | null;
     /** Cómo se combinan varias filas del mismo día (1.2.0.0): suma, promedio o máximo. */
-    dayAggregation: "sum" | "avg" | "max";
+    dayAggregation: "auto" | "sum" | "avg" | "max";
   };
   /** Reglas de color (1.2.0.0, gratis): umbrales sobre el valor del día, cada uno con su color.
    *  Sustituyen al fx, que Power BI no ofrece a visuales que leen los datos como tabla. */
@@ -145,7 +145,7 @@ export const defaultSettings: CalendarSettings = {
     colorMax: "#C96442",
     colorNull: "#F5F3ED",
     dayColor: null,
-    dayAggregation: "sum",
+    dayAggregation: "auto",
   },
   rules: [
     { on: false, op: "gte", value: 0, color: "#1A9850" },
@@ -236,7 +236,7 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
       colorMax: (obj["heatmap"]?.["colorMax"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMax,
       colorNull: (obj["heatmap"]?.["colorNull"] as any)?.solid?.color ?? defaultSettings.heatmap.colorNull,
       dayColor: (obj["heatmap"]?.["dayColor"] as any)?.solid?.color ?? null,
-      dayAggregation: ((obj["heatmap"]?.["dayAggregation"] as string) ?? defaultSettings.heatmap.dayAggregation) as "sum" | "avg" | "max",
+      dayAggregation: ((obj["heatmap"]?.["dayAggregation"] as string) ?? defaultSettings.heatmap.dayAggregation) as "auto" | "sum" | "avg" | "max",
     },
     rules: [1, 2, 3].map(n => ({
       on: (obj["rules"]?.[`rule${n}On`] as boolean) ?? false,

@@ -101,7 +101,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Festivo",
     "Tip_Value": "Valor",
-    "Visual_Heatmap_DayAgg_Desc": "Cómo combinar varias filas del mismo día: Suma si cada fila lleva su parte; Promedio o Máximo si el valor del día se repite en cada fila."
+    "Visual_Heatmap_DayAgg_Desc": "Cómo combinar varias filas del mismo día. Automático cuenta el valor una vez si todas las filas del día lo repiten, y suma las filas si no."
   },
   "fr-FR": {
     "Aria_EventCategories": "Catégories d'événements",
@@ -199,7 +199,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Événements",
     "Tip_Holiday": "Jour férié",
     "Tip_Value": "Valeur",
-    "Visual_Heatmap_DayAgg_Desc": "Comment combiner plusieurs lignes du même jour : Somme si chaque ligne porte sa part ; Moyenne ou Maximum si la valeur du jour est répétée sur chaque ligne."
+    "Visual_Heatmap_DayAgg_Desc": "Comment combiner plusieurs lignes du même jour. Automatique compte la valeur une fois si chaque ligne du jour la répète, et additionne les lignes sinon."
   },
   "de-DE": {
     "Aria_EventCategories": "Ereigniskategorien",
@@ -297,7 +297,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Ereignisse",
     "Tip_Holiday": "Feiertag",
     "Tip_Value": "Wert",
-    "Visual_Heatmap_DayAgg_Desc": "Wie mehrere Zeilen desselben Tages kombiniert werden: Summe, wenn jede Zeile ihren Anteil enthält; Mittelwert oder Maximum, wenn der Tageswert in jeder Zeile wiederholt wird."
+    "Visual_Heatmap_DayAgg_Desc": "Wie mehrere Zeilen desselben Tages kombiniert werden. Automatisch zählt den Wert einmal, wenn jede Zeile des Tages ihn wiederholt, und addiert sonst die Zeilen."
   },
   "it-IT": {
     "Aria_EventCategories": "Categorie di eventi",
@@ -397,7 +397,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Eventi",
     "Tip_Holiday": "Festività",
     "Tip_Value": "Valore",
-    "Visual_Heatmap_DayAgg_Desc": "Come combinare più righe dello stesso giorno: Somma se ogni riga contiene la sua parte; Media o Massimo se il valore del giorno è ripetuto in ogni riga."
+    "Visual_Heatmap_DayAgg_Desc": "Come combinare più righe dello stesso giorno. Automatico conta il valore una volta se ogni riga del giorno lo ripete, altrimenti somma le righe."
   },
   "pt-BR": {
     "Aria_EventCategories": "Categorias de eventos",
@@ -497,7 +497,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Feriado",
     "Tip_Value": "Valor",
-    "Visual_Heatmap_DayAgg_Desc": "Como combinar várias linhas do mesmo dia: Soma se cada linha contém a sua parte; Média ou Máximo se o valor do dia se repete em cada linha."
+    "Visual_Heatmap_DayAgg_Desc": "Como combinar várias linhas do mesmo dia. Automático conta o valor uma vez se todas as linhas do dia o repetem e soma as linhas caso contrário."
   },
   "nl-NL": {
     "Aria_EventCategories": "Gebeurteniscategorieën",
@@ -595,7 +595,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Gebeurtenissen",
     "Tip_Holiday": "Feestdag",
     "Tip_Value": "Waarde",
-    "Visual_Heatmap_DayAgg_Desc": "Hoe meerdere rijen van dezelfde dag worden gecombineerd: Som als elke rij een eigen deel bevat; Gemiddelde of Maximum als de dagwaarde op elke rij wordt herhaald."
+    "Visual_Heatmap_DayAgg_Desc": "Hoe meerdere rijen van dezelfde dag worden gecombineerd. Automatisch telt de waarde één keer als elke rij van de dag die herhaalt, en telt anders de rijen op."
   },
   "pl-PL": {
     "Aria_EventCategories": "Kategorie zdarzeń",
@@ -695,7 +695,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Zdarzenia",
     "Tip_Holiday": "Święto",
     "Tip_Value": "Wartość",
-    "Visual_Heatmap_DayAgg_Desc": "Jak łączyć kilka wierszy z tego samego dnia: Suma, gdy każdy wiersz zawiera swoją część; Średnia lub Maksimum, gdy wartość dnia powtarza się w każdym wierszu."
+    "Visual_Heatmap_DayAgg_Desc": "Jak łączyć kilka wierszy z tego samego dnia. Automatycznie liczy wartość raz, gdy każdy wiersz dnia ją powtarza, a w przeciwnym razie sumuje wiersze."
   },
   "ja-JP": {
     "Aria_EventCategories": "イベント カテゴリ",
@@ -794,7 +794,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "イベント",
     "Tip_Holiday": "祝日",
     "Tip_Value": "値",
-    "Visual_Heatmap_DayAgg_Desc": "同じ日の複数の行をまとめる方法: 各行がそれぞれの分を持つ場合は合計、日の値が各行で繰り返される場合は平均または最大。"
+    "Visual_Heatmap_DayAgg_Desc": "同じ日の複数の行をまとめる方法。自動では、その日のすべての行が同じ値を繰り返す場合は 1 回だけ数え、それ以外は行を合計します。"
   },
   "zh-CN": {
     "Aria_EventCategories": "事件类别",
@@ -894,7 +894,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "事件",
     "Tip_Holiday": "节假日",
     "Tip_Value": "值",
-    "Visual_Heatmap_DayAgg_Desc": "如何合并同一天的多行：每行各含一部分时用求和；每行重复当天的值时用平均值或最大值。"
+    "Visual_Heatmap_DayAgg_Desc": "如何合并同一天的多行。自动：当天每行都重复同一个值时只计一次，否则对各行求和。"
   },
   "ko-KR": {
     "Aria_EventCategories": "이벤트 범주",
@@ -993,7 +993,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "이벤트",
     "Tip_Holiday": "공휴일",
     "Tip_Value": "값",
-    "Visual_Heatmap_DayAgg_Desc": "같은 날의 여러 행을 결합하는 방법: 각 행이 자기 몫을 가지면 합계, 하루 값이 모든 행에 반복되면 평균 또는 최대값."
+    "Visual_Heatmap_DayAgg_Desc": "같은 날의 여러 행을 결합하는 방법. 자동은 그날의 모든 행이 같은 값을 반복하면 한 번만 세고, 그렇지 않으면 행을 합산합니다."
   },
   "pt-PT": {
     "Aria_EventCategories": "Categorias de eventos",
@@ -1093,6 +1093,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Feriado",
     "Tip_Value": "Valor",
-    "Visual_Heatmap_DayAgg_Desc": "Como combinar várias linhas do mesmo dia: Soma se cada linha contém a sua parte; Média ou Máximo se o valor do dia se repete em cada linha."
+    "Visual_Heatmap_DayAgg_Desc": "Como combinar várias linhas do mesmo dia. Automático conta o valor uma vez se todas as linhas do dia o repetem e soma as linhas caso contrário."
   }
 };
