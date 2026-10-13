@@ -101,6 +101,10 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Festivo",
     "Tip_Value": "Valor",
+    "Visual_Events_LegendFilter": "La leyenda filtra",
+    "Visual_Events_LegendFilter_Desc": "Al hacer clic en una categoría de la leyenda se ocultan sus eventos. Solo este visual: se guarda con el informe. El informe: un filtro de Power BI sobre Event Category, como un segmentador, que guardan los marcadores.",
+    "Visual_Events_LegendFilter_Report": "El informe (marcadores)",
+    "Visual_Events_LegendFilter_Visual": "Solo este visual",
     "Visual_Heatmap_DayAgg_Desc": "Cómo combinar varias filas del mismo día. Automático cuenta el valor una vez si todas las filas del día lo repiten, y suma las filas si no."
   },
   "fr-FR": {
@@ -199,6 +203,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Événements",
     "Tip_Holiday": "Jour férié",
     "Tip_Value": "Valeur",
+    "Visual_Events_LegendFilter": "La légende filtre",
+    "Visual_Events_LegendFilter_Desc": "Cliquer sur une catégorie de la légende masque ses événements. Ce visuel uniquement : enregistré avec le rapport. Le rapport : un filtre Power BI sur Event Category, comme un segment, conservé par les signets.",
+    "Visual_Events_LegendFilter_Report": "Le rapport (signets)",
+    "Visual_Events_LegendFilter_Visual": "Ce visuel uniquement",
+    "Visual_General": "Général",
     "Visual_Heatmap_DayAgg_Desc": "Comment combiner plusieurs lignes du même jour. Automatique compte la valeur une fois si chaque ligne du jour la répète, et additionne les lignes sinon."
   },
   "de-DE": {
@@ -297,6 +306,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Ereignisse",
     "Tip_Holiday": "Feiertag",
     "Tip_Value": "Wert",
+    "Visual_Events_LegendFilter": "Legende filtert",
+    "Visual_Events_LegendFilter_Desc": "Ein Klick auf eine Kategorie der Legende blendet ihre Ereignisse aus. Nur dieses Visual: wird mit dem Bericht gespeichert. Den Bericht: ein Power BI-Filter auf Event Category wie ein Datenschnitt, den Lesezeichen speichern.",
+    "Visual_Events_LegendFilter_Report": "Den Bericht (Lesezeichen)",
+    "Visual_Events_LegendFilter_Visual": "Nur dieses Visual",
+    "Visual_General": "Allgemein",
     "Visual_Heatmap_DayAgg_Desc": "Wie mehrere Zeilen desselben Tages kombiniert werden. Automatisch zählt den Wert einmal, wenn jede Zeile des Tages ihn wiederholt, und addiert sonst die Zeilen."
   },
   "it-IT": {
@@ -397,6 +411,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Eventi",
     "Tip_Holiday": "Festività",
     "Tip_Value": "Valore",
+    "Visual_Events_LegendFilter": "La legenda filtra",
+    "Visual_Events_LegendFilter_Desc": "Facendo clic su una categoria della legenda se ne nascondono gli eventi. Solo questo oggetto visivo: salvato con il report. Il report: un filtro di Power BI su Event Category, come un filtro dei dati, mantenuto dai segnalibri.",
+    "Visual_Events_LegendFilter_Report": "Il report (segnalibri)",
+    "Visual_Events_LegendFilter_Visual": "Solo questo oggetto visivo",
+    "Visual_General": "Generale",
     "Visual_Heatmap_DayAgg_Desc": "Come combinare più righe dello stesso giorno. Automatico conta il valore una volta se ogni riga del giorno lo ripete, altrimenti somma le righe."
   },
   "pt-BR": {
@@ -497,6 +516,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Feriado",
     "Tip_Value": "Valor",
+    "Visual_Events_LegendFilter": "A legenda filtra",
+    "Visual_Events_LegendFilter_Desc": "Clicar numa categoria da legenda oculta os seus eventos. Apenas este visual: guardado com o relatório. O relatório: um filtro do Power BI sobre Event Category, como uma segmentação, mantido pelos indicadores.",
+    "Visual_Events_LegendFilter_Report": "O relatório (indicadores)",
+    "Visual_Events_LegendFilter_Visual": "Apenas este visual",
+    "Visual_General": "Geral",
     "Visual_Heatmap_DayAgg_Desc": "Como combinar várias linhas do mesmo dia. Automático conta o valor uma vez se todas as linhas do dia o repetem e soma as linhas caso contrário."
   },
   "nl-NL": {
@@ -595,6 +619,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Gebeurtenissen",
     "Tip_Holiday": "Feestdag",
     "Tip_Value": "Waarde",
+    "Visual_Events_LegendFilter": "Legenda filtert",
+    "Visual_Events_LegendFilter_Desc": "Klik op een categorie in de legenda om de gebeurtenissen te verbergen. Alleen deze visual: opgeslagen met het rapport. Het rapport: een Power BI-filter op Event Category, zoals een slicer, bewaard door bladwijzers.",
+    "Visual_Events_LegendFilter_Report": "Het rapport (bladwijzers)",
+    "Visual_Events_LegendFilter_Visual": "Alleen deze visual",
+    "Visual_General": "Algemeen",
     "Visual_Heatmap_DayAgg_Desc": "Hoe meerdere rijen van dezelfde dag worden gecombineerd. Automatisch telt de waarde één keer als elke rij van de dag die herhaalt, en telt anders de rijen op."
   },
   "pl-PL": {
@@ -695,6 +724,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Zdarzenia",
     "Tip_Holiday": "Święto",
     "Tip_Value": "Wartość",
+    "Visual_Events_LegendFilter": "Legenda filtruje",
+    "Visual_Events_LegendFilter_Desc": "Kliknięcie kategorii w legendzie ukrywa jej zdarzenia. Tylko ten wizual: zapisywane z raportem. Raport: filtr Power BI na Event Category, jak fragmentator, zachowywany przez zakładki.",
+    "Visual_Events_LegendFilter_Report": "Raport (zakładki)",
+    "Visual_Events_LegendFilter_Visual": "Tylko ten wizual",
+    "Visual_General": "Ogólne",
     "Visual_Heatmap_DayAgg_Desc": "Jak łączyć kilka wierszy z tego samego dnia. Automatycznie liczy wartość raz, gdy każdy wiersz dnia ją powtarza, a w przeciwnym razie sumuje wiersze."
   },
   "ja-JP": {
@@ -794,6 +828,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "イベント",
     "Tip_Holiday": "祝日",
     "Tip_Value": "値",
+    "Visual_Events_LegendFilter": "凡例のフィルター対象",
+    "Visual_Events_LegendFilter_Desc": "凡例のカテゴリをクリックするとそのイベントが非表示になります。このビジュアルのみ: レポートと共に保存。レポート: スライサーのような Event Category の Power BI フィルターで、ブックマークに保存されます。",
+    "Visual_Events_LegendFilter_Report": "レポート (ブックマーク)",
+    "Visual_Events_LegendFilter_Visual": "このビジュアルのみ",
+    "Visual_General": "全般",
     "Visual_Heatmap_DayAgg_Desc": "同じ日の複数の行をまとめる方法。自動では、その日のすべての行が同じ値を繰り返す場合は 1 回だけ数え、それ以外は行を合計します。"
   },
   "zh-CN": {
@@ -894,6 +933,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "事件",
     "Tip_Holiday": "节假日",
     "Tip_Value": "值",
+    "Visual_Events_LegendFilter": "图例筛选",
+    "Visual_Events_LegendFilter_Desc": "单击图例中的类别可隐藏其事件。仅此视觉对象：随报表保存。报表：对 Event Category 的 Power BI 筛选器，类似切片器，书签会保留。",
+    "Visual_Events_LegendFilter_Report": "报表(书签)",
+    "Visual_Events_LegendFilter_Visual": "仅此视觉对象",
+    "Visual_General": "常规",
     "Visual_Heatmap_DayAgg_Desc": "如何合并同一天的多行。自动：当天每行都重复同一个值时只计一次，否则对各行求和。"
   },
   "ko-KR": {
@@ -993,6 +1037,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "이벤트",
     "Tip_Holiday": "공휴일",
     "Tip_Value": "값",
+    "Visual_Events_LegendFilter": "범례 필터 대상",
+    "Visual_Events_LegendFilter_Desc": "범례의 범주를 클릭하면 해당 이벤트가 숨겨집니다. 이 시각적 개체만: 보고서와 함께 저장. 보고서: 슬라이서처럼 Event Category에 대한 Power BI 필터로, 책갈피에 유지됩니다.",
+    "Visual_Events_LegendFilter_Report": "보고서(책갈피)",
+    "Visual_Events_LegendFilter_Visual": "이 시각적 개체만",
+    "Visual_General": "일반",
     "Visual_Heatmap_DayAgg_Desc": "같은 날의 여러 행을 결합하는 방법. 자동은 그날의 모든 행이 같은 값을 반복하면 한 번만 세고, 그렇지 않으면 행을 합산합니다."
   },
   "pt-PT": {
@@ -1093,6 +1142,11 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Feriado",
     "Tip_Value": "Valor",
+    "Visual_Events_LegendFilter": "A legenda filtra",
+    "Visual_Events_LegendFilter_Desc": "Clicar numa categoria da legenda oculta os seus eventos. Apenas este visual: guardado com o relatório. O relatório: um filtro do Power BI sobre Event Category, como uma segmentação, mantido pelos indicadores.",
+    "Visual_Events_LegendFilter_Report": "O relatório (indicadores)",
+    "Visual_Events_LegendFilter_Visual": "Apenas este visual",
+    "Visual_General": "Geral",
     "Visual_Heatmap_DayAgg_Desc": "Como combinar várias linhas do mesmo dia. Automático conta o valor uma vez se todas as linhas do dia o repetem e soma as linhas caso contrário."
   }
 };

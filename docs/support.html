@@ -298,7 +298,7 @@
     <ul>
       <li><strong>Style template</strong> — template, setup guide.</li>
       <li><strong>Calendar</strong> — default view, months to display (Pro), fiscal calendar, start month, fiscal periods, week start, week numbers.</li>
-      <li><strong>Heatmap Colors</strong> — color scheme, minimum, maximum, no-data colour, a fixed day colour.</li>
+      <li><strong>Heatmap Colors</strong> — color scheme, minimum, maximum, no-data colour, rows of the same day.</li>
       <li><strong>Color Rules</strong>, <strong>Color Legend</strong>, <strong>Layout</strong>, <strong>Day Number</strong> (font, size, colour, weekend and holiday colours).</li>
       <li><strong>Events</strong> — show, show as, and (Pro) events per day, single colour, text colour and size.</li>
       <li>(Pro) <strong>Measure Labels</strong>, <strong>View Buttons</strong>, <strong>Event Category Colors</strong>.</li>
@@ -353,7 +353,7 @@
   <h2 id="faq">FAQ</h2>
   <details><summary>Everything falls on one day, or a notice asks for the Day level.</summary><div class="faq-body"><p>The Date field arrives as a date hierarchy without its Day level. Keep Year, Month and Day in the Date well — the visual rebuilds the dates from them — or switch off <em>File → Options → Current file → Data Load → Auto date/time</em> and add the date column again. Also check in Power Query that the column type is <em>Date</em>.</p></div></details>
   <details><summary>How do I colour days red below target and green above?</summary><div class="faq-body"><p>Use <strong>Color Rules</strong>: rule 1 "greater than or equal to" your target in green, rule 2 "less than or equal to" a lower value in red. The first rule that matches wins.</p></div></details>
-  <details><summary>Why is there no fx button on Day Color any more?</summary><div class="faq-body"><p>Power BI does not offer conditional formatting to visuals that read data as a table, so the fx in earlier versions never applied. <strong>Color Rules</strong> do the same job and are free.</p></div></details>
+  <details><summary>Where is Day Color, with its fx button?</summary><div class="faq-body"><p>Power BI does not offer conditional formatting to visuals that read data as a table, so the fx in earlier versions never applied, and its fixed colour painted every day the same. Both are gone in 1.2: <strong>Color Rules</strong> do the job and are free.</p></div></details>
   <details><summary>How do I filter the report by a range of dates?</summary><div class="faq-body"><p>Drag across the days, or click the first and Shift+click the last. Ctrl adds to the current selection; clicking empty space clears it.</p></div></details>
   <details><summary>I chose 3 months and see only 1 or 2.</summary><div class="faq-body"><p><em>Months to Display</em> is a maximum: the visual draws the months that fit, at about 200 px each. Widen the visual to see more.</p></div></details>
   <details><summary>Filtering by event category changes the value of the days.</summary><div class="faq-body"><p>A slicer on the category removes every row of the other categories, including the rows that hold the day's sales. To filter only the events, click the categories in the visual's legend instead: the marks change and the values do not. Or build the events table with every day × every category (next question): then a slicer keeps every day and its value.</p></div></details>

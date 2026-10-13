@@ -81,8 +81,6 @@ export interface CalendarSettings {
     colorMin: string;
     colorMax: string;
     colorNull: string;
-    /** Constant side of the "Day Color" conditional-formatting property. Null = use the gradient. */
-    dayColor: string | null;
     /** Cómo se combinan varias filas del mismo día (1.2.0.0): suma, promedio o máximo. */
     dayAggregation: "auto" | "sum" | "avg" | "max";
   };
@@ -144,7 +142,6 @@ export const defaultSettings: CalendarSettings = {
     colorMin: "#EDE9DE",
     colorMax: "#C96442",
     colorNull: "#F5F3ED",
-    dayColor: null,
     dayAggregation: "auto",
   },
   rules: [
@@ -235,7 +232,6 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
       colorMin: (obj["heatmap"]?.["colorMin"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMin,
       colorMax: (obj["heatmap"]?.["colorMax"] as any)?.solid?.color ?? defaultSettings.heatmap.colorMax,
       colorNull: (obj["heatmap"]?.["colorNull"] as any)?.solid?.color ?? defaultSettings.heatmap.colorNull,
-      dayColor: (obj["heatmap"]?.["dayColor"] as any)?.solid?.color ?? null,
       dayAggregation: ((obj["heatmap"]?.["dayAggregation"] as string) ?? defaultSettings.heatmap.dayAggregation) as "auto" | "sum" | "avg" | "max",
     },
     rules: [1, 2, 3].map(n => ({

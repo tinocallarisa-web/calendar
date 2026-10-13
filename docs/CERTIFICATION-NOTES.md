@@ -251,7 +251,7 @@ Available without a Pro license or after trial expiry:
 - Tooltip measures (displayed in Power BI native tooltip)
 - Cross-page filtering via `selectionManager`
 - Right-click Power BI context menu
-- Format pane: Calendar, Heatmap Colors (including the fx Day Color rule), Day Number. Pro cards and options are visible and marked "[Pro]"; they apply only with a licence.
+- Format pane: Calendar, Heatmap Colors, Color Rules (they replace the 1.1 Day Color, whose fx never applied), Day Number. Pro cards and options are visible and marked "[Pro]"; they apply only with a licence.
 
 ---
 

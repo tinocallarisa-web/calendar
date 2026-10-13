@@ -1813,7 +1813,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       return { bg: this.hcBg, border: `${w}px ${style} ${isToday ? this.hcFgSel : this.hcFg}` };
     }
     // Precedence: a per-day rule wins, then a constant "Day Color", then the gradient.
-    const fill = this.ruleFor(day?.measureValue ?? null) ?? day?.ruleColor ?? (day ? this.settings.heatmap.dayColor : null) ?? day?.heatmapColor;
+    // Una regla de color gana; si no, el degradado. (Day Color, el color fijo de la 1.1, se quitó en la 1.2:
+    // pintaba todos los días igual por encima de la paleta.)
+    const fill = this.ruleFor(day?.measureValue ?? null) ?? day?.ruleColor ?? day?.heatmapColor;
     return {
       bg: this.sanitizeColor(fill, this.settings.heatmap.colorNull),
       border: isToday
@@ -2935,7 +2937,6 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         return regla[2] === "On" ? r.on : regla[2] === "Op" ? r.op : regla[2] === "Value" ? r.value : r.color;
       }
       const v = (s as any)[o]?.[pr.p];
-      if (o === "heatmap" && pr.p === "dayColor") return s.heatmap.colorMax;
       if (o === "events" && pr.p === "eventBgColor") return v ?? "#C96442";
       return v;
     };

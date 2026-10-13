@@ -105,12 +105,6 @@ export const PANEL: PanelCard[] = [
                 "en": "No Data Color"
             },
             {
-                "p": "dayColor",
-                "kind": "color",
-                "key": "Visual_Heatmap_DayColor",
-                "en": "Day Color"
-            },
-            {
                 "p": "dayAggregation",
                 "kind": "drop",
                 "key": "Visual_Heatmap_DayAgg",

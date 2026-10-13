@@ -371,27 +371,6 @@
             }
           }
         },
-        "dayColor": {
-          "displayName": "Day Color",
-          "displayNameKey": "Visual_Heatmap_DayColor",
-          "description": "Overrides the heatmap gradient for individual days. Use the fx button to color days by a rule.",
-          "type": {
-            "fill": {
-              "solid": {
-                "color": true
-              }
-            }
-          },
-          "rule": {
-            "inputRole": "mainMeasure",
-            "output": {
-              "property": "dayColor",
-              "selector": [
-                "date"
-              ]
-            }
-          }
-        },
         "dayAggregation": {
           "displayName": "Rows of the same day",
           "displayNameKey": "Visual_Heatmap_DayAgg",
