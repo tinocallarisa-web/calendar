@@ -57,6 +57,7 @@
   "LicenceNotice_One": "Calendar Events Heatmap: {0} fa parte del piano Pro e viene mostrato come anteprima con filigrana.",
   "Msg_And": "e",
   "Msg_DateHierarchy": "Collega il campo Data come data, non come gerarchia per anno.",
+  "Msg_DateHierarchyFix": "Mantieni il livello Giorno nel campo Date, oppure disattiva File → Opzioni → File corrente → Caricamento dati → Data/ora automatica e aggiungi di nuovo la data.",
   "Msg_DateHierarchyHow": "Nelle aree dei campi, fai clic su ▼ accanto al campo data e seleziona Data (non Gerarchia date). Oppure: File → Opzioni → File corrente → Caricamento dati → deseleziona Data/ora automatica.",
   "Msg_Landing": "Aggiungi un campo data e una misura per visualizzare la mappa termica del calendario con gli eventi sovrapposti.",
   "Msg_NoData": "Nessun dato ricevuto.",

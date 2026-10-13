@@ -102,6 +102,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private activeMeasureLoaded = false;
   /** Nombres de las medidas en el orden de los pozos: principal y secundarias. */
   private measureNames: string[] = [];
+  /** Aviso de fecha: "year" (solo el año) o "hierarchy" (jerarquía sin el día). Vacío si todo bien. */
+  private dateHint = "";
   /** Paso del asistente de configuración (2 = campos opcionales, 3 = estilo). El 1 es la pantalla de inicio. */
   private guideStep = 2;
   /** Formato sobre el lienzo (1.2.0.0). */
@@ -314,6 +316,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
     const cols = table.columns;
     const dateIdx = cols.findIndex(c => c.roles["date"]);
+    // JERARQUÍA DE FECHAS (1.2.0.0): con "Fecha y hora automáticas" Power BI manda Year, Quarter,
+    // Month y Day como columnas separadas en el pozo Date, y el visual leía solo la primera (el año):
+    // todo caía en el 1 de enero. Se reconstruye la fecha de cada fila en la columna del primer nivel.
+    const filasTabla = this.rebuildDateHierarchy(table, cols);
     let measureIdx = cols.findIndex(c => c.roles["mainMeasure"]);
     const eventNameIdx = cols.findIndex(c => c.roles["eventName"]);
     const eventCatIdx = cols.findIndex(c => c.roles["eventCategory"]);
@@ -360,9 +366,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     {
       const seen = new Set<string>();
       const ordered: string[] = [];
-      for (let r = 0; r < table.rows.length; r++) {
-        if (eventCatIdx >= 0 && table.rows[r][eventCatIdx] != null) {
-          const cat = String(table.rows[r][eventCatIdx] ?? "").replace(/[\x00-\x1f\x7f]/g, "").trim();
+      for (let r = 0; r < filasTabla.length; r++) {
+        if (eventCatIdx >= 0 && filasTabla[r][eventCatIdx] != null) {
+          const cat = String(filasTabla[r][eventCatIdx] ?? "").replace(/[\x00-\x1f\x7f]/g, "").trim();
           if (!seen.has(cat)) { seen.add(cat); ordered.push(cat); }
         }
       }
@@ -373,8 +379,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const events: CalendarEvent[] = [];
     const holidays = new Map<string, string>(); // dateKey → name
 
-    for (let r = 0; r < table.rows.length; r++) {
-      const row = table.rows[r];
+    for (let r = 0; r < filasTabla.length; r++) {
+      const row = filasTabla[r];
 
       // Input validation: skip rows with unparseable date values
       if (dateIdx >= 0 && row[dateIdx] != null && !this.parseDate(row[dateIdx])) {
@@ -564,6 +570,19 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       dbg.appendChild(titleEl);
       dbg.appendChild(bodyEl);
       this.container.appendChild(dbg);
+    }
+
+    if (this.dateHint && this.calendarData.length > 0) {
+      const aviso = document.createElement("div");
+      aviso.setAttribute("role", "status");
+      aviso.style.cssText = "position:absolute;left:8px;right:8px;top:8px;z-index:15;padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.4;"
+        + `background:${this.hc ? this.hcBg : "#FFF4CE"};color:${this.hc ? this.hcFg : "#3D3929"};border:1px solid ${this.hc ? this.hcFg : "#E8A838"};`;
+      const b = document.createElement("b");
+      b.textContent = this.t("Msg_DateHierarchy", "Connect the Date field as a Date, not as a Year hierarchy.");
+      aviso.appendChild(b);
+      aviso.appendChild(document.createTextNode(" " + this.t("Msg_DateHierarchyFix",
+        "Keep the Day level in the Date field, or switch off File → Options → Current file → Data Load → Auto date/time and add the date again.")));
+      this.container.appendChild(aviso);
     }
 
     this.attachInteractions(wrapper);
@@ -1571,6 +1590,65 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   }
 
   /** Parse a date value from Power BI. */
+  /**
+   * Si el pozo Date trae la jerarquía automática (varias columnas con el rol date), devuelve las filas
+   * con la fecha reconstruida en la columna del primer nivel; si no, las filas tal cual. Cada nivel se
+   * reconoce por su contenido, no por su nombre (que va en el idioma del modelo): año = números de
+   * 1900 a 2100, día = números de 1 a 31, mes = nombre del mes en cualquiera de los idiomas del visual
+   * o su número; el trimestre se ignora. Sin el nivel Día no hay fecha que reconstruir: se avisa.
+   */
+  private rebuildDateHierarchy(table: powerbi.DataViewTable, cols: powerbi.DataViewMetadataColumn[]): powerbi.PrimitiveValue[][] {
+    this.dateHint = "";
+    const idx = cols.map((c, i) => (c.roles ?? {})["date"] ? i : -1).filter(i => i >= 0);
+    const rows = table.rows ?? [];
+    if (idx.length < 2 || rows.length === 0) {
+      if (idx.length === 1 && rows.length > 0) {
+        const v = rows[0][idx[0]];
+        if (typeof v === "number" && v >= 1900 && v <= 2100) this.dateHint = "year";
+      }
+      return rows;
+    }
+    const muestra = rows.slice(0, 200);
+    const todos = (i: number, f: (v: any) => boolean) => muestra.every(r => r[i] === null || r[i] === undefined || f(r[i]));
+    const esNum = (v: any) => typeof v === "number" && isFinite(v);
+    const meses = this.monthLookup();
+    let iAnio = -1, iMes = -1, iDia = -1;
+    for (const i of idx) {
+      if (iAnio < 0 && todos(i, v => esNum(v) && v >= 1900 && v <= 2100)) iAnio = i;
+      else if (iMes < 0 && todos(i, v => meses.has(String(v).toLowerCase().replace(/\.$/, "")) || (esNum(v) && v >= 1 && v <= 12))) iMes = i;
+      else if (iDia < 0 && todos(i, v => esNum(v) && v >= 1 && v <= 31)) iDia = i;
+    }
+    if (iAnio < 0 || iMes < 0 || iDia < 0) {
+      this.dateHint = "hierarchy";
+      return rows;
+    }
+    const destino = idx[0];
+    return rows.map(r => {
+      const y = r[iAnio] as number, d = r[iDia] as number;
+      const mv = r[iMes];
+      const m = esNum(mv) ? (mv as number) - 1 : meses.get(String(mv).toLowerCase().replace(/\.$/, ""));
+      const copia = r.slice();
+      copia[destino] = (esNum(y) && esNum(d) && m !== undefined) ? new Date(y, m, d) : null;
+      return copia;
+    });
+  }
+
+  /** Nombres de mes (largos y cortos) en los idiomas del visual y en el del informe → número 0..11. */
+  private monthLookup(): Map<string, number> {
+    const mapa = new Map<string, number>();
+    const idiomas = [this.loc(), "en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-BR", "pt-PT", "nl-NL", "pl-PL", "ja-JP", "zh-CN", "ko-KR"];
+    for (const l of idiomas) {
+      for (const formato of ["long", "short"] as const) {
+        let f: Intl.DateTimeFormat;
+        try { f = new Intl.DateTimeFormat(l, { month: formato }); } catch (_) { continue; }
+        for (let m = 0; m < 12; m++) {
+          mapa.set(f.format(new Date(2024, m, 15)).toLowerCase().replace(/\.$/, ""), m);
+        }
+      }
+    }
+    return mapa;
+  }
+
   private parseDate(value: any): Date | null {
     if (value === null || value === undefined) return null;
 

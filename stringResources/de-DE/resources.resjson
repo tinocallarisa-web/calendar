@@ -57,6 +57,7 @@
   "LicenceNotice_One": "Calendar Events Heatmap: {0} ist Teil des Pro-Plans und wird als Vorschau mit Wasserzeichen angezeigt.",
   "Msg_And": "und",
   "Msg_DateHierarchy": "Das Datumsfeld als Datum verbinden, nicht als Jahreshierarchie.",
+  "Msg_DateHierarchyFix": "Behalten Sie die Ebene „Tag“ im Feld „Date“ oder deaktivieren Sie Datei → Optionen → Aktuelle Datei → Laden von Daten → Automatisches Datum/Uhrzeit und fügen Sie das Datum erneut hinzu.",
   "Msg_DateHierarchyHow": "Im Feldbereich auf ▼ neben dem Datumsfeld klicken und Datum auswählen (nicht Datumshierarchie). Oder: Datei → Optionen → Aktuelle Datei → Daten laden → Automatische Datums-/Uhrzeitangabe deaktivieren.",
   "Msg_Landing": "Ein Datumsfeld und eine Measure hinzufügen, um die Kalender-Heatmap mit eingeblendeten Ereignissen anzuzeigen.",
   "Msg_NoData": "Keine Daten empfangen.",

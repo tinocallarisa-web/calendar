@@ -57,6 +57,7 @@
   "LicenceNotice_One": "Calendar Events Heatmap: {0} jest częścią planu Pro i jest wyświetlana jako podgląd ze znakiem wodnym.",
   "Msg_And": "i",
   "Msg_DateHierarchy": "Połącz pole Data jako datę, a nie jako hierarchię lat.",
+  "Msg_DateHierarchyFix": "Zachowaj poziom Dzień w polu Date albo wyłącz Plik → Opcje → Bieżący plik → Ładowanie danych → Automatyczna data/godzina i dodaj datę ponownie.",
   "Msg_DateHierarchyHow": "W obszarze pól kliknij ▼ obok pola daty i wybierz Data (nie Hierarchia dat). Lub: Plik → Opcje → Bieżący plik → Ładowanie danych → wyczyść Automatyczna data/godzina.",
   "Msg_Landing": "Dodaj pole daty i miarę, aby zobaczyć kalendarzową mapę cieplną z nałożonymi zdarzeniami.",
   "Msg_NoData": "Nie otrzymano danych.",

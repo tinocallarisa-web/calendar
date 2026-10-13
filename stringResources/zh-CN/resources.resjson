@@ -57,6 +57,7 @@
   "LicenceNotice_One": "Calendar Events Heatmap：{0} 属于 Pro 计划，以带水印的预览显示。",
   "Msg_And": "和",
   "Msg_DateHierarchy": "请将日期字段作为日期连接，而不是作为年份层次结构。",
+  "Msg_DateHierarchyFix": "在 Date 字段中保留“日”级别，或关闭“文件 → 选项 → 当前文件 → 数据加载 → 自动日期/时间”后重新添加日期。",
   "Msg_DateHierarchyHow": "在字段井中，单击日期字段旁的 ▼，然后选择“日期”(而非“日期层次结构”)。或者：文件 → 选项 → 当前文件 → 数据加载 → 取消选中“自动日期/时间”。",
   "Msg_Landing": "添加日期字段和度量值，即可查看叠加事件的日历热图。",
   "Msg_NoData": "未收到数据。",

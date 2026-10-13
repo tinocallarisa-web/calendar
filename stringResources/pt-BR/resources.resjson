@@ -57,6 +57,7 @@
   "LicenceNotice_One": "Calendar Events Heatmap: {0} faz parte do plano Pro e aparece como visualização com marca d'água.",
   "Msg_And": "e",
   "Msg_DateHierarchy": "Conecte o campo Data como data, não como hierarquia de anos.",
+  "Msg_DateHierarchyFix": "Mantenha o nível Dia no campo Date ou desative Arquivo → Opções → Arquivo atual → Carregamento de dados → Data/hora automática e adicione a data novamente.",
   "Msg_DateHierarchyHow": "Na área de campo, clique em ▼ ao lado do campo de data e selecione Data (não Hierarquia de Datas). Ou: Arquivo → Opções → Arquivo atual → Carregamento de dados → desmarque Data/hora automática.",
   "Msg_Landing": "Adicione um campo de data e uma medida para ver o mapa de calor de calendário com eventos sobrepostos.",
   "Msg_NoData": "Nenhum dado recebido.",

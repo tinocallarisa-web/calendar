@@ -57,6 +57,7 @@
   "LicenceNotice_One": "Calendar Events Heatmap: {0} maakt deel uit van het Pro-abonnement en wordt als voorbeeld met watermerk weergegeven.",
   "Msg_And": "en",
   "Msg_DateHierarchy": "Koppel het veld Datum als datum, niet als jaarhiërarchie.",
+  "Msg_DateHierarchyFix": "Houd het niveau Dag in het veld Date, of schakel Bestand → Opties → Huidig bestand → Gegevens laden → Automatische datum/tijd uit en voeg de datum opnieuw toe.",
   "Msg_DateHierarchyHow": "Klik in het veldvak op ▼ naast het datumveld en selecteer Datum (niet Datumhiërarchie). Of: Bestand → Opties → Huidig bestand → Gegevens laden → schakel Automatische datum/tijd uit.",
   "Msg_Landing": "Voeg een datumveld en een meting toe om de kalenderheatmap met gebeurtenissen te zien.",
   "Msg_NoData": "Geen gegevens ontvangen.",

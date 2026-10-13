@@ -202,7 +202,7 @@
     <p>In Power BI Desktop, go to the Visualizations pane → click the three dots → <strong>Get more visuals</strong> → search for <em>Calendar Events Heatmap</em>.</p>
     <h3>2. Add a date and a measure</h3>
     <p>Drag a <strong>Date</strong> column to <em>Date</em> and a measure to <em>Main Measure</em>. The heatmap appears at once.
-    If the year looks wrong, click the ▼ next to the date field and choose <em>Date</em>, not <em>Date Hierarchy</em>.</p>
+    The automatic date hierarchy (Year, Quarter, Month, Day) works too: the visual rebuilds each date from its levels.</p>
     <h3>3. Follow the setup guide</h3>
     <p>While you edit, a small panel inside the visual lists the optional fields — events, categories, holidays, more
     measures — ticks each one as you add it, and lets you pick a style template with one click. Close it with ✕ or
@@ -348,7 +348,7 @@
 
   <!-- FAQ -->
   <h2 id="faq">FAQ</h2>
-  <details><summary>The calendar shows the wrong year, or nothing at all.</summary><div class="faq-body"><p>The Date field is bound as a date hierarchy. Click the ▼ next to it in the field well and choose <em>Date</em>. Or switch off <em>File → Options → Current file → Data Load → Auto date/time</em>.</p></div></details>
+  <details><summary>Everything falls on one day, or a notice asks for the Day level.</summary><div class="faq-body"><p>The Date field arrives as a date hierarchy without its Day level. Keep Year, Month and Day in the Date well — the visual rebuilds the dates from them — or switch off <em>File → Options → Current file → Data Load → Auto date/time</em> and add the date column again. Also check in Power Query that the column type is <em>Date</em>.</p></div></details>
   <details><summary>How do I colour days red below target and green above?</summary><div class="faq-body"><p>Use <strong>Color Rules</strong>: rule 1 "greater than or equal to" your target in green, rule 2 "less than or equal to" a lower value in red. The first rule that matches wins.</p></div></details>
   <details><summary>Why is there no fx button on Day Color any more?</summary><div class="faq-body"><p>Power BI does not offer conditional formatting to visuals that read data as a table, so the fx in earlier versions never applied. <strong>Color Rules</strong> do the same job and are free.</p></div></details>
   <details><summary>How do I filter the report by a range of dates?</summary><div class="faq-body"><p>Drag across the days, or click the first and Shift+click the last. Ctrl adds to the current selection; clicking empty space clears it.</p></div></details>
