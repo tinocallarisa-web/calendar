@@ -81,6 +81,7 @@
   </ul>
   <h3 id="fixed">Fixed</h3>
   <ul>
+  <li><strong>Bookmarks did not restore the selected days</strong> when the visual received the selection before its data (opening the report or changing page), and a restored day in another month stayed out of view. The selection is now re-read on every update, and applying a bookmark opens the month of the first selected day.</li>
   <li><strong>Clicking a day filtered the report by only part of it.</strong> A day with events has several rows in the table (one per event) and the selection took only the first, so a card beside the calendar showed less than the day's total. A day — and a date range — now selects every row of its days.</li>
   <li><strong>The automatic date hierarchy put everything on 1 January.</strong> With Auto date/time on, Power BI sends Year, Quarter, Month and Day as separate columns and the visual read only the year. It now rebuilds each date from the levels (month names in any of its languages or month numbers); without the Day level it says so instead of piling the data on one day.</li>
   <li><strong>Fiscal Calendar did nothing.</strong> The setting was in the Format pane but never read. It now labels months with the fiscal year and period (FY2027 P1) and starts the year view at the fiscal month.</li>

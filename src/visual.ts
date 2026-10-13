@@ -100,6 +100,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private dragStart: string | null = null;
   private dragOver: string | null = null;
   private suppressClick = false;
+  private syncSelectionPending = false;
   /** Medida que manda en el color: 0 = la principal, i = la secundaria i (1.2.0.0, Pro). */
   private activeMeasure = 0;
   private activeMeasureLoaded = false;
@@ -179,14 +180,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const sm = this.selectionManager as any;
     if (typeof sm.registerOnSelectCallback === "function") {
       sm.registerOnSelectCallback((ids: powerbi.visuals.ISelectionId[]) => {
-        this.selectedKeys.clear();
-        (ids ?? []).forEach(id => {
-          const day = this.calendarData.find(
-            d => d.selectionIds.some(x => typeof (x as any).equals === "function" && (x as any).equals(id)),
-          );
-          if (day) this.selectedKeys.add(this.dateKey(day.date));
-        });
-        this.applySelectionStyles();
+        // Marcador aplicado o selección borrada desde fuera. Sin persistProperties aquí: rompe el
+        // marcador (lección de Org Chart). Se salta al mes del primer día seleccionado si no se ve.
+        this.syncSelection(ids ?? [], true);
       });
     }
   }
@@ -273,7 +269,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       // Parse data
       this.calendarData = this.parseDataView(dataView);
+      const primeraVez = !this.hasRenderedData;
       this.hasRenderedData = this.calendarData.length > 0;
+      // La selección vive en Power BI: se relee en cada update (marcadores, cambio de página).
+      const seleccion = ((this.selectionManager as any).getSelectionIds?.() ?? []) as powerbi.visuals.ISelectionId[];
+      this.syncSelectionPending = primeraVez && seleccion.length > 0;
+      if (this.calendarData.length > 0) this.syncSelection(seleccion, false);
 
       // Auto-navigate: if current month has no data, jump to first month with data
       if (this.calendarData.length > 0) {
@@ -291,6 +292,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       // Store viewport for responsive rendering
       this.viewport = options.viewport ?? this.viewport;
+      // Al abrir con una selección guardada, el calendario empieza en el mes del primer día elegido.
+      if (this.syncSelectionPending && this.selectedKeys.size > 0) {
+        const d = this.parseKey(Array.from(this.selectedKeys).sort()[0]);
+        if (d) this.currentDate = d;
+        this.syncSelectionPending = false;
+      }
 
       // Render
       this.render();
@@ -1818,6 +1825,35 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   }
 
   /** Keeps our mirror of the selection in sync with selectionManager's toggle semantics. */
+  /**
+   * Selección según Power BI (1.2.0.0). Se llama desde el aviso de selección (marcadores) y en cada
+   * update(): si el aviso llegaba antes que los datos —al abrir o cambiar de página—, no encontraba
+   * ningún día y la selección del marcador se perdía. Con `navegar`, si el primer día seleccionado no
+   * está a la vista, el calendario va a su mes: un marcador del 3 de marzo enseña marzo.
+   */
+  private syncSelection(ids: powerbi.visuals.ISelectionId[], navegar: boolean): void {
+    if (this.calendarData.length === 0) return;
+    const porClave = new Map<string, string>();
+    this.calendarData.forEach(d => d.selectionIds.forEach(x => porClave.set(this.keyOfId(x), this.dateKey(d.date))));
+    const antes = Array.from(this.selectedKeys).sort().join(",");
+    this.selectedKeys.clear();
+    ids.forEach(id => {
+      const k = porClave.get(this.keyOfId(id));
+      if (k) this.selectedKeys.add(k);
+    });
+    const ahora = Array.from(this.selectedKeys).sort();
+    if (navegar && ahora.length > 0 && !this.container.querySelector(`[data-date="${ahora[0]}"]`)) {
+      const d = this.parseKey(ahora[0]);
+      if (d) { this.currentDate = d; this.focusedKey = ahora[0]; this.render(); this.updateWatermark(); return; }
+    }
+    if (ahora.join(",") !== antes || navegar) this.applySelectionStyles();
+  }
+
+  private keyOfId(id: powerbi.visuals.ISelectionId): string {
+    const k = (id as any)?.getKey?.();
+    return typeof k === "string" ? k : JSON.stringify((id as any)?.getSelector?.() ?? id);
+  }
+
   /** Días con datos entre dos fechas, ambas incluidas (las claves yyyy-mm-dd se ordenan como texto). */
   private daysBetween(a: string, b: string): CalendarDay[] {
     const [lo, hi] = a <= b ? [a, b] : [b, a];
