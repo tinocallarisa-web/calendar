@@ -386,6 +386,31 @@
               ]
             }
           }
+        },
+        "dayAggregation": {
+          "displayName": "Rows of the same day",
+          "displayNameKey": "Visual_Heatmap_DayAgg",
+          "description": "How to combine several rows of the same day: Sum when each row holds its own share, Average or Maximum when the day's value is repeated on every row.",
+          "descriptionKey": "Visual_Heatmap_DayAgg_Desc",
+          "type": {
+            "enumeration": [
+              {
+                "value": "sum",
+                "displayName": "Sum",
+                "displayNameKey": "Visual_Heatmap_DayAgg_Sum"
+              },
+              {
+                "value": "avg",
+                "displayName": "Average",
+                "displayNameKey": "Visual_Heatmap_DayAgg_Avg"
+              },
+              {
+                "value": "max",
+                "displayName": "Maximum",
+                "displayNameKey": "Visual_Heatmap_DayAgg_Max"
+              }
+            ]
+          }
         }
       }
     },
@@ -931,6 +956,13 @@
           "displayNameKey": "Visual_State_ActiveMeasure",
           "type": {
             "numeric": true
+          }
+        },
+        "hiddenCategories": {
+          "displayName": "Hidden event categories",
+          "displayNameKey": "Visual_State_HiddenCategories",
+          "type": {
+            "text": true
           }
         }
       }

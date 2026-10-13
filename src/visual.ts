@@ -81,6 +81,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private hasRenderedData: boolean = false;
   private lastDataView: powerbi.DataView | null = null;
   private uniqueEventCategories: string[] = [];  // ordered by first appearance in data
+  /** Categorías ocultas desde la leyenda (1.2.0.0). Solo afectan a las marcas: el valor del día no cambia. */
+  private hiddenCategories = new Set<string>();
+  private allEvents: CalendarEvent[] = [];
   private viewport: { width: number; height: number } = { width: 400, height: 300 };
 
   // ── Accessibility state ──
@@ -345,6 +348,13 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // parseo no cambia.
     const limpio = (i: number) => String(cols[i]?.displayName ?? "").replace(/[\x00-\x1f\x7f]/g, "");
     this.measureNames = measureIdx >= 0 ? [limpio(measureIdx), ...secondaryIdxs.map(limpio)] : [];
+    {
+      const oc = (dataView.metadata?.objects as any)?.state?.hiddenCategories;
+      this.hiddenCategories = new Set<string>();
+      if (typeof oc === "string" && oc) {
+        try { (JSON.parse(oc) as unknown[]).forEach(x => { if (typeof x === "string") this.hiddenCategories.add(x); }); } catch (_) { /* estado ilegible: todo visible */ }
+      }
+    }
     if (!this.activeMeasureLoaded) {
       const st = (dataView.metadata?.objects as any)?.state?.activeMeasure;
       if (typeof st === "number") this.activeMeasure = st;
@@ -376,7 +386,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const seen = new Set<string>();
       const ordered: string[] = [];
       for (let r = 0; r < filasTabla.length; r++) {
-        if (eventCatIdx >= 0 && filasTabla[r][eventCatIdx] != null) {
+        const conEvento = eventNameIdx < 0 || (filasTabla[r][eventNameIdx] != null && String(filasTabla[r][eventNameIdx]).trim() !== "");
+        if (eventCatIdx >= 0 && filasTabla[r][eventCatIdx] != null && conEvento) {
           const cat = String(filasTabla[r][eventCatIdx] ?? "").replace(/[\x00-\x1f\x7f]/g, "").trim();
           if (!seen.has(cat)) { seen.add(cat); ordered.push(cat); }
         }
@@ -386,6 +397,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
     const dayMap = new Map<string, CalendarDay>();
     const events: CalendarEvent[] = [];
+    // Filas con valor por día (medida principal y secundarias), para el promedio.
+    const nFilas = new Map<string, number[]>();
+    const modo = this.settings.heatmap.dayAggregation;
+    const junta = (a: number | null, b: number): number => a === null ? b : (modo === "max" ? Math.max(a, b) : a + b);
     const holidays = new Map<string, string>(); // dateKey → name
 
     for (let r = 0; r < filasTabla.length; r++) {
@@ -449,6 +464,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
             .withTable(table, r)
             .createSelectionId();
 
+          nFilas.set(key, [rowMeasure !== null ? 1 : 0, ...secondaryIdxs.map(i => (typeof row[i] === "number" && isFinite(row[i] as number)) ? 1 : 0)]);
           dayMap.set(key, {
             date,
             measureValue: rowMeasure,
@@ -468,11 +484,14 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
             }),
           });
         } else {
-          // Aggregate: sum measures for the same day
+          // Aggregate the rows of the same day: sum by default; average or maximum when the
+          // day's value is repeated on every row (a table merged in Power Query, one row per event).
           const existing = dayMap.get(key)!;
+          const n = nFilas.get(key)!;
           existing.selectionIds.push(this.host.createSelectionIdBuilder().withTable(table, r).createSelectionId());
           if (rowMeasure !== null) {
-            existing.measureValue = (existing.measureValue ?? 0) + rowMeasure;
+            existing.measureValue = junta(existing.measureValue, rowMeasure);
+            n[0]++;
           }
           // Aggregate secondary measures too, on the raw numbers. The previous version
           // summed the *formatted* strings by stripping non-numeric characters, which
@@ -480,11 +499,21 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           secondaryIdxs.forEach((colIdx, tipIdx) => {
             const v = row[colIdx];
             if (typeof v === "number" && isFinite(v)) {
-              existing.secondaryValues[tipIdx] = (existing.secondaryValues[tipIdx] ?? 0) + v;
+              existing.secondaryValues[tipIdx] = junta(existing.secondaryValues[tipIdx] ?? null, v);
+              n[tipIdx + 1]++;
             }
           });
         }
       }
+    }
+
+    if (modo === "avg") {
+      dayMap.forEach((d, k) => {
+        const n = nFilas.get(k);
+        if (!n) return;
+        if (d.measureValue !== null && n[0] > 1) d.measureValue /= n[0];
+        d.secondaryValues = d.secondaryValues.map((x, i) => (x !== null && n[i + 1] > 1) ? x / n[i + 1] : x);
+      });
     }
 
     // Apply holidays to days
@@ -493,8 +522,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       if (day) { day.isHoliday = true; day.holidayName = name; }
     });
 
-    // Assign events to days they cover
+    // Assign events to days they cover (except the categories hidden from the legend)
+    this.allEvents = events;
     events.forEach(evt => {
+      if (this.hiddenCategories.has(evt.category)) return;
       const d = new Date(evt.startDate);
       while (d <= evt.endDate) {
         const key = this.dateKey(d);
@@ -2140,21 +2171,52 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return this.categoryColor(category);
   }
 
+  /**
+   * Muestra u oculta una categoría de eventos (1.2.0.0, gratis). Filtra solo las marcas dentro del
+   * visual: el valor del día, el color del heatmap y el resto del informe no cambian. Es lo que no
+   * puede hacer un segmentador sobre la categoría, que quita también las filas de ventas del día.
+   */
+  private toggleCategory(cat: string): void {
+    if (this.hiddenCategories.has(cat)) this.hiddenCategories.delete(cat); else this.hiddenCategories.add(cat);
+    const porDia = new Map(this.calendarData.map(d => [this.dateKey(d.date), d] as [string, CalendarDay]));
+    this.calendarData.forEach(d => { d.events = []; });
+    this.allEvents.forEach(evt => {
+      if (this.hiddenCategories.has(evt.category)) return;
+      const d = porDia.get(this.dateKey(evt.startDate));
+      if (d) d.events.push(evt);
+    });
+    this.host.persistProperties({ merge: [{ objectName: "state", selector: null as any,
+      properties: { hiddenCategories: JSON.stringify(Array.from(this.hiddenCategories)) } }] });
+    this.render();
+    this.updateWatermark();
+  }
+
   /** Renders a small color legend strip mapping category name → color swatch. */
   private buildCategoryLegend(): HTMLElement | null {
     if (!this.settings.events.showEvents || this.uniqueEventCategories.length === 0) return null;
 
     const container = document.createElement("div");
-    container.setAttribute("role", "list");
+    container.setAttribute("role", "group");
     container.setAttribute("aria-label", this.t("Aria_EventCategories", "Event categories"));
+    const conmutable = !this.formatMode && this.interactionsAllowed();
     container.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;flex-shrink:0;";
 
     this.uniqueEventCategories.slice(0, 8).forEach(cat => {
       const color = this.sanitizeColor(this.getCategoryColor(cat), "#C96442");
 
+      const oculta = this.hiddenCategories.has(cat);
       const item = document.createElement("span");
-      item.setAttribute("role", "listitem");
       item.setAttribute("aria-label", `${this.t("Aria_EventCategory", "Event category")}: ${cat || this.t("Cal_Default", "Default")}`);
+      if (conmutable) {
+        item.setAttribute("role", "button");
+        item.setAttribute("aria-pressed", String(!oculta));
+        item.tabIndex = 0;
+        item.title = this.t("Cal_ToggleCategory", "Click to show or hide these events. The day values do not change.");
+        const go = (e: Event) => { e.stopPropagation(); e.preventDefault(); this.toggleCategory(cat); };
+        item.addEventListener("click", go);
+        item.addEventListener("mousedown", e => e.stopPropagation());
+        item.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") go(e); });
+      }
       item.style.cssText = `display:inline-flex;align-items:center;gap:3px;font-size:${this.legendFontSize()}px;color:${this.fg(this.settings.legend.color, "#83827D")};white-space:nowrap;`;
 
       const swatch = document.createElement("span");
@@ -2168,6 +2230,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       const labelEl = document.createElement("span");
       labelEl.textContent = cat || `(${this.t("Cal_Default", "Default")})`;   // safe: textContent, never innerHTML
+      if (conmutable) item.style.cursor = "pointer";
+      if (oculta) { item.style.opacity = "0.4"; labelEl.style.textDecoration = "line-through"; }
 
       item.appendChild(swatch);
       item.appendChild(labelEl);

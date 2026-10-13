@@ -33,6 +33,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Función Pro",
     "Cal_ScaleLegend": "Escala de color de {0} a {1}",
     "Cal_Today": "Hoy",
+    "Cal_ToggleCategory": "Haz clic para mostrar u ocultar estos eventos. Los valores del día no cambian.",
     "Cal_ViewGroup": "Vista del calendario",
     "Cal_Week": "Semana",
     "Cal_WeekNumber": "Número de semana",
@@ -99,7 +100,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "Fecha",
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Festivo",
-    "Tip_Value": "Valor"
+    "Tip_Value": "Valor",
+    "Visual_Heatmap_DayAgg_Desc": "Cómo combinar varias filas del mismo día: Suma si cada fila lleva su parte; Promedio o Máximo si el valor del día se repite en cada fila."
   },
   "fr-FR": {
     "Aria_EventCategories": "Catégories d'événements",
@@ -130,6 +132,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Fonctionnalité Pro",
     "Cal_ScaleLegend": "Échelle de couleurs de {0} à {1}",
     "Cal_Today": "Aujourd'hui",
+    "Cal_ToggleCategory": "Cliquez pour afficher ou masquer ces événements. Les valeurs du jour ne changent pas.",
     "Cal_ViewGroup": "Vue du calendrier",
     "Cal_Week": "Semaine",
     "Cal_WeekNumber": "Numéro de semaine",
@@ -195,7 +198,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Pro_year_view": "la vue année",
     "Tip_Events": "Événements",
     "Tip_Holiday": "Jour férié",
-    "Tip_Value": "Valeur"
+    "Tip_Value": "Valeur",
+    "Visual_Heatmap_DayAgg_Desc": "Comment combiner plusieurs lignes du même jour : Somme si chaque ligne porte sa part ; Moyenne ou Maximum si la valeur du jour est répétée sur chaque ligne."
   },
   "de-DE": {
     "Aria_EventCategories": "Ereigniskategorien",
@@ -225,6 +229,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Pro-Funktion",
     "Cal_ScaleLegend": "Farbskala von {0} bis {1}",
     "Cal_Today": "Heute",
+    "Cal_ToggleCategory": "Klicken, um diese Ereignisse ein- oder auszublenden. Die Tageswerte ändern sich nicht.",
     "Cal_ViewGroup": "Kalenderansicht",
     "Cal_Week": "Woche",
     "Cal_WeekNumber": "Kalenderwoche",
@@ -291,7 +296,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "Datum",
     "Tip_Events": "Ereignisse",
     "Tip_Holiday": "Feiertag",
-    "Tip_Value": "Wert"
+    "Tip_Value": "Wert",
+    "Visual_Heatmap_DayAgg_Desc": "Wie mehrere Zeilen desselben Tages kombiniert werden: Summe, wenn jede Zeile ihren Anteil enthält; Mittelwert oder Maximum, wenn der Tageswert in jeder Zeile wiederholt wird."
   },
   "it-IT": {
     "Aria_EventCategories": "Categorie di eventi",
@@ -322,6 +328,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Funzionalità Pro",
     "Cal_ScaleLegend": "Scala di colori da {0} a {1}",
     "Cal_Today": "Oggi",
+    "Cal_ToggleCategory": "Fai clic per mostrare o nascondere questi eventi. I valori del giorno non cambiano.",
     "Cal_ViewGroup": "Vista calendario",
     "Cal_Week": "Settimana",
     "Cal_WeekNumber": "Numero settimana",
@@ -389,7 +396,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "Data",
     "Tip_Events": "Eventi",
     "Tip_Holiday": "Festività",
-    "Tip_Value": "Valore"
+    "Tip_Value": "Valore",
+    "Visual_Heatmap_DayAgg_Desc": "Come combinare più righe dello stesso giorno: Somma se ogni riga contiene la sua parte; Media o Massimo se il valore del giorno è ripetuto in ogni riga."
   },
   "pt-BR": {
     "Aria_EventCategories": "Categorias de eventos",
@@ -420,6 +428,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Recurso Pro",
     "Cal_ScaleLegend": "Escala de cores de {0} a {1}",
     "Cal_Today": "Hoje",
+    "Cal_ToggleCategory": "Clique para mostrar ou ocultar estes eventos. Os valores do dia não mudam.",
     "Cal_ViewGroup": "Exibição do calendário",
     "Cal_Week": "Semana",
     "Cal_WeekNumber": "Número da semana",
@@ -487,7 +496,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "Data",
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Feriado",
-    "Tip_Value": "Valor"
+    "Tip_Value": "Valor",
+    "Visual_Heatmap_DayAgg_Desc": "Como combinar várias linhas do mesmo dia: Soma se cada linha contém a sua parte; Média ou Máximo se o valor do dia se repete em cada linha."
   },
   "nl-NL": {
     "Aria_EventCategories": "Gebeurteniscategorieën",
@@ -518,6 +528,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Pro-functie",
     "Cal_ScaleLegend": "Kleurenschaal van {0} tot {1}",
     "Cal_Today": "Vandaag",
+    "Cal_ToggleCategory": "Klik om deze gebeurtenissen te tonen of te verbergen. De dagwaarden veranderen niet.",
     "Cal_ViewGroup": "Kalenderweergave",
     "Cal_WeekNumber": "Weeknummer",
     "Cal_WeekView": "Weekweergave",
@@ -583,7 +594,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "Datum",
     "Tip_Events": "Gebeurtenissen",
     "Tip_Holiday": "Feestdag",
-    "Tip_Value": "Waarde"
+    "Tip_Value": "Waarde",
+    "Visual_Heatmap_DayAgg_Desc": "Hoe meerdere rijen van dezelfde dag worden gecombineerd: Som als elke rij een eigen deel bevat; Gemiddelde of Maximum als de dagwaarde op elke rij wordt herhaald."
   },
   "pl-PL": {
     "Aria_EventCategories": "Kategorie zdarzeń",
@@ -614,6 +626,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Funkcja Pro",
     "Cal_ScaleLegend": "Skala kolorów od {0} do {1}",
     "Cal_Today": "Dzisiaj",
+    "Cal_ToggleCategory": "Kliknij, aby pokazać lub ukryć te zdarzenia. Wartości dnia się nie zmieniają.",
     "Cal_ViewGroup": "Widok kalendarza",
     "Cal_Week": "Tydzień",
     "Cal_WeekNumber": "Numer tygodnia",
@@ -681,7 +694,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "Data",
     "Tip_Events": "Zdarzenia",
     "Tip_Holiday": "Święto",
-    "Tip_Value": "Wartość"
+    "Tip_Value": "Wartość",
+    "Visual_Heatmap_DayAgg_Desc": "Jak łączyć kilka wierszy z tego samego dnia: Suma, gdy każdy wiersz zawiera swoją część; Średnia lub Maksimum, gdy wartość dnia powtarza się w każdym wierszu."
   },
   "ja-JP": {
     "Aria_EventCategories": "イベント カテゴリ",
@@ -711,6 +725,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Pro 機能",
     "Cal_ScaleLegend": "{0} から {1} までのカラー スケール",
     "Cal_Today": "今日",
+    "Cal_ToggleCategory": "クリックしてこれらのイベントを表示または非表示にします。日の値は変わりません。",
     "Cal_ViewGroup": "カレンダー表示",
     "Cal_Week": "週",
     "Cal_WeekNumber": "週番号",
@@ -778,7 +793,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "日付",
     "Tip_Events": "イベント",
     "Tip_Holiday": "祝日",
-    "Tip_Value": "値"
+    "Tip_Value": "値",
+    "Visual_Heatmap_DayAgg_Desc": "同じ日の複数の行をまとめる方法: 各行がそれぞれの分を持つ場合は合計、日の値が各行で繰り返される場合は平均または最大。"
   },
   "zh-CN": {
     "Aria_EventCategories": "事件类别",
@@ -809,6 +825,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Pro 功能",
     "Cal_ScaleLegend": "颜色刻度从 {0} 到 {1}",
     "Cal_Today": "今天",
+    "Cal_ToggleCategory": "单击可显示或隐藏这些事件。当天的值不会改变。",
     "Cal_ViewGroup": "日历视图",
     "Cal_Week": "周",
     "Cal_WeekNumber": "周数",
@@ -876,7 +893,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "日期",
     "Tip_Events": "事件",
     "Tip_Holiday": "节假日",
-    "Tip_Value": "值"
+    "Tip_Value": "值",
+    "Visual_Heatmap_DayAgg_Desc": "如何合并同一天的多行：每行各含一部分时用求和；每行重复当天的值时用平均值或最大值。"
   },
   "ko-KR": {
     "Aria_EventCategories": "이벤트 범주",
@@ -906,6 +924,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Pro 기능",
     "Cal_ScaleLegend": "{0}에서 {1}까지의 색 눈금",
     "Cal_Today": "오늘",
+    "Cal_ToggleCategory": "클릭하여 이 이벤트를 표시하거나 숨깁니다. 하루 값은 바뀌지 않습니다.",
     "Cal_ViewGroup": "달력 보기",
     "Cal_Week": "주",
     "Cal_WeekNumber": "주 번호",
@@ -973,7 +992,8 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "날짜",
     "Tip_Events": "이벤트",
     "Tip_Holiday": "공휴일",
-    "Tip_Value": "값"
+    "Tip_Value": "값",
+    "Visual_Heatmap_DayAgg_Desc": "같은 날의 여러 행을 결합하는 방법: 각 행이 자기 몫을 가지면 합계, 하루 값이 모든 행에 반복되면 평균 또는 최대값."
   },
   "pt-PT": {
     "Aria_EventCategories": "Categorias de eventos",
@@ -1004,6 +1024,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Cal_ProFeature": "Recurso Pro",
     "Cal_ScaleLegend": "Escala de cores de {0} a {1}",
     "Cal_Today": "Hoje",
+    "Cal_ToggleCategory": "Clique para mostrar ou ocultar estes eventos. Os valores do dia não mudam.",
     "Cal_ViewGroup": "Apresentação do calendário",
     "Cal_Week": "Semana",
     "Cal_WeekNumber": "Número da semana",
@@ -1071,6 +1092,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
     "Tip_Date": "Data",
     "Tip_Events": "Eventos",
     "Tip_Holiday": "Feriado",
-    "Tip_Value": "Valor"
+    "Tip_Value": "Valor",
+    "Visual_Heatmap_DayAgg_Desc": "Como combinar várias linhas do mesmo dia: Soma se cada linha contém a sua parte; Média ou Máximo se o valor do dia se repete em cada linha."
   }
 };

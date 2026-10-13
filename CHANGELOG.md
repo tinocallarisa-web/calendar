@@ -19,6 +19,8 @@ All notable changes to this project are documented in this file.
 - **Color Legend** for the scale, with minimum and maximum, at the top or the bottom; **Layout** with corner radius and space between days.
 - **Events as colour marks.** *Show events as*: Auto (marks in month and year, labels in week), Color marks or Labels. Marks are full-width stripes stacked on the day, so four events always fit.
 - **Event palettes:** Vivid (Okabe-Ito, colour-blind safe, the default), Bold, Bright, Dark or Classic — eight clearly different colours each.
+- **Filter events from the legend (free).** Click a category in the event legend to hide or show its marks. Only the marks change: the day values, the heatmap colours and the rest of the report stay as they are — which a slicer on the category cannot do, because it also removes the day's sales rows. Saved with the report.
+- **Rows of the same day (free).** *Heatmap Colors → Rows of the same day*: Sum (the default), Average or Maximum, for tables where the day's value is repeated on every event row (for example, sales merged with events in Power Query).
 - **Setup guide inside the visual**, in edit mode only: it ticks off each field as you add it and offers the templates.
 - **Format on the canvas:** click a day, its number or value, the view buttons, the legend or the event marks to format them.
 - **Twelve languages** for the Format pane, the buttons, tooltips, messages and the licence notice; day and month names follow the report's locale.
@@ -32,6 +34,7 @@ All notable changes to this project are documented in this file.
 - **Tooling**: powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.5.4; npm audit from 20 findings to 6 (development only, none in the package).
 
 ### Fixed
+- **The event legend listed a "(Default)" category** for the rows without an event. It now lists only the categories of rows that have one.
 - **Bookmarks did not restore the selected days** when the visual received the selection before its data (opening the report or changing page), and a restored day in another month stayed out of view. The selection is now re-read on every update, and applying a bookmark opens the month of the first selected day.
 - **Clicking a day filtered the report by only part of it.** A day with events has several rows in the table (one per event) and the selection took only the first, so a card beside the calendar showed less than the day's total. A day — and a date range — now selects every row of its days.
 - **The automatic date hierarchy put everything on 1 January.** With Auto date/time on, Power BI sends Year, Quarter, Month and Day as separate columns and the visual read only the year. It now rebuilds each date from the levels (month names in any of its languages or month numbers); without the Day level it says so instead of piling the data on one day.
