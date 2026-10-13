@@ -803,10 +803,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       wk.title = this.t("Cal_WeekNumber", "Week number");
       dayNamesRow.appendChild(wk);
     }
-    dayNames.forEach(dn => {
+    dayNames.forEach((dn, i) => {
+      const wd = (this.settings.calendar.weekStart + i) % 7;
+      const finde = wd === 0 || wd === 6;
       const cell = document.createElement("div");
       cell.setAttribute("role", "columnheader");
-      cell.style.cssText = `text-align:center;font-size:10px;font-weight:600;color:${this.fg(null, "#83827D")};padding:2px 0;overflow:hidden;`;
+      cell.style.cssText = `text-align:center;font-size:10px;font-weight:600;color:${finde ? this.fg(this.settings.dayNumber.weekendColor, "#83827D") : this.fg(null, "#83827D")};padding:2px 0;overflow:hidden;`;
       cell.textContent = dn;
       dayNamesRow.appendChild(cell);
     });
@@ -885,7 +887,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         numDiv.style.fontSize = numSz;
         numDiv.style.fontFamily = numFont;
         numDiv.style.fontWeight = isToday ? "700" : "400";
-        numDiv.style.color = this.hc ? dayNumColor : this.legible(dayNumColor, chrome.bg);
+        numDiv.style.color = this.hc ? dayNumColor
+          : (isWeekend && !isHoliday) ? this.legibleSuave(dayNumColor, chrome.bg) : this.legible(dayNumColor, chrome.bg);
         numDiv.style.lineHeight = "1";
         numDiv.style.whiteSpace = "nowrap";
         numDiv.style.flexShrink = "0";
@@ -1086,7 +1089,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       dnDiv.style.fontSize = `${dn.fontSize}px`;
       dnDiv.style.fontFamily = dnFont;
       dnDiv.style.fontWeight = "600";
-      dnDiv.style.color = this.hc ? dayNumColor : this.legible(dayNumColor, chrome.bg);
+      dnDiv.style.color = this.hc ? dayNumColor
+        : (isWeekend && !isHoliday) ? this.legibleSuave(dayNumColor, chrome.bg) : this.legible(dayNumColor, chrome.bg);
       dnDiv.style.whiteSpace = "nowrap";
       dnDiv.textContent = dayNames[i];
       cell.appendChild(dnDiv);
@@ -2132,6 +2136,17 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     el.style.borderRadius = "6px";
     el.style.alignSelf = "flex-start";
     el.style.display = "inline-block";
+  }
+
+  /**
+   * Color de fin de semana: lo elige el usuario y debe verse. Solo se sustituye si casi no se distingue
+   * del fondo (contraste < 1,6); con la regla normal (3) se perdía sobre el degradado (Tino, 13-10).
+   */
+  private legibleSuave(deseado: string, fondo: string): string {
+    const a = this.lum(deseado), f = this.lum(fondo);
+    if (a === null || f === null) return deseado;
+    const ratio = (Math.max(a, f) + 0.05) / (Math.min(a, f) + 0.05);
+    return ratio >= 1.6 ? deseado : this.legible(deseado, fondo);
   }
 
   private legible(deseado: string, fondo: string): string {
