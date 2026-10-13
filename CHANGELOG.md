@@ -34,6 +34,7 @@ All notable changes to this project are documented in this file.
 - **Tooling**: powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.5.4; npm audit from 20 findings to 6 (development only, none in the package).
 
 ### Fixed
+- **Row limit.** The visual did not declare how many rows it reads, so Power BI applied its default and a long date range — or one row per day and category — could arrive cut. It now asks for up to 30,000 rows.
 - **Day values in millions.** One day above 100,000 made every label switch to millions ("0.02M" for 20,000). The display unit now follows the typical day.
 - **The event legend listed a "(Default)" category** for the rows without an event. It now lists only the categories of rows that have one.
 - **Bookmarks did not restore the selected days** when the visual received the selection before its data (opening the report or changing page), and a restored day in another month stayed out of view. The selection is now re-read on every update, and applying a bookmark opens the month of the first selected day.

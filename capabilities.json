@@ -78,7 +78,12 @@
                 "in": "holidayName"
               }
             }
-          ]
+          ],
+          "dataReductionAlgorithm": {
+            "top": {
+              "count": 30000
+            }
+          }
         }
       }
     }
