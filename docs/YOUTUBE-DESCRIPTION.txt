@@ -1,96 +1,98 @@
 ==========================================
-YOUTUBE DESCRIPTION — FULL (long video)
+TITLE (pick one)
 ==========================================
 
-Calendar Events Heatmap: see your KPIs AND your promotions, campaigns, and holidays — all in one calendar. No more toggling between your sales chart and your promo schedule.
+1. Calendar Events Heatmap 1.2 for Power BI: every day coloured, with the events that explain it
+2. Power BI calendar heatmap with promotions, holidays and 4-4-5 fiscal weeks
+3. Why was that Tuesday so good? A Power BI calendar that shows the reason
+4. Power BI promotion calendar: sales heatmap and events on the same day
 
-Available free on Microsoft AppSource: https://appsource.microsoft.com (search "Calendar Events Heatmap TCViz")
+(Recommended: 1 for the release video, 3 for a short.)
+
+
+==========================================
+YOUTUBE DESCRIPTION — FULL VIDEO
+==========================================
+
+A good or bad day usually has a reason on the calendar: a promotion, a campaign, a holiday, a delivery problem. Calendar Events Heatmap puts that reason on the day it happened. Each day is coloured by your measure, and the events sit on the same day as colour marks.
+
+Version 1.2 adds a year view, date-range filtering, 4-4-5 fiscal calendars, color rules, ten colour schemes, five style templates, a setup guide inside the visual, formatting on the canvas and twelve languages.
+
+Get it on Microsoft AppSource: https://marketplace.microsoft.com/en-us/product/power-bi-visuals/tino_callarisa.calendar-events-heatmap
 
 ──────────────────────────────────────────
 CHAPTERS
 ──────────────────────────────────────────
-0:00 Intro — why heatmap + events?
-0:00 Setting up the field wells
-0:00 Heatmap — connecting your KPI
-0:00 Adding event badges
-0:00 Event categories and colors (Pro)
-0:00 Week view (Pro)
-0:00 Multi-month view (Pro)
-0:00 Holiday overlay
-0:00 Cross-page filtering
-0:00 Format pane walkthrough
-0:00 Free vs Pro comparison
-0:00 Wrap up
+0:00 The question: why was that day different?
+0:00 Date and a measure: the month heatmap
+0:00 Events, categories and holidays
+0:00 Hide event categories from the legend
+0:00 Year, month and week views
+0:00 Drag across days to filter by a range
+0:00 Fiscal calendars: by month or 4-4-5 weeks
+0:00 Color rules, schemes and style templates
+0:00 Format on the canvas and the setup guide
+0:00 Free and Pro
 
-(Fill in timestamps after final render)
+(Fill in the timestamps from the final edit. Delete any chapter the video does not show.)
 
 ──────────────────────────────────────────
-WHAT THIS VISUAL DOES
+WHAT IT DOES
 ──────────────────────────────────────────
-Most calendar visuals show either KPIs or events — not both. Calendar Events Heatmap combines them:
+✅ Every day coloured by your measure, with a legend for the scale
+✅ Promotions, campaigns and incidents as colour marks on their day, one colour per category
+✅ Click a category in the legend to hide its events: the day values do not change
+✅ Public holidays marked in their own colour, with the name in the tooltip
+✅ Year, month and week views; click a day to filter the report, drag for a date range
+✅ Fiscal years by month or in 4-4-5, 4-5-4 and 5-4-4 weeks; ISO or US week numbers
+✅ Color rules: paint the days above or below your thresholds
+✅ Ten colour schemes (two colour-blind safe), five style templates, twelve languages
+✅ Bookmarks restore the selected days; keyboard navigation and high contrast supported
 
-✅ Heatmap: day cells color by your measure value — instantly see your best and worst days
-✅ Event badges: overlay promotions, campaigns, and holidays on the same cell
-✅ Categories: up to 8 event types, each with its own color and a built-in legend
-✅ Week view: drill into a specific week for a closer look
-✅ Cross-page filtering: click a day to filter your entire report
-
-Perfect for retail, FMCG, marketing, and operations — anywhere the question is "what happened on that day, and why?"
+Useful in retail, marketing and operations: anywhere the question is "what happened on that day, and why?"
 
 ──────────────────────────────────────────
-FREE vs PRO
+FREE AND PRO
 ──────────────────────────────────────────
-FREE (no sign-up required):
-• Month view — 1 month
-• KPI heatmap
-• 1 event badge per day
-• Holiday overlay
-• Tooltip measures
-• Cross-page filtering
+FREE — the full month calendar:
+• Heatmap, colour schemes, color rules and style templates
+• Events (one shown per day, with a count of the rest) and holidays
+• Hiding event categories from the legend
+• Date-range filtering, fiscal calendars including 4-4-5, week numbers
+• Setup guide, formatting on the canvas, twelve languages
 
-PRO ($9.99/month — 30-day free trial, no card required):
-• 1 to 12 months side by side
-• Week view
-• Configurable events per day
-• Per-category event colors (fully configurable)
-• Full format pane (labels, buttons, event category colors)
+PRO adds:
+• Year and week views
+• Up to twelve months side by side
+• Switching the measure inside the visual
+• Several events per day
+• Your own colours for each event category, the labels and the buttons
 
-Start your trial: Microsoft AppSource → Calendar Events Heatmap
+While you edit without a licence, every Pro feature is drawn working under a "Pro preview" watermark. 30-day free trial on AppSource.
 
 ──────────────────────────────────────────
 LINKS
 ──────────────────────────────────────────
-📖 Support & docs: https://tinocallarisa-web.github.io/calendar/support.html
-🐛 Report an issue: https://github.com/tinocallarisa-web/calendar/issues
-🔒 Privacy policy: https://tinocallarisa-web.github.io/calendar/privacy.html
+📖 Documentation and FAQ: https://tinocallarisa-web.github.io/calendar/support.html
+💬 Questions: https://github.com/tinocallarisa-web/calendar/discussions
+🔒 Privacy: https://tinocallarisa-web.github.io/calendar/privacy.html
 📜 Terms: https://tinocallarisa-web.github.io/calendar/terms.html
+✉️ Support: support@tcviz.com
 
 ──────────────────────────────────────────
 PRIVACY
 ──────────────────────────────────────────
-Calendar Events Heatmap makes no external network calls and sends no data outside of Power BI. All processing happens inside the Power BI sandbox on your machine.
+No network calls of any kind: no telemetry, no analytics, no external scripts. Everything happens inside Power BI.
 
-──────────────────────────────────────────
-#PowerBI #PowerBICustomVisual #DataVisualization #BusinessIntelligence #CalendarHeatmap #PowerBITips #DataAnalytics #TCViz #RetailAnalytics #MarketingAnalytics
+#PowerBI #PowerBICustomVisual #CalendarHeatmap #DataVisualization #RetailAnalytics #TCViz
 
 
 ==========================================
-SHORT VERSION (LinkedIn / YouTube Shorts)
+SHORT VERSION (Shorts / LinkedIn)
 ==========================================
 
-Why do I need two visuals when one can do the job? Calendar Events Heatmap combines a KPI heatmap with event badges in a single Power BI calendar. See your promotions, campaigns, and holidays right on the same day your numbers spiked (or dropped).
-
-Free on Microsoft AppSource — 30-day Pro trial, no card required.
+Why was that Tuesday so good? In Power BI, Calendar Events Heatmap colours every day by your measure and puts the promotion, campaign or holiday on the same day. Year, month and week views, 4-4-5 fiscal weeks, color rules. Free month calendar on AppSource, 30-day Pro trial.
 
 https://tinocallarisa-web.github.io/calendar/support.html
 
-
-==========================================
-ALTERNATIVE TITLES (A/B test)
-==========================================
-
-1. Calendar Events Heatmap for Power BI — Full Demo (Free on AppSource)
-2. Power BI Calendar That Shows KPIs AND Events Together — Tutorial
-3. Best Power BI Calendar Visual 2025 — Heatmap + Events + Week View
-4. How to Build a Promo Calendar in Power BI (with Heatmap Colors)
-5. Power BI Custom Visual: KPI Heatmap + Event Overlay in One Calendar
+#PowerBI #CalendarHeatmap #TCViz

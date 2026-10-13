@@ -76,7 +76,7 @@ While you edit a report without a licence, every Pro feature you turn on is draw
 
 PRIVACY
 
-No network calls of any kind: no telemetry, no analytics, no external scripts. Everything happens inside Power BI. What the visual saves in your report is three of its own settings — the style template, whether the setup guide is shown and which measure is displayed — chosen with a click.
+No network calls of any kind: no telemetry, no analytics, no external scripts. Everything happens inside Power BI. What the visual saves in your report is four of its own settings — the style template, whether the setup guide is shown, which measure is displayed and which event categories are hidden — chosen with a click.
 
 GETTING STARTED
 
