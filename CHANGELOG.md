@@ -32,6 +32,7 @@ All notable changes to this project are documented in this file.
 - **Tooling**: powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.5.4; npm audit from 20 findings to 6 (development only, none in the package).
 
 ### Fixed
+- **Clicking a day filtered the report by only part of it.** A day with events has several rows in the table (one per event) and the selection took only the first, so a card beside the calendar showed less than the day's total. A day — and a date range — now selects every row of its days.
 - **The automatic date hierarchy put everything on 1 January.** With Auto date/time on, Power BI sends Year, Quarter, Month and Day as separate columns and the visual read only the year. It now rebuilds each date from the levels (month names in any of its languages or month numbers); without the Day level it says so instead of piling the data on one day.
 - **Fiscal Calendar did nothing.** The setting was in the Format pane but never read. It now labels months with the fiscal year and period (FY2027 P1) and starts the year view at the fiscal month.
 - **The fx button on Day Color never applied.** Power BI does not offer conditional formatting to visuals that read data as a table. Replaced by Color Rules; Day Color remains as a fixed colour.

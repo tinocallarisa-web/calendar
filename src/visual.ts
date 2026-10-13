@@ -35,6 +35,9 @@ export interface CalendarDay {
   isWeekend: boolean;
   isCurrentMonth: boolean;
   selectionId: powerbi.visuals.ISelectionId | null;
+  /** Todas las filas del día (1.2.0.0). Un día con eventos tiene varias filas; seleccionar solo la
+   *  primera filtraba el informe a una parte del día (Tino: 14,58K de 20,23K). */
+  selectionIds: powerbi.visuals.ISelectionId[];
   /** Raw values of the Tooltip Measures, aggregated. Formatted only when displayed. */
   secondaryValues: (number | null)[];
 }
@@ -179,8 +182,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         this.selectedKeys.clear();
         (ids ?? []).forEach(id => {
           const day = this.calendarData.find(
-            d => d.selectionId && typeof (d.selectionId as any).equals === "function"
-              && (d.selectionId as any).equals(id),
+            d => d.selectionIds.some(x => typeof (x as any).equals === "function" && (x as any).equals(id)),
           );
           if (day) this.selectedKeys.add(this.dateKey(day.date));
         });
@@ -452,6 +454,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
             isWeekend: date.getDay() === 0 || date.getDay() === 6,
             isCurrentMonth: true,
             selectionId: selId,
+            selectionIds: [selId],
             secondaryValues: secondaryIdxs.map(i => {
               const v = row[i];
               return (typeof v === "number" && isFinite(v)) ? v : null;
@@ -460,6 +463,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         } else {
           // Aggregate: sum measures for the same day
           const existing = dayMap.get(key)!;
+          existing.selectionIds.push(this.host.createSelectionIdBuilder().withTable(table, r).createSelectionId());
           if (rowMeasure !== null) {
             existing.measureValue = (existing.measureValue ?? 0) + rowMeasure;
           }
@@ -1185,7 +1189,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       const multi = e.ctrlKey || e.metaKey;
       if (e.shiftKey && this.anchorKey) { this.selectRange(this.anchorKey, dateKey, multi); return; }
-      this.selectionManager.select(day.selectionId, multi);
+      this.selectionManager.select(day.selectionIds as any, multi);
       this.focusedKey = dateKey;
       this.anchorKey = dateKey;
       this.trackSelection(dateKey, multi);
@@ -1278,7 +1282,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         if (!day?.selectionId) return;
         const multi = e.ctrlKey || e.metaKey;
         if (e.shiftKey && this.anchorKey) { this.selectRange(this.anchorKey, dateKey, multi); return; }
-        this.selectionManager.select(day.selectionId, multi);
+        this.selectionManager.select(day.selectionIds as any, multi);
         this.anchorKey = dateKey;
         this.trackSelection(dateKey, multi);
         this.applySelectionStyles();
@@ -1372,7 +1376,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const rect = (el as HTMLElement).getBoundingClientRect();
         self.host.tooltipService.show({
           dataItems: items as any,
-          identities: day.selectionId ? [day.selectionId] : [],
+          identities: day.selectionIds,
           coordinates: [rect.left + rect.width / 2, rect.top],
           isTouchEvent: false,
         });
@@ -1827,7 +1831,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private selectRange(a: string, b: string, multi: boolean): void {
     const dias = this.daysBetween(a, b).filter(d => d.selectionId);
     if (dias.length === 0) return;
-    this.selectionManager.select(dias.map(d => d.selectionId!) as any, multi);
+    this.selectionManager.select(([] as powerbi.visuals.ISelectionId[]).concat(...dias.map(d => d.selectionIds)) as any, multi);
     if (!multi) this.selectedKeys.clear();
     dias.forEach(d => this.selectedKeys.add(this.dateKey(d.date)));
     this.anchorKey = a;
