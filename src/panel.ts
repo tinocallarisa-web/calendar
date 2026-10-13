@@ -346,6 +346,12 @@ export const PANEL: PanelCard[] = [
                 "en": "Show Events"
             },
             {
+                "p": "legendFilter",
+                "kind": "drop",
+                "key": "Visual_Events_LegendFilter",
+                "en": "Legend filters"
+            },
+            {
                 "p": "display",
                 "kind": "drop",
                 "key": "Visual_Events_Display",

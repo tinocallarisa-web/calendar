@@ -1,4 +1,5 @@
 /// <reference types="powerbi-visuals-api" />
+import { BasicFilter } from "powerbi-models";
 import powerbi from "powerbi-visuals-api";
 import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
 import {
@@ -84,6 +85,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   /** Categorías ocultas desde la leyenda (1.2.0.0). Solo afectan a las marcas: el valor del día no cambia. */
   private hiddenCategories = new Set<string>();
   private allEvents: CalendarEvent[] = [];
+  /** Filtros que este visual ha aplicado al informe (los devuelve Power BI, también al aplicar un marcador). */
+  private jsonFiltros: any[] = [];
+  private eventCatColumn: powerbi.DataViewMetadataColumn | null = null;
   private viewport: { width: number; height: number } = { width: 400, height: 300 };
 
   // ── Accessibility state ──
@@ -233,6 +237,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
   public update(options: powerbi.extensibility.visual.VisualUpdateOptions): void {
     this.events.renderingStarted(options);
+    this.jsonFiltros = ((options as any).jsonFilters ?? []) as any[];
 
     try {
       this.readHighContrast();
@@ -335,6 +340,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     let measureIdx = cols.findIndex(c => c.roles["mainMeasure"]);
     const eventNameIdx = cols.findIndex(c => c.roles["eventName"]);
     const eventCatIdx = cols.findIndex(c => c.roles["eventCategory"]);
+    this.eventCatColumn = eventCatIdx >= 0 ? cols[eventCatIdx] : null;
     const holidayNameIdx = cols.findIndex(c => c.roles["holidayName"]);
 
     // Secondary measures
@@ -351,7 +357,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     {
       const oc = (dataView.metadata?.objects as any)?.state?.hiddenCategories;
       this.hiddenCategories = new Set<string>();
-      if (typeof oc === "string" && oc) {
+      const informe = (dataView.metadata?.objects as any)?.events?.legendFilter === "report";
+      if (informe) {
+        // Modo informe: las categorías ocultas son las del filtro "no está en" que aplicó este visual.
+        const f = this.jsonFiltros.find(x => x && x.operator === "NotIn" && Array.isArray(x.values));
+        if (f) (f.values as unknown[]).forEach(x => { if (typeof x === "string") this.hiddenCategories.add(x); });
+      } else if (typeof oc === "string" && oc) {
         try { (JSON.parse(oc) as unknown[]).forEach(x => { if (typeof x === "string") this.hiddenCategories.add(x); }); } catch (_) { /* estado ilegible: todo visible */ }
       }
     }
@@ -2218,10 +2229,34 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const d = porDia.get(this.dateKey(evt.startDate));
       if (d) d.events.push(evt);
     });
-    this.host.persistProperties({ merge: [{ objectName: "state", selector: null as any,
+    if (this.settings.events.legendFilter === "report") this.applyCategoryFilter();
+    else this.host.persistProperties({ merge: [{ objectName: "state", selector: null as any,
       properties: { hiddenCategories: JSON.stringify(Array.from(this.hiddenCategories)) } }] });
     this.render();
     this.updateWatermark();
+  }
+
+  /**
+   * Leyenda en modo informe: filtro básico "no está en" sobre la columna de Event Category, como un
+   * segmentador. Los marcadores lo guardan; el calendario no se filtra a sí mismo y lo lee de jsonFilters.
+   */
+  private applyCategoryFilter(): void {
+    const col = this.eventCatColumn as any;
+    const expr = col?.expr;
+    let table: string | undefined = expr?.source?.entity;
+    let column: string | undefined = expr?.ref;
+    if ((!table || !column) && typeof col?.queryName === "string") {
+      const i = col.queryName.indexOf(".");
+      if (i > 0) { table = col.queryName.slice(0, i); column = col.queryName.slice(i + 1); }
+    }
+    if (!table || !column) return;
+    const ocultas = Array.from(this.hiddenCategories);
+    if (ocultas.length === 0) {
+      this.host.applyJsonFilter(null as any, "general", "filter", powerbi.FilterAction.remove);
+      return;
+    }
+    const filtro = new BasicFilter({ table, column }, "NotIn", ocultas);
+    this.host.applyJsonFilter(filtro, "general", "filter", powerbi.FilterAction.merge);
   }
 
   /** Renders a small color legend strip mapping category name → color swatch. */

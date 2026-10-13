@@ -115,6 +115,8 @@ export interface CalendarSettings {
   };
   events: {
     showEvents: boolean;
+    /** Qué filtra la leyenda (1.2.0.0): solo las marcas de este visual, o el informe (filtro de Power BI). */
+    legendFilter: "visual" | "report";
     /** Eventos como etiquetas o como marcas de color (auto: marcas en mes y año, etiquetas en semana). */
     display: "auto" | "marks" | "labels";
     /** Paleta categórica de los eventos (1.2.0.0, gratis). */
@@ -177,6 +179,7 @@ export const defaultSettings: CalendarSettings = {
   },
   events: {
     showEvents: true,
+    legendFilter: "visual",
     display: "auto",
     palette: "vivid",
     maxEventsVisible: 1,
@@ -269,6 +272,7 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
     },
     events: {
       showEvents: (obj["events"]?.["showEvents"] as boolean) ?? defaultSettings.events.showEvents,
+      legendFilter: ((obj["events"]?.["legendFilter"] as string) === "report" ? "report" : "visual"),
       display: (obj["events"]?.["display"] as "auto" | "marks" | "labels") ?? defaultSettings.events.display,
       palette: (obj["events"]?.["palette"] as string) ?? defaultSettings.events.palette,
       maxEventsVisible: (obj["events"]?.["maxEventsVisible"] as number) ?? defaultSettings.events.maxEventsVisible,
