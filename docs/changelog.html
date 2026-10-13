@@ -83,6 +83,7 @@
   </ul>
   <h3 id="fixed">Fixed</h3>
   <ul>
+  <li><strong>A second click on the selected day did not clear the filter</strong> when the day had several rows (a day with events). It now clears it, and Ctrl+click on a selected day removes just that day.</li>
   <li><strong>Row limit.</strong> The visual did not declare how many rows it reads, so Power BI applied its default and a long date range — or one row per day and category — could arrive cut. It now asks for up to 30,000 rows.</li>
   <li><strong>Day values in millions.</strong> One day above 100,000 made every label switch to millions ("0.02M" for 20,000). The display unit now follows the typical day.</li>
   <li><strong>The event legend listed a "(Default)" category</strong> for the rows without an event. It now lists only the categories of rows that have one.</li>

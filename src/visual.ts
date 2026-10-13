@@ -1246,10 +1246,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       const multi = e.ctrlKey || e.metaKey;
       if (e.shiftKey && this.anchorKey) { this.selectRange(this.anchorKey, dateKey, multi); return; }
-      this.selectionManager.select(day.selectionIds as any, multi);
       this.focusedKey = dateKey;
       this.anchorKey = dateKey;
-      this.trackSelection(dateKey, multi);
+      this.selectDay(dateKey, multi);
       this.setRovingTabindex();
       this.applySelectionStyles();
     });
@@ -1339,9 +1338,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         if (!day?.selectionId) return;
         const multi = e.ctrlKey || e.metaKey;
         if (e.shiftKey && this.anchorKey) { this.selectRange(this.anchorKey, dateKey, multi); return; }
-        this.selectionManager.select(day.selectionIds as any, multi);
         this.anchorKey = dateKey;
-        this.trackSelection(dateKey, multi);
+        this.selectDay(dateKey, multi);
         this.applySelectionStyles();
         return;
       }
@@ -1936,6 +1934,22 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       el.style.outline = dentro ? `2px dashed ${color}` : (this.selectedKeys.has(k) ? el.style.outline : "");
       el.style.outlineOffset = dentro ? "-2px" : el.style.outlineOffset;
     });
+  }
+
+  /**
+   * Clic en un día. Se calcula la selección nueva aquí y se le pasa entera a Power BI: un día con
+   * varias filas son varias identidades, y select(ids) con una lista no alterna como con una sola,
+   * así que un segundo clic en el día ya seleccionado no lo quitaba (Tino, 13-10-2026).
+   */
+  private selectDay(key: string, multi: boolean): void {
+    this.trackSelection(key, multi);
+    if (this.selectedKeys.size === 0) {
+      this.selectionManager.clear();
+      return;
+    }
+    const ids: powerbi.visuals.ISelectionId[] = [];
+    this.calendarData.forEach(d => { if (this.selectedKeys.has(this.dateKey(d.date))) ids.push(...d.selectionIds); });
+    this.selectionManager.select(ids as any, false);
   }
 
   private trackSelection(key: string, multi: boolean): void {
