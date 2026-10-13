@@ -57,8 +57,8 @@ go down. Today jumps to the current date.
 - Drag across days, or Shift+click, to filter by a date range.
 - Click empty space to clear.
 - Click a category in the event legend to hide its marks. The day
-  values and the report do not change. Saved with the report; for
-  bookmarks set Events > Legend filters = The report (a filter).
+  values and the report do not change. Saved with the report, not
+  with bookmarks (Power BI bookmarks keep filters and selection).
 - A slicer on Event Category removes the days without that category,
   unless the events table has every day x every category (above).
 
