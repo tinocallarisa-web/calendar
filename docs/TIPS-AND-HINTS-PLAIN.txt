@@ -33,9 +33,9 @@ All fields share the Date column: expand each event to one row per
 day before connecting it.
 
 Sales and events in two tables? Relate them by Date and give the
-events table every day (empty event on days without one), or merge
-them in Power Query. Rows of the same day = Automatic counts the
-day's value once.
+events table every day x every category, with an empty event where
+there is none. A category slicer then keeps every day, and Rows of
+the same day = Automatic counts the day's value once.
 
 
 VIEWS AND NAVIGATION
@@ -55,8 +55,8 @@ FILTERING
 · Click a category in the event legend to hide its marks. The day
   values and the report do not change. Saved with the report, not
   with bookmarks (Power BI bookmarks keep filters and selection).
-· A slicer on Event Category removes the days without that category.
-  Use the legend, or Edit interactions > None on the calendar.
+· A slicer on Event Category removes the days without that category,
+  unless the events table has every day x every category (above).
 
 
 COLOUR
