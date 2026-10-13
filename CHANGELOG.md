@@ -34,6 +34,7 @@ All notable changes to this project are documented in this file.
 - **Tooling**: powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.5.4; npm audit from 20 findings to 6 (development only, none in the package).
 
 ### Fixed
+- **Holiday color did not show.** The readability rule turned a holiday number dark or white when it contrasted little with the day. The holiday number is now a small tag in the holiday colour, readable on any day, in the month and week views.
 - **Color Legend → Position = Bottom** moved only the scale, and not in the week view. The event categories now go to the bottom with it, in the month, year and week views.
 - **A second click on the selected day did not clear the filter** when the day had several rows (a day with events). It now clears it, and Ctrl+click on a selected day removes just that day.
 - **Row limit.** The visual did not declare how many rows it reads, so Power BI applied its default and a long date range — or one row per day and category — could arrive cut. It now asks for up to 30,000 rows.

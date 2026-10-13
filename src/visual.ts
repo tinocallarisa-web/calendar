@@ -890,6 +890,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         numDiv.style.whiteSpace = "nowrap";
         numDiv.style.flexShrink = "0";
         numDiv.textContent = String(date.getDate()) + (isHoliday ? "❆" : "");
+        if (isHoliday) this.holidayBadge(numDiv, holColor);
         cell.appendChild(numDiv);
 
         // Measure value
@@ -1098,6 +1099,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       numDiv.style.color = this.hc ? dnColor : this.legible(dnColor, chrome.bg);
       numDiv.style.whiteSpace = "nowrap";
       numDiv.textContent = String(date.getDate()) + (isHoliday ? " ❆" : "");
+      if (isHoliday) this.holidayBadge(numDiv, dnHol);
       cell.appendChild(numDiv);
 
       // Measure value
@@ -2116,6 +2118,22 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
    * blanco según el fondo. Los números de fin de semana en naranja desaparecían sobre los días
    * naranjas de la paleta por defecto.
    */
+  /**
+   * Número de un festivo: etiqueta con el color de festivo de fondo y el texto en blanco u oscuro.
+   * Antes el número llevaba el color de festivo sobre el degradado y la regla de legibilidad lo
+   * cambiaba a oscuro o blanco cuando contrastaba poco: el color elegido no se veía (Tino, 13-10).
+   */
+  private holidayBadge(el: HTMLElement, color: string): void {
+    if (this.hc) return;
+    const c = this.sanitizeColor(color, "#C96442");
+    el.style.backgroundColor = c;
+    el.style.color = this.legible("#FFFFFF", c);
+    el.style.padding = "1px 4px";
+    el.style.borderRadius = "6px";
+    el.style.alignSelf = "flex-start";
+    el.style.display = "inline-block";
+  }
+
   private legible(deseado: string, fondo: string): string {
     const a = this.lum(deseado), f = this.lum(fondo);
     if (a === null || f === null) return deseado;
