@@ -25,7 +25,7 @@ const PBIVIZ = path.join(ROOT, "pbiviz.json");
 
 const REPO = "https://github.com/tinocallarisa-web/calendar";
 const PAGES = "https://tinocallarisa-web.github.io/calendar";
-const VIDEO = "https://www.youtube.com/watch?v=FUELmlkAGNI";
+const VIDEO = "https://www.youtube.com/watch?v=CJ62plGb6QE";
 const MARKETPLACE = "https://marketplace.microsoft.com/en-us/product/power-bi-visuals/tino_callarisa.calendar-events-heatmap";
 const SITE = "https://tcviz.com/product/calendar-events-heatmap/";
 

@@ -114,7 +114,7 @@ Dropped from the 1.1 listing: none recorded.
 | Privacy policy | https://tinocallarisa-web.github.io/calendar/privacy.html |
 | Terms of use | https://tinocallarisa-web.github.io/calendar/terms.html |
 | Changelog | https://tinocallarisa-web.github.io/calendar/changelog.html |
-| Video | https://www.youtube.com/watch?v=FUELmlkAGNI |
+| Video | https://www.youtube.com/watch?v=CJ62plGb6QE |
 | Source | https://github.com/tinocallarisa-web/calendar |
 
 Canonical YouTube URL only (policy 100.3.3.3). **Correcting it here does not correct the offer.**
@@ -135,4 +135,4 @@ Canonical YouTube URL only (policy 100.3.3.3). **Correcting it here does not cor
 2. **Keywords** — `calendar heatmap`, `4-4-5 calendar`, `promotion calendar`.
 3. **Certification notes** — `docs/CERTIFICATION-NOTES-SHORT.txt`. Cleared on every resubmission.
 4. **Screenshots** — the two infographics and Screenshot1-3 in `assets/` (1366×768).
-5. **Video** — unchanged: `https://www.youtube.com/watch?v=FUELmlkAGNI`.
+5. **Video** — NEW for 1.2 (replace the old one by hand): `https://www.youtube.com/watch?v=CJ62plGb6QE`.
