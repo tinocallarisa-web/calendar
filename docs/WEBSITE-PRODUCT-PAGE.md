@@ -1,6 +1,6 @@
 # Calendar Events Heatmap — Website Product Page Content
 
-**Version 1.2.0.0 · TCViz**
+**Version 1.2.1.0 · TCViz**
 
 ---
 

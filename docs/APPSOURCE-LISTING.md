@@ -1,4 +1,8 @@
-# AppSource listing — Calendar Events Heatmap 1.2.0.0
+# AppSource listing — Calendar Events Heatmap 1.2.1.0
+
+**1.2.1.0 (25-10-2026): the description does NOT change.** The new start screen and the Try Pro row in the setup guide
+are setup aids, not features a buyer compares. Paste only the certification notes (the field is cleared on every
+resubmission).
 
 Copy ready to paste into Partner Center, English only. **The marketplace description is the
 documentation most people read** — update it on every release.

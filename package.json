@@ -1,6 +1,6 @@
 {
   "name": "calendar-tcviz",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Calendar visual combining events and measures for Power BI",
   "scripts": {
     "package": "pbiviz package",

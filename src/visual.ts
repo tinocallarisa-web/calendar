@@ -8,6 +8,12 @@ import {
 import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES, EVENT_PALETTES } from "./settings";
 import { PANEL, PanelProp } from "./panel";
 import { STRINGS } from "./strings";
+import { LANDING_ICON } from "./landingIcon";
+import "./../style/visual.less";
+
+const URL_GUIDE = "https://tinocallarisa-web.github.io/calendar/support.html";
+const URL_PRODUCT = "https://tcviz.com/product/calendar-events-heatmap/?ref=visual-calendar";
+const URL_VIDEO = "https://www.youtube.com/watch?v=CJ62plGb6QE";
 
 type IValueFormatter = ReturnType<typeof valueFormatter.create>;
 
@@ -75,7 +81,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   /** Lo que eligió el usuario: es lo que muestra el panel de formato. */
   private rawSettings: CalendarSettings = defaultSettings;
   private currentView: "year" | "month" | "week" = "month";
-  private viewInitialized: boolean = false;   // only apply "Default View" setting once
+  /** Vista guardada + acceso Pro ya aplicados. Hasta 1.2.0.0 la vista guardada solo se aplicaba en la primera carga,
+   *  cuando la licencia aún no ha respondido (siempre mes): elegir Año o Semana en el panel o en la guía no hacía nada. */
+  private viewKey: string = "";
   private currentDate: Date = new Date();
   private calendarData: CalendarDay[] = [];
   private hasRenderedData: boolean = false;
@@ -242,7 +250,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       if (!dataView?.table) {
         this.proPreview = false;
         this.updateWatermark();   // nada que pintar: tampoco marca
-        this.renderLandingPage();
+        this.renderLandingPage(options.viewport);
         this.events.renderingFinished(options);
         return;
       }
@@ -264,11 +272,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const objs = dataView?.metadata?.objects;
       this.rawSettings = applyTemplate(parseSettings(dataView), objs);
       this.settings = (this.isPro || this.proPreview) ? this.rawSettings : applyTemplate(freeSettings(this.rawSettings), objs);
-      // Apply "Default View" only on first load; after that preserve user's choice
-      if (!this.viewInitialized) {
-        this.currentView = this.settings.calendar.view;
-        this.viewInitialized = true;
-      }
+      this.syncSavedView();
 
       // Parse data
       this.calendarData = this.parseDataView(dataView);
@@ -1168,44 +1172,97 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return outer;
   }
 
-  private renderLandingPage(): void {
+  /** Pantalla de inicio de la serie TCViz, en tres tamaños. Los enlaces solo se abren con un clic (host.launchUrl). */
+  private renderLandingPage(vp?: powerbi.IViewport): void {
     while (this.container.firstChild) this.container.removeChild(this.container.firstChild);
-
-    const wrapper = document.createElement("div");
-    wrapper.style.cssText = "width:100%;height:100%;";
-
-    const inner = document.createElement("div");
-    inner.setAttribute("role", "status");
-    inner.style.cssText = `display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:${this.fg(null, "#83827D")};font-family:'Segoe UI',system-ui,sans-serif;text-align:center;padding:16px;box-sizing:border-box;`;
-
-    const icon = document.createElement("div");
-    icon.style.cssText = "font-size:32px;margin-bottom:8px;";
-    icon.textContent = "📅";
-
-    const title = document.createElement("div");
-    title.style.cssText = `font-size:14px;font-weight:600;color:${this.fg(null, "#3D3929")};margin-bottom:4px;`;
-    title.textContent = "Calendar Events Heatmap";
-
-    const sub = document.createElement("div");
-    sub.style.cssText = "font-size:11px;line-height:1.5;max-width:200px;";
-    sub.textContent = this.t("Msg_Landing", "Add a Date field and a Measure to see your calendar heatmap with event overlays.");
-
-    const paso = document.createElement("div");
-    paso.style.cssText = `font-size:11px;font-weight:700;color:${this.hc ? this.hcFg : "#2B6CB0"};margin-bottom:4px;`;
-    paso.textContent = this.t("Guide_Step", "Setup · step {0} of 3").replace("{0}", "1");
-    inner.appendChild(icon);
-    inner.appendChild(paso);
-    inner.appendChild(title);
-    inner.appendChild(sub);
-    wrapper.appendChild(inner);
-    this.container.appendChild(wrapper);
+    const w = vp?.width || this.container.clientWidth || 0, h = vp?.height || this.container.clientHeight || 0;
+    const size = (w >= 560 && h >= 300) ? "l" : (w >= 320 && h >= 200) ? "m" : "s";
+    const fg = this.hc ? this.hcFg : "";
+    const el = document.createElement("div");
+    el.className = "cal-landing cal-landing-" + size;
+    el.setAttribute("role", "status");
+    if (this.hc) el.style.background = this.hcBg;
+    const mk = (tag: string, cls?: string, text?: string): HTMLElement => {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined) n.textContent = text;
+      if (fg) n.style.color = fg;
+      return n;
+    };
+    const head = mk("div", "cl-head");
+    const img = document.createElement("img");
+    img.src = LANDING_ICON; img.alt = ""; img.className = "cl-icon";
+    head.appendChild(img);
+    const titles = mk("div");
+    titles.appendChild(mk("div", "cl-title", "Calendar Events Heatmap"));
+    if (size !== "s") titles.appendChild(mk("div", "cl-tag", this.t("Landing_Tagline", "Each day coloured by your measure, with the events that explain it on the same day.")));
+    head.appendChild(titles);
+    el.appendChild(head);
+    const link = (txt: string, url: string, cls: string, sub?: string): HTMLElement => {
+      // Sin href: ni el clic central ni "abrir en pestaña" se saltan host.launchUrl.
+      const a = mk("a", cls) as HTMLAnchorElement;
+      a.setAttribute("role", "link"); a.tabIndex = 0;
+      a.appendChild(document.createTextNode(txt));
+      if (sub) a.appendChild(mk("span", "cl-sub", sub));
+      if (this.hc) { a.style.background = "transparent"; a.style.borderColor = this.hcFg; }
+      const open = (e: Event): void => { e.preventDefault(); e.stopPropagation(); if (this.interactionsAllowed()) this.host.launchUrl(url); };
+      a.addEventListener("click", open);
+      a.addEventListener("keydown", (e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") open(e); });
+      return a;
+    };
+    if (size === "s") {
+      el.appendChild(mk("p", "cl-do", this.t("Msg_Landing", "Add a Date field and a Measure to see your calendar heatmap with event overlays.")));
+      el.appendChild(link(this.t("Landing_Guide", "Guide"), URL_GUIDE, "cl-a"));
+      this.container.appendChild(el);
+      return;
+    }
+    const cols = mk("div", "cl-cols");
+    const pasos = mk("div");
+    pasos.appendChild(mk("div", "cl-lbl", this.t("Landing_Steps", "Get started")));
+    const ol = mk("ol", "cl-steps");
+    const paso = (n: string, bold: string, txt: string) => {
+      const li = mk("li");
+      const num = mk("span", "cl-n", n);
+      if (this.hc) Object.assign(num.style, { background: "transparent", border: "1px solid " + this.hcFg });
+      li.appendChild(num);
+      const sp = mk("span");
+      sp.appendChild(mk("b", "cl-well", bold));
+      sp.appendChild(document.createTextNode(" \u2014 " + txt));
+      li.appendChild(sp);
+      ol.appendChild(li);
+    };
+    paso("1", this.t("Visual_Date", "Date"), this.t("Landing_Step1", "one row per day; the Auto date/time hierarchy also works"));
+    paso("2", this.t("Visual_MainMeasure", "Main Measure"), this.t("Landing_Step2", "colours each day"));
+    paso("3", this.t("Visual_EventName", "Event Name") + " \u00B7 " + this.t("Visual_EventCategory", "Event Category"),
+      this.t("Landing_Step3", "optional: promotions, campaigns or incidents on their day"));
+    pasos.appendChild(ol);
+    if (size === "l") {
+      const pro = mk("div", "cl-pro");
+      const chip = mk("span", "cl-chip", "Pro");
+      if (this.hc) { chip.style.background = "transparent"; chip.style.border = "1px solid " + this.hcFg; }
+      pro.appendChild(chip);
+      pro.appendChild(mk("span", "", this.t("Landing_Pro", "Year and week views, several months side by side and switching the measure \u2014 try them on your data while you edit.")));
+      pasos.appendChild(pro);
+    }
+    cols.appendChild(pasos);
+    const links = mk("div");
+    links.appendChild(mk("div", "cl-lbl", this.t("Landing_Help", "Help")));
+    const ll = mk("div", "cl-links");
+    ll.appendChild(link(this.t("Landing_Guide", "Guide"), URL_GUIDE, "cl-card", this.t("Landing_GuideSub", "support page")));
+    ll.appendChild(link(this.t("Landing_Product", "Product page"), URL_PRODUCT, "cl-card", "tcviz.com"));
+    if (size === "l") ll.appendChild(link(this.t("Landing_Video", "Video"), URL_VIDEO, "cl-card", "YouTube"));
+    links.appendChild(ll);
+    cols.appendChild(links);
+    el.appendChild(cols);
+    this.container.appendChild(el);
   }
 
   // ─── Interactions ──────────────────────────────────────────────────────────
 
   /** Power BI can disable interactivity (for example in a report tooltip page). */
   private interactionsAllowed(): boolean {
-    return (this.host as any).allowInteractions !== false;
+    const h = this.host as any;
+    return (h?.hostCapabilities?.allowInteractions ?? h?.allowInteractions) !== false;
   }
 
   private attachInteractions(wrapper: HTMLElement): void {
@@ -1494,6 +1551,17 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     });
   }
 
+  /**
+   * La vista guardada (Calendar → View) se aplica al cargar y cada vez que cambia el ajuste o el acceso a Pro
+   * (la licencia resuelve después del primer pintado). Entre medias manda la navegación del lector.
+   */
+  private syncSavedView(): void {
+    const clave = this.rawSettings.calendar.view + "|" + (this.isPro || this.proPreview);
+    if (clave === this.viewKey) return;
+    this.viewKey = clave;
+    this.currentView = this.settings.calendar.view;
+  }
+
   private applyLicense(isPro: boolean): void {
     this.licenseResolved = true;
     if (!isPro || this.isPro) {
@@ -1504,6 +1572,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       this.proPreview = this.computePreview();
       if (this.proPreview !== before && this.lastDataView) {
         this.settings = this.proPreview ? this.rawSettings : freeSettings(this.rawSettings);
+        this.syncSavedView();
         try { this.render(); } catch (_) { /* el render ya reporta su propio fallo */ }
       }
       this.notifyProBlocked();
@@ -1514,6 +1583,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.proPreview = false;          // con licencia no hay vista previa que marcar
     this.clearLicenseNotice();
     this.settings = this.rawSettings;
+    this.syncSavedView();
     if (this.lastDataView) {
       try { this.render(); } catch (_) { }
     }
@@ -2515,6 +2585,38 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       pie.appendChild(boton(this.t("Guide_Finish", "Finish"), true, terminar));
     }
     g.appendChild(pie);
+    // Probar el Pro con tus datos: sin licencia se dibuja bajo la marca de agua y Power BI avisa. Solo desde un clic.
+    const o: any = this.lastDataView?.metadata?.objects ?? {};
+    const fila = document.createElement("div");
+    fila.style.cssText = `display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid ${this.hc ? this.hcFg : "#E1DFDD"};`;
+    const lbl = document.createElement("span");
+    lbl.textContent = this.isPro ? this.t("Guide_ProOn", "Pro:") : this.t("Guide_TryPro", "Try Pro:");
+    lbl.style.cssText = "font-weight:600;margin-right:2px;";
+    fila.appendChild(lbl);
+    const probar = (texto: string, on: boolean, obj: string, props: any) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = texto;
+      b.setAttribute("aria-pressed", String(on));
+      b.style.cssText = `font:12px 'Segoe UI',sans-serif;border-radius:999px;padding:2px 9px;cursor:pointer;border:1px solid ${azul};`
+        + (on ? `background:${azul};color:${this.hc ? this.hcBg : "#FFFFFF"};` : `background:transparent;color:${azul};`);
+      b.addEventListener("click", () => this.host.persistProperties({ merge: [{ objectName: obj, selector: null as any, properties: props }] }));
+      fila.appendChild(b);
+    };
+    const vista = String(o.calendar?.view ?? "month");
+    probar(this.t("Guide_ProYear", "Year view"), vista === "year", "calendar", { view: vista === "year" ? "month" : "year" });
+    probar(this.t("Guide_ProWeek", "Week view"), vista === "week", "calendar", { view: vista === "week" ? "month" : "week" });
+    // Los meses solo cuentan en la vista de mes: "3 months" la pone también, o desde Semana o Año no haría nada.
+    const meses = String(o.calendar?.monthsToShow ?? "1");
+    const tres = meses === "3" && vista === "month";
+    probar(this.t("Guide_ProMonths", "3 months"), tres, "calendar", tres ? { monthsToShow: "1" } : { monthsToShow: "3", view: "month" });
+    // Cambiar de medida solo tiene sentido con medidas en Tooltip Measures.
+    const cols = (this.lastDataView?.table?.columns ?? []) as powerbi.DataViewMetadataColumn[];
+    if (cols.some(c => (c.roles ?? {})["secondaryMeasures"])) {
+      const med = Number(o.state?.activeMeasure ?? 0);
+      probar(this.t("Guide_ProMeasure", "Switch measure"), med > 0, "state", { activeMeasure: med > 0 ? 0 : 1 });
+    }
+    g.appendChild(fila);
     return g;
   }
 

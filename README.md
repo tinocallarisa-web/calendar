@@ -1,6 +1,6 @@
 # Calendar Events Heatmap
 
-> **1.2.0.0:** year, month and week views with drill up and down, date-range filtering, fiscal calendars in months or 4-4-5 weeks, color rules, 10 color schemes, 5 style templates, a setup guide, format on the canvas and 12 languages. See the [changelog](https://tinocallarisa-web.github.io/calendar/changelog.html).
+> **1.2.1.0:** the TCViz start screen and a Try Pro row in the setup guide. **1.2.0.0:** year, month and week views with drill up and down, date-range filtering, fiscal calendars in months or 4-4-5 weeks, color rules, 10 color schemes, 5 style templates, a setup guide, format on the canvas and 12 languages. See the [changelog](https://tinocallarisa-web.github.io/calendar/changelog.html).
 
 **A Power BI custom visual by [TCViz](https://github.com/tinocallarisa-web).**
 Daily KPI intensity and dated business events on one calendar surface — promotions,

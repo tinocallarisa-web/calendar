@@ -1,15 +1,51 @@
 // Calendar by TCViz — base styles
 //
-// NOTE: pbiviz does not emit this file into the .pbiviz package (content.css is absent
-// in every shipped build from 1.0.0.0 onwards), so nothing defined here reaches the
-// report. The visual's real stylesheet — focus rings, forced-colors and reduced-motion
-// rules — is injected at runtime by `injectStyles()` in src/visual.ts.
-//
-// pbiviz.json requires a `style` entry to exist, so this file is kept as that entry.
-// If a future toolchain version starts bundling it, move the rules back here.
+// Hasta 1.2.0.0 este fichero no llegaba al paquete (nadie lo importaba): las reglas de foco, alto contraste y
+// movimiento reducido se inyectan en tiempo de ejecución con injectStyles() en src/visual.ts y ahí siguen.
+// Desde 1.2.1.0 src/visual.ts lo importa, para la pantalla de inicio de la serie.
 
 .tcviz-calendar {
   * {
     box-sizing: border-box;
   }
+}
+
+// Pantalla de inicio (serie TCViz, 1.2.1.0)
+.cal-landing {
+  position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 16px;
+  padding: 22px 28px; box-sizing: border-box; overflow: hidden; color: #605E5C;
+  font-family: 'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif;
+  .cl-head { display: flex; gap: 12px; align-items: center; }
+  .cl-icon { width: 44px; height: 44px; border-radius: 9px; flex-shrink: 0; }
+  .cl-title { font-size: 20px; font-weight: 600; color: #252423; }
+  .cl-tag { font-size: 14px; margin-top: 2px; }
+  .cl-cols { display: grid; grid-template-columns: 1.2fr 1fr; gap: 26px; }
+  .cl-lbl { font-size: 10.5px; font-weight: 600; letter-spacing: 1.3px; text-transform: uppercase; color: #8A8886; margin-bottom: 7px; }
+  .cl-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 13.5px; }
+  .cl-steps li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; }
+  .cl-n { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: #2B6CB0; color: #FFFFFF; font-size: 10.5px; }
+  .cl-well { color: #252423; }
+  .cl-pro { display: flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 12.5px; }
+  .cl-chip { font-size: 10px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #E3F2E8; color: #2F7A47; flex-shrink: 0; }
+  .cl-links { display: grid; gap: 7px; }
+  .cl-card { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border: 1px solid #E1DFDD; border-radius: 6px; background: #F7F6F3; color: #252423; text-decoration: none; font-size: 13.5px; cursor: pointer; }
+  .cl-card:hover { border-color: #2B6CB0; }
+  .cl-card:focus-visible { border-color: #2B6CB0; outline: 2px solid #005A9E; outline-offset: 1px; }
+  .cl-sub { margin-left: auto; color: #8A8886; font-size: 11px; }
+  .cl-a { color: #2B6CB0; font-weight: 600; text-decoration: none; cursor: pointer; font-size: 12px; }
+  .cl-a:hover, .cl-a:focus-visible { text-decoration: underline; }
+  .cl-do { margin: 0; font-size: 12px; line-height: 1.45; }
+}
+.cal-landing-m {
+  gap: 11px; padding: 14px 18px;
+  .cl-icon { width: 34px; height: 34px; }
+  .cl-title { font-size: 16px; }
+  .cl-tag, .cl-steps, .cl-card { font-size: 12.5px; }
+  .cl-cols { grid-template-columns: 1fr; gap: 10px; }
+  .cl-links { grid-template-columns: 1fr 1fr; }
+}
+.cal-landing-s {
+  gap: 8px; padding: 10px 12px;
+  .cl-icon { width: 26px; height: 26px; border-radius: 6px; }
+  .cl-title { font-size: 14px; }
 }

@@ -57,6 +57,16 @@ try {
   fs.writeFileSync(VISUAL_TS, patchedVisual, "utf8");
 
   pbivizObj.visual.guid = originalGuid + suffix;
+  // Desktop guarda cada visual por guid + versión: con la misma versión sigue sirviendo el paquete anterior.
+  // Cada build de prueba lleva su propio último dígito (contador local en .tmp/).
+  const CONTADOR = path.join(__dirname, ".tmp", "test-build-counter");
+  fs.mkdirSync(path.dirname(CONTADOR), { recursive: true });
+  const n = (parseInt(fs.existsSync(CONTADOR) ? fs.readFileSync(CONTADOR, "utf8") : "0", 10) || 0) + 1;
+  fs.writeFileSync(CONTADOR, String(n), "utf8");
+  const partes = pbivizObj.visual.version.split(".");
+  partes[3] = String(Number(partes[3]) + n);
+  pbivizObj.visual.version = partes.join(".");
+  console.log(`🔧 versión de prueba ${pbivizObj.visual.version}`);
   fs.writeFileSync(PBIVIZ_JSON, JSON.stringify(pbivizObj, null, 2), "utf8");
 
   console.log(`🔧 Tier: ${forceFree ? "Free (licencia real)" : "Pro (forzado)"}`);

@@ -1,4 +1,4 @@
-Calendar Events Heatmap 1.2.0.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
+Calendar Events Heatmap 1.2.1.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
 
 SOURCE CODE
 github.com/tinocallarisa-web/calendar, branch "certification".
@@ -23,14 +23,13 @@ TESTING
 4. Calendar > Fiscal Calendar on, start month 10: title shows FY and period.
    Fiscal Periods = 4-4-5: the month view shows a fiscal period of whole weeks.
 5. Color Rules: rule 1 >= a value: those days repaint.
-6. Edit mode: a setup guide lists the wells and offers templates; Finish hides it.
+6. Edit mode: setup guide with the wells and templates; its "Try Pro" buttons turn a
+   Pro view on (watermark). Finish hides it. No fields: start screen with links.
 7. Format mode: click a day, its number or the legend to format it on the canvas.
-8. Resize to 300x260: compact layout, nothing cut.
+8. Resize to 300x260: compact layout.
 
 WHY NO FX
-Power BI documents that conditional formatting (fx) is not supported for table-based
-visuals; 1.1 offered it on Day Color and it never applied. Day Color is removed;
-Color Rules replace it.
+Power BI does not support fx for table-based visuals; Color Rules replace it.
 
 RENDERING EVENTS
 One renderingStarted and one renderingFinished/Failed per update(). Navigation,
@@ -38,8 +37,8 @@ selection and the guide repaint through render(), emitting none.
 
 PRIVACY / NETWORK
 No external calls, telemetry or CDN; privileges: []. No innerHTML. The visual persists
-only style.template, style.guide, state.activeMeasure and state.hiddenCategories,
-from a user click.
+only on a user click: style.template/guide, state.activeMeasure/hiddenCategories,
+and the view, months or events per day chosen in the guide's Try Pro row.
 
 LICENSING
 Plan calendar-tcviz, matched on the Service ID. Requested after the first paint; on

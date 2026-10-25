@@ -1,12 +1,19 @@
-# Certification Notes — Calendar Events Heatmap v1.2.0.0
+# Certification Notes — Calendar Events Heatmap v1.2.1.0
 
 **Visual GUID:** `calendarTCViz022303184F264C8B9ACE6A13E838FFEB`  
 **Plan ID:** `calendar-tcviz`  
 **Publisher:** TCViz (support@tcviz.com)  
-**Version:** 1.2.0.0  
+**Version:** 1.2.1.0  
 **Submission date:** (fill on submission)
 
 ---
+
+## Release Notes — v1.2.1.0
+
+- Start screen of the TCViz series (steps, Pro features, links that open only on a click through `host.launchUrl`).
+- Setup guide: a "Try Pro" row (year view, week view, 3 months, measure selector). Each button persists one `calendar` or `state` property **only on a user click**; without a licence the feature renders under the "Pro preview" watermark, as in 1.2.0.0.
+- Fixed: Calendar → View applied only on the first load (before the licence answered, so always Month); it now applies when the setting or the Pro access changes.
+- API 5.11.1; interactions follow `hostCapabilities.allowInteractions`.
 
 ## Release Notes — v1.2.0.0
 

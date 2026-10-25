@@ -37,7 +37,7 @@
     <text x="258" y="246" font-family="'Segoe UI',sans-serif" font-weight="700" font-size="196" letter-spacing="-4"><tspan fill="url(#g)">tc</tspan><tspan fill="#fff">viz</tspan></text>
   </svg>
   <h1>Calendar Events Heatmap — Changelog</h1>
-  <span>v1.2.0.0 &middot; TCViz</span>
+  <span>v1.2.1.0 &middot; TCViz</span>
 </header>
 <nav>
   <a href="https://tinocallarisa-web.github.io/calendar/support.html">Support &amp; Docs</a>
@@ -51,6 +51,21 @@
 <main>
   <p>All notable changes to this project are documented in this file.</p>
   <hr>
+  <h2 id="1-2-1-0-2026-10-25">[1.2.1.0] — 2026-10-25</h2>
+  <h3 id="added">Added</h3>
+  <ul>
+  <li><strong>Start screen</strong> of the TCViz series when the visual has no fields: the three steps, the Pro features, and links to the guide, the product page and the video, in three sizes. Links open only on a click, through Power BI.</li>
+  <li><strong>Try Pro in the setup guide.</strong> A row of buttons turns on the year view, the week view, three months and — with measures in Tooltip Measures — the measure selector, so you see them working on your own data while you edit; without a licence they are drawn under the "Pro preview" watermark, as before.</li>
+  </ul>
+  <h3 id="fixed">Fixed</h3>
+  <ul>
+  <li><strong>Calendar → View did nothing after the first load.</strong> The saved view applied only when the visual first opened — before the licence answered, so always as Month. Choosing Year or Week in the Format pane now switches the calendar, and a report saved in Year or Week opens in it once the licence is known.</li>
+  </ul>
+  <h3 id="changed">Changed</h3>
+  <ul>
+  <li>Power BI API 5.11.1. Interactions follow <code>hostCapabilities.allowInteractions</code>.</li>
+  <li>The translations are now generated from the repository (<code>tools/i18n/i18n.py</code>), from the published resource files plus the new texts.</li>
+  </ul>
   <h2 id="1-2-0-0-2026-10-12">[1.2.0.0] — 2026-10-12</h2>
   <h3 id="added">Added</h3>
   <ul>
@@ -275,7 +290,7 @@
   <a href="https://tinocallarisa-web.github.io/calendar/terms.html">Terms</a> &middot;
   <a href="https://github.com/tinocallarisa-web/calendar">GitHub</a> &middot;
   <a href="https://github.com/tinocallarisa-web/calendar/issues">Issues</a><br><br>
-  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.2.0.0
+  &copy; 2026 TCViz &middot; Calendar Events Heatmap v1.2.1.0
 </footer>
 </body>
 </html>

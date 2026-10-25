@@ -4,6 +4,19 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## [1.2.1.0] — 2026-10-25
+
+### Added
+- **Start screen** of the TCViz series when the visual has no fields: the three steps, the Pro features, and links to the guide, the product page and the video, in three sizes. Links open only on a click, through Power BI.
+- **Try Pro in the setup guide.** A row of buttons turns on the year view, the week view, three months and — with measures in Tooltip Measures — the measure selector, so you see them working on your own data while you edit; without a licence they are drawn under the "Pro preview" watermark, as before.
+
+### Fixed
+- **Calendar → View did nothing after the first load.** The saved view applied only when the visual first opened — before the licence answered, so always as Month. Choosing Year or Week in the Format pane now switches the calendar, and a report saved in Year or Week opens in it once the licence is known.
+
+### Changed
+- Power BI API 5.11.1. Interactions follow `hostCapabilities.allowInteractions`.
+- The translations are now generated from the repository (`tools/i18n/i18n.py`), from the published resource files plus the new texts.
+
 ## [1.2.0.0] — 2026-10-12
 
 ### Added
