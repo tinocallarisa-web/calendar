@@ -1,6 +1,6 @@
-# AppSource listing — Calendar Events Heatmap 1.2.1.1
+# AppSource listing — Calendar Events Heatmap 1.2.1.2
 
-**1.2.1.1 (25-10-2026): the description does NOT change.** The new start screen and the Try Pro row in the setup guide
+**1.2.1.2 (25-10-2026): the description does NOT change.** The new start screen and the Try Pro row in the setup guide
 are setup aids, not features a buyer compares. Paste only the certification notes (the field is cleared on every
 resubmission).
 

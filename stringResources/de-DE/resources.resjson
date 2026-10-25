@@ -77,6 +77,7 @@
   "Msg_DateHierarchy": "Das Datumsfeld als Datum verbinden, nicht als Jahreshierarchie.",
   "Msg_DateHierarchyFix": "Behalten Sie die Ebene „Tag“ im Feld „Date“ oder deaktivieren Sie Datei → Optionen → Aktuelle Datei → Laden von Daten → Automatisches Datum/Uhrzeit und fügen Sie das Datum erneut hinzu.",
   "Msg_DateHierarchyHow": "Im Feldbereich auf ▼ neben dem Datumsfeld klicken und Datum auswählen (nicht Datumshierarchie). Oder: Datei → Optionen → Aktuelle Datei → Daten laden → Automatische Datums-/Uhrzeitangabe deaktivieren.",
+  "Msg_DateMonthUnknown": "Monat nicht erkannt: „{0}“. Verwenden Sie Date statt Date Hierarchy.",
   "Msg_Landing": "Ein Datumsfeld und eine Measure hinzufügen, um die Kalender-Heatmap mit eingeblendeten Ereignissen anzuzeigen.",
   "Msg_NoData": "Keine Daten empfangen.",
   "Msg_NoDataHow": "Eine Datumsspalte und eine Haupt-Measure mit diesem Visual verbinden.",

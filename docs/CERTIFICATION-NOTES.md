@@ -1,14 +1,16 @@
-# Certification Notes — Calendar Events Heatmap v1.2.1.1
+# Certification Notes — Calendar Events Heatmap v1.2.1.2
 
 **Visual GUID:** `calendarTCViz022303184F264C8B9ACE6A13E838FFEB`  
 **Plan ID:** `calendar-tcviz`  
 **Publisher:** TCViz (support@tcviz.com)  
-**Version:** 1.2.1.1  
+**Version:** 1.2.1.2  
 **Submission date:** (fill on submission)
 
 ---
 
-## Release Notes — v1.2.1.1
+## Release Notes — v1.2.1.2
+
+- Fixed: with Date Hierarchy, month names in a language the visual did not know (Catalan) put every value on 1 January; levels are now recognised by Power BI's level names and month names read in about seventy languages; an unreadable month is named in the notice.
 
 - Fixed: a Pro setting left at its default value (a switch turned off again, a default size) counted as Pro and raised the watermark and the licence notice; only values different from the default count now.
 

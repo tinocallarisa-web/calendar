@@ -119,6 +119,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   private measureNames: string[] = [];
   /** Aviso de fecha: "year" (solo el año) o "hierarchy" (jerarquía sin el día). Vacío si todo bien. */
   private dateHint = "";
+  /** Valor de mes que no se ha podido leer (jerarquía de fechas), para decirlo en el aviso. */
+  private dateHintValue = "";
   /** Paso del asistente de configuración (2 = campos opcionales, 3 = estilo). El 1 es la pantalla de inicio. */
   private guideStep = 2;
   /** Formato sobre el lienzo (1.2.0.0). */
@@ -647,6 +649,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       aviso.appendChild(b);
       aviso.appendChild(document.createTextNode(" " + this.t("Msg_DateHierarchyFix",
         "Keep the Day level in the Date field, or switch off File → Options → Current file → Data Load → Auto date/time and add the date again.")));
+      if (this.dateHintValue) {
+        aviso.appendChild(document.createTextNode(" " + this.t("Msg_DateMonthUnknown", "Month not recognised: \"{0}\". Use Date instead of Date Hierarchy.").replace("{0}", this.dateHintValue.slice(0, 30))));
+      }
       this.container.appendChild(aviso);
     }
 
@@ -1742,6 +1747,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
    */
   private rebuildDateHierarchy(table: powerbi.DataViewTable, cols: powerbi.DataViewMetadataColumn[]): powerbi.PrimitiveValue[][] {
     this.dateHint = "";
+    this.dateHintValue = "";
     const idx = cols.map((c, i) => (c.roles ?? {})["date"] ? i : -1).filter(i => i >= 0);
     const rows = table.rows ?? [];
     if (idx.length < 2 || rows.length === 0) {
@@ -1755,10 +1761,22 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const todos = (i: number, f: (v: any) => boolean) => muestra.every(r => r[i] === null || r[i] === undefined || f(r[i]));
     const esNum = (v: any) => typeof v === "number" && isFinite(v);
     const meses = this.monthLookup();
+    const norm = (v: any) => String(v).toLowerCase().replace(/\.$/, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/^(de |d'|d\u2019)/, "").trim();
     let iAnio = -1, iMes = -1, iDia = -1;
+    // La jerarquía automática de Power BI nombra sus niveles en inglés en la consulta ("…Date Hierarchy.Month"),
+    // sea cual sea el idioma del modelo: es la pista más fiable. Si no está, se deduce por los valores.
     for (const i of idx) {
+      const q = String(cols[i].queryName ?? "");
+      if (/\.Year$/.test(q)) iAnio = i; else if (/\.Month$/.test(q)) iMes = i; else if (/\.Day$/.test(q)) iDia = i;
+    }
+    if (iMes >= 0) {
+      const raro = rows.slice(0, 200).map(r => r[iMes]).find(v => v !== null && v !== undefined && !(typeof v === "number" && v >= 1 && v <= 12) && !meses.has(norm(v)));
+      if (raro !== undefined) { this.dateHint = "hierarchy"; this.dateHintValue = String(raro); return rows; }
+    }
+    if (iAnio < 0 || iMes < 0 || iDia < 0) iAnio = iMes = iDia = -1;
+    for (const i of (iAnio < 0 ? idx : [])) {
       if (iAnio < 0 && todos(i, v => esNum(v) && v >= 1900 && v <= 2100)) iAnio = i;
-      else if (iMes < 0 && todos(i, v => meses.has(String(v).toLowerCase().replace(/\.$/, "")) || (esNum(v) && v >= 1 && v <= 12))) iMes = i;
+      else if (iMes < 0 && todos(i, v => meses.has(norm(v)) || (esNum(v) && v >= 1 && v <= 12))) iMes = i;
       else if (iDia < 0 && todos(i, v => esNum(v) && v >= 1 && v <= 31)) iDia = i;
     }
     if (iAnio < 0 || iMes < 0 || iDia < 0) {
@@ -1769,7 +1787,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     return rows.map(r => {
       const y = r[iAnio] as number, d = r[iDia] as number;
       const mv = r[iMes];
-      const m = esNum(mv) ? (mv as number) - 1 : meses.get(String(mv).toLowerCase().replace(/\.$/, ""));
+      const m = esNum(mv) ? (mv as number) - 1 : meses.get(norm(mv));
       const copia = r.slice();
       copia[destino] = (esNum(y) && esNum(d) && m !== undefined) ? new Date(y, m, d) : null;
       return copia;
@@ -1779,13 +1797,21 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   /** Nombres de mes (largos y cortos) en los idiomas del visual y en el del informe → número 0..11. */
   private monthLookup(): Map<string, number> {
     const mapa = new Map<string, number>();
-    const idiomas = [this.loc(), "en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-BR", "pt-PT", "nl-NL", "pl-PL", "ja-JP", "zh-CN", "ko-KR"];
+    // El mes llega como texto en el idioma del MODELO, que puede no ser ni el del informe ni uno de los del visual
+    // (catalán, sueco, turco…): se cubren muchos idiomas, y los nombres se comparan sin tildes ni mayúsculas.
+    const idiomas = [this.loc(), "en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-BR", "pt-PT", "nl-NL", "pl-PL", "ja-JP", "zh-CN", "ko-KR",
+      "ca-ES", "eu-ES", "gl-ES", "en-GB", "es-MX", "fr-CA", "de-AT", "de-CH", "it-CH", "sv-SE", "da-DK", "nb-NO", "nn-NO", "fi-FI",
+      "is-IS", "cs-CZ", "sk-SK", "hu-HU", "ro-RO", "bg-BG", "hr-HR", "sl-SI", "sr-Latn-RS", "sr-Cyrl-RS", "bs-BA", "el-GR", "tr-TR",
+      "ru-RU", "uk-UA", "be-BY", "lt-LT", "lv-LV", "et-EE", "he-IL", "ar-SA", "fa-IR", "hi-IN", "th-TH", "vi-VN", "id-ID", "ms-MY",
+      "fil-PH", "zh-TW", "zh-HK", "af-ZA", "sq-AL", "mk-MK", "ga-IE", "cy-GB", "mt-MT", "kk-KZ", "az-AZ", "ka-GE", "hy-AM"];
     for (const l of idiomas) {
       for (const formato of ["long", "short"] as const) {
         let f: Intl.DateTimeFormat;
         try { f = new Intl.DateTimeFormat(l, { month: formato }); } catch (_) { continue; }
         for (let m = 0; m < 12; m++) {
-          mapa.set(f.format(new Date(2024, m, 15)).toLowerCase().replace(/\.$/, ""), m);
+          const nombre = f.format(new Date(2024, m, 15)).toLowerCase().replace(/\.$/, "");
+          mapa.set(nombre, m);
+          mapa.set(nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/^(de |d'|d\u2019)/, "").trim(), m);
         }
       }
     }

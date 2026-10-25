@@ -77,6 +77,7 @@
   "Msg_DateHierarchy": "Conecte o campo Data como data, não como hierarquia de anos.",
   "Msg_DateHierarchyFix": "Mantenha o nível Dia no campo Date ou desative Arquivo → Opções → Arquivo atual → Carregamento de dados → Data/hora automática e adicione a data novamente.",
   "Msg_DateHierarchyHow": "Na área de campo, clique em ▼ ao lado do campo de data e selecione Data (não Hierarquia de Datas). Ou: Arquivo → Opções → Arquivo atual → Carregamento de dados → desmarque Data/hora automática.",
+  "Msg_DateMonthUnknown": "Mês não reconhecido: “{0}”. Use Date em vez de Date Hierarchy.",
   "Msg_Landing": "Adicione um campo de data e uma medida para ver o mapa de calor de calendário com eventos sobrepostos.",
   "Msg_NoData": "Nenhum dado recebido.",
   "Msg_NoDataHow": "Conecte uma coluna de data e uma medida principal a este visual.",

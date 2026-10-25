@@ -77,6 +77,7 @@
   "Msg_DateHierarchy": "Conecta el campo Fecha como fecha, no como jerarquía de años.",
   "Msg_DateHierarchyFix": "Deja el nivel Día en el campo Date, o desactiva Archivo → Opciones → Archivo actual → Carga de datos → Fecha y hora automáticas y vuelve a añadir la fecha.",
   "Msg_DateHierarchyHow": "En los campos del objeto visual, haz clic en ▼ junto al campo de fecha y selecciona Fecha (no Jerarquía de fechas). O bien: Archivo → Opciones → Archivo actual → Carga de datos → desactiva Fecha y hora automáticas.",
+  "Msg_DateMonthUnknown": "No se reconoce el mes: «{0}». Usa Date en lugar de Date Hierarchy.",
   "Msg_Landing": "Añade un campo de fecha y una medida para ver el mapa de calor de calendario con eventos superpuestos.",
   "Msg_NoData": "No se han recibido datos.",
   "Msg_NoDataHow": "Conecta una columna de fecha y una medida principal a este objeto visual.",

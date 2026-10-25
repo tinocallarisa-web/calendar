@@ -77,6 +77,7 @@
   "Msg_DateHierarchy": "Połącz pole Data jako datę, a nie jako hierarchię lat.",
   "Msg_DateHierarchyFix": "Zachowaj poziom Dzień w polu Date albo wyłącz Plik → Opcje → Bieżący plik → Ładowanie danych → Automatyczna data/godzina i dodaj datę ponownie.",
   "Msg_DateHierarchyHow": "W obszarze pól kliknij ▼ obok pola daty i wybierz Data (nie Hierarchia dat). Lub: Plik → Opcje → Bieżący plik → Ładowanie danych → wyczyść Automatyczna data/godzina.",
+  "Msg_DateMonthUnknown": "Nie rozpoznano miesiąca: „{0}”. Użyj Date zamiast Date Hierarchy.",
   "Msg_Landing": "Dodaj pole daty i miarę, aby zobaczyć kalendarzową mapę cieplną z nałożonymi zdarzeniami.",
   "Msg_NoData": "Nie otrzymano danych.",
   "Msg_NoDataHow": "Połącz kolumnę daty i miarę główną z tą wizualizacją.",

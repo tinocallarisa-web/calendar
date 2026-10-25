@@ -77,6 +77,7 @@
   "Msg_DateHierarchy": "Connect the Date field as a Date, not as a Year hierarchy.",
   "Msg_DateHierarchyFix": "Keep the Day level in the Date field, or switch off File → Options → Current file → Data Load → Auto date/time and add the date again.",
   "Msg_DateHierarchyHow": "In the Field Well, click the ▼ next to your date field and select Date (not Date Hierarchy). Or: File → Options → Current file → Data Load → uncheck Auto date/time.",
+  "Msg_DateMonthUnknown": "Month not recognised: \"{0}\". Use Date instead of Date Hierarchy.",
   "Msg_Landing": "Add a Date field and a Measure to see your calendar heatmap with event overlays.",
   "Msg_NoData": "No data received.",
   "Msg_NoDataHow": "Connect a Date column and a Main Measure to this visual.",

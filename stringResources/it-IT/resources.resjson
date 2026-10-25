@@ -77,6 +77,7 @@
   "Msg_DateHierarchy": "Collega il campo Data come data, non come gerarchia per anno.",
   "Msg_DateHierarchyFix": "Mantieni il livello Giorno nel campo Date, oppure disattiva File → Opzioni → File corrente → Caricamento dati → Data/ora automatica e aggiungi di nuovo la data.",
   "Msg_DateHierarchyHow": "Nelle aree dei campi, fai clic su ▼ accanto al campo data e seleziona Data (non Gerarchia date). Oppure: File → Opzioni → File corrente → Caricamento dati → deseleziona Data/ora automatica.",
+  "Msg_DateMonthUnknown": "Mese non riconosciuto: «{0}». Usa Date invece di Date Hierarchy.",
   "Msg_Landing": "Aggiungi un campo data e una misura per visualizzare la mappa termica del calendario con gli eventi sovrapposti.",
   "Msg_NoData": "Nessun dato ricevuto.",
   "Msg_NoDataHow": "Collega una colonna data e una misura principale a questo oggetto visivo.",

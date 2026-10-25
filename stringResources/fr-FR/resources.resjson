@@ -77,6 +77,7 @@
   "Msg_DateHierarchy": "Connectez le champ Date en tant que date, et non en tant que hiérarchie d'années.",
   "Msg_DateHierarchyFix": "Conservez le niveau Jour dans le champ Date, ou désactivez Fichier → Options → Fichier actif → Chargement des données → Date/heure automatique, puis ajoutez à nouveau la date.",
   "Msg_DateHierarchyHow": "Dans les zones de champ, cliquez sur ▼ à côté du champ de date et sélectionnez Date (et non Hiérarchie de dates). Ou : Fichier → Options → Fichier actif → Chargement des données → décochez Date/heure automatique.",
+  "Msg_DateMonthUnknown": "Mois non reconnu : « {0} ». Utilisez Date au lieu de Date Hierarchy.",
   "Msg_Landing": "Ajoutez un champ de date et une mesure pour afficher la carte thermique de calendrier avec les événements superposés.",
   "Msg_NoData": "Aucune donnée reçue.",
   "Msg_NoDataHow": "Connectez une colonne de date et une mesure principale à ce visuel.",

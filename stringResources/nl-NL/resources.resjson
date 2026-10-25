@@ -77,6 +77,7 @@
   "Msg_DateHierarchy": "Koppel het veld Datum als datum, niet als jaarhiërarchie.",
   "Msg_DateHierarchyFix": "Houd het niveau Dag in het veld Date, of schakel Bestand → Opties → Huidig bestand → Gegevens laden → Automatische datum/tijd uit en voeg de datum opnieuw toe.",
   "Msg_DateHierarchyHow": "Klik in het veldvak op ▼ naast het datumveld en selecteer Datum (niet Datumhiërarchie). Of: Bestand → Opties → Huidig bestand → Gegevens laden → schakel Automatische datum/tijd uit.",
+  "Msg_DateMonthUnknown": "Maand niet herkend: ‘{0}’. Gebruik Date in plaats van Date Hierarchy.",
   "Msg_Landing": "Voeg een datumveld en een meting toe om de kalenderheatmap met gebeurtenissen te zien.",
   "Msg_NoData": "Geen gegevens ontvangen.",
   "Msg_NoDataHow": "Koppel een datumkolom en een hoofdmeting aan deze visual.",
