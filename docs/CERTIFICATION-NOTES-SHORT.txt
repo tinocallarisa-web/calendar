@@ -1,4 +1,4 @@
-Calendar Events Heatmap 1.2.1.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
+Calendar Events Heatmap 1.2.1.1 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
 
 SOURCE CODE
 github.com/tinocallarisa-web/calendar, branch "certification".

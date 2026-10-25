@@ -1,14 +1,16 @@
-# Certification Notes — Calendar Events Heatmap v1.2.1.0
+# Certification Notes — Calendar Events Heatmap v1.2.1.1
 
 **Visual GUID:** `calendarTCViz022303184F264C8B9ACE6A13E838FFEB`  
 **Plan ID:** `calendar-tcviz`  
 **Publisher:** TCViz (support@tcviz.com)  
-**Version:** 1.2.1.0  
+**Version:** 1.2.1.1  
 **Submission date:** (fill on submission)
 
 ---
 
-## Release Notes — v1.2.1.0
+## Release Notes — v1.2.1.1
+
+- Fixed: a Pro setting left at its default value (a switch turned off again, a default size) counted as Pro and raised the watermark and the licence notice; only values different from the default count now.
 
 - Start screen of the TCViz series (steps, Pro features, links that open only on a click through `host.launchUrl`).
 - Setup guide: a "Try Pro" row (year view, week view, 3 months, measure selector). Each button persists one `calendar` or `state` property **only on a user click**; without a licence the feature renders under the "Pro preview" watermark, as in 1.2.0.0.

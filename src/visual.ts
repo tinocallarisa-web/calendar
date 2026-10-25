@@ -1599,10 +1599,17 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     if ((o.state?.activeMeasure ?? 0) > 0) w.push("measure switching");
     if (parseInt(String(o.calendar?.monthsToShow ?? "1"), 10) > 1) w.push("several months");
     if ((o.events?.maxEventsVisible ?? 1) > 1) w.push("more than one event per day");
-    if (o.events?.useGlobalColor !== undefined || o.events?.eventBgColor !== undefined ||
-        o.events?.eventFontColor !== undefined || o.events?.eventFontSize !== undefined) w.push("event styling");
-    if (o.labels) w.push("measure label styling");
-    if (o.navigation) w.push("view button colours");
+    // Solo cuenta un ajuste Pro con un valor distinto del de serie: tocarlo y dejarlo como estaba (un interruptor
+    // apagado, el mismo tamaño) también queda guardado en el informe, y antes encendía la vista previa y el aviso.
+    const distinto = (obj: string, defs: any, props?: string[]): boolean =>
+      Object.keys(o[obj] ?? {}).filter(p => !props || props.indexOf(p) >= 0).some(p => {
+        const v = o[obj][p];
+        const val = v?.solid?.color ?? v;
+        return val !== undefined && val !== null && String(val).toLowerCase() !== String(defs?.[p]).toLowerCase();
+      });
+    if (distinto("events", defaultSettings.events, ["useGlobalColor", "eventBgColor", "eventFontColor", "eventFontSize"])) w.push("event styling");
+    if (distinto("labels", defaultSettings.labels)) w.push("measure label styling");
+    if (distinto("navigation", defaultSettings.navigation)) w.push("view button colours");
     if (o.eventCategoryColors) w.push("event category colours");
     return w;
   }

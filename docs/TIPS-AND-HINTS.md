@@ -1,4 +1,4 @@
-# Calendar Events Heatmap — Tips & Hints (v1.2.1.0)
+# Calendar Events Heatmap — Tips & Hints (v1.2.1.1)
 
 Demo video: https://www.youtube.com/watch?v=CJ62plGb6QE  
 Same content as `TIPS-AND-HINTS-PLAIN.txt`, which is the one to paste into Power BI text boxes.
