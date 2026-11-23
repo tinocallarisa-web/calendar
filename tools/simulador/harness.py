@@ -50,7 +50,12 @@ def dataview(objects=None, eventos=True, formato="#,0", dinamico=None, guia=Fals
             e = EVENTOS.get(d)
             r += [e[0], e[1]] if e else [None, None]
         rows.append(r)
-    return {"metadata": {"objects": objects, "columns": cols},
+    cat = {"categories": [{"source": cols[0], "values": [r[0] for r in rows], "identity": [{"d": i} for i in range(len(rows))]}],
+           "values": [{"source": cols[1], "values": [r[1] for r in rows]}]}
+    if eventos:   # un día con dos eventos: dos filas en la tabla, una sola fecha en la vista categórica
+        extra = [date(2026, 3, 6).isoformat() + "T00:00:00", 0, "Radio spot", "Promotion"]
+        rows.append(extra)
+    return {"metadata": {"objects": objects, "columns": cols}, "categorical": cat,
             "table": {"columns": cols, "rows": rows, "identity": [{"k": i} for i in range(len(rows))]}}
 
 
@@ -185,6 +190,15 @@ async def main():
         await upd(pg, dataview({"totals": {"show": True}, "calendar": {"view": "week"}}))
         i = await info(pg)
         check("vista de semana: total de la semana", len(i["semanas"]) == 1 and "Week total" in i["semanas"][0], str(i["semanas"]))
+        await pg.close()
+
+        print("Ayudas de página")
+        pg = await page(b, dataview())
+        ids = await pg.evaluate("""() => { const r = {}; for (const k of ['2026-03-06', '2026-03-10']) {
+            const el = document.querySelector('[data-date="' + k + '"]'); el.dispatchEvent(new Event('mouseover'));
+            r[k] = (window.__tip && window.__tip.identities || []).map(i => i.key); } return r; }""")
+        check("día con dos eventos: una sola identidad (la de la fecha)", len(ids["2026-03-06"]) == 1 and ids["2026-03-06"][0].startswith("c"), str(ids))
+        check("día normal: una identidad", len(ids["2026-03-10"]) == 1, str(ids))
         await pg.close()
 
         print("Sin licencia")
