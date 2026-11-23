@@ -85,27 +85,6 @@
             }
           }
         }
-      },
-      "categorical": {
-        "categories": {
-          "for": {
-            "in": "date"
-          },
-          "dataReductionAlgorithm": {
-            "top": {
-              "count": 30000
-            }
-          }
-        },
-        "values": {
-          "select": [
-            {
-              "for": {
-                "in": "mainMeasure"
-              }
-            }
-          ]
-        }
       }
     }
   ],

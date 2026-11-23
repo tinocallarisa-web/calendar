@@ -99,10 +99,6 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   /** Categorías ocultas desde la leyenda (1.2.0.0). Solo afectan a las marcas: el valor del día no cambia. */
   private hiddenCategories = new Set<string>();
   private allEvents: CalendarEvent[] = [];
-  /** Identidad de cada día solo por la fecha (vista categórica, 1.3.0.0), para las ayudas de página del informe.
-   *  Las filas de la tabla llevan fecha + evento + categoría + festivo: un día con eventos tiene varias, y Power BI no
-   *  abre una ayuda de página con varias identidades (lección de ChipSlicer Hierarchy 1.4). */
-  private tipIds = new Map<string, powerbi.visuals.ISelectionId>();
   private viewport: { width: number; height: number } = { width: 400, height: 300 };
 
   // ── Accessibility state ──
@@ -581,7 +577,6 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     dayMap.forEach(day => {
       day.heatmapColor = this.heatmapColor(day.measureValue, minVal, maxVal);
     });
-    this.leerIdentidadesTooltip(dataView);
 
     return Array.from(dayMap.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
   }
@@ -1578,8 +1573,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         const rect = (el as HTMLElement).getBoundingClientRect();
         self.host.tooltipService.show({
           dataItems: items as any,
-          // Una sola identidad, la del día: con varias (un día con eventos) Power BI no abre la ayuda de página.
-          identities: self.tipIds.has(key) ? [self.tipIds.get(key)!] : (day.selectionIds.length === 1 ? day.selectionIds : []),
+          // Una sola identidad: con varias (un día con eventos tiene una fila por evento) Power BI no abre la ayuda de
+          // página. Va la primera fila del día. Pedir una vista agrupada solo por fecha daría la identidad limpia, pero
+          // Power BI agrupa entonces toda la consulta por fecha y la tabla llega sin eventos (probado 23-11-2026).
+          identities: day.selectionIds.slice(0, 1),
           coordinates: [rect.left + rect.width / 2, rect.top],
           isTouchEvent: false,
         });
@@ -1597,34 +1594,6 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         self.host.tooltipService.hide({ immediately: true, isTouchEvent: false });
       });
     });
-  }
-
-  /** Una identidad por día desde la vista categórica (categorías = el pozo Date, también con jerarquía de fechas). */
-  private leerIdentidadesTooltip(dataView: powerbi.DataView): void {
-    this.tipIds = new Map();
-    const cats = dataView.categorical?.categories ?? [];
-    if (!cats.length) return;
-    const ultima = cats[cats.length - 1];
-    const n = ultima.values?.length ?? 0;
-    let fechas: powerbi.PrimitiveValue[];
-    if (cats.length === 1) {
-      fechas = ultima.values as powerbi.PrimitiveValue[];
-    } else {
-      // Jerarquía (Year, Quarter, Month, Day): se reconstruye como en la tabla.
-      const filas: powerbi.PrimitiveValue[][] = [];
-      for (let i = 0; i < n; i++) filas.push(cats.map(c => c.values[i]));
-      const t: any = { columns: cats.map(c => c.source), rows: filas };
-      const aviso = [this.dateHint, this.dateHintValue];   // el aviso de fecha lo decide la tabla, no esta vista
-      fechas = this.rebuildDateHierarchy(t, t.columns).map(r => r[0]);
-      [this.dateHint, this.dateHintValue] = aviso;
-    }
-    for (let i = 0; i < n; i++) {
-      const d = this.parseDate(fechas[i]);
-      if (!d) continue;
-      try {
-        this.tipIds.set(this.dateKey(d), this.host.createSelectionIdBuilder().withCategory(ultima, i).createSelectionId());
-      } catch (_) { /* sin identidad: la ayuda sale sin página */ }
-    }
   }
 
   // ─── License ───────────────────────────────────────────────────────────────
