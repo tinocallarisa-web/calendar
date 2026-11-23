@@ -1548,11 +1548,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const dayMap = new Map(this.calendarData.map(d => [this.dateKey(d.date), d]));
     const self = this;
 
-    wrapper.querySelectorAll("[data-date][data-has-data='1']").forEach(el => {
-      el.addEventListener("mouseover", function() {
-        const key = (el as HTMLElement).dataset.date!;
-        const day = dayMap.get(key);
-        if (!day) return;
+    // mouseenter/mouseleave, no mouseover/mouseout: estos burbujean desde los hijos de la celda (número, puntos de evento)
+    // y cada paso por un hijo hacía hide + show; con una página de tooltip, Power BI la recargaba y parpadeaba (Tino,
+    // 23-11-2026). Ahora se muestra una vez al entrar, se mueve con el ratón y se oculta al salir de la celda.
+    const datosTip = (el: HTMLElement) => {
+      const day = dayMap.get(el.dataset.date!);
+      if (!day) return null;
 
         const items: powerbi.extensibility.VisualTooltipDataItem[] = [
           {
@@ -1573,25 +1574,30 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           items.push({ displayName: meta.name, value: self.formatSecondary(i, day.secondaryValues[i]) });
         });
 
-        const rect = (el as HTMLElement).getBoundingClientRect();
-        self.host.tooltipService.show({
-          dataItems: items as any,
-          // Una sola identidad: con varias (un día con eventos tiene una fila por evento) Power BI no abre la ayuda de
-          // página. Va la primera fila del día. Pedir una vista agrupada solo por fecha daría la identidad limpia, pero
-          // Power BI agrupa entonces toda la consulta por fecha y la tabla llega sin eventos (probado 23-11-2026).
-          identities: day.selectionIds.slice(0, 1),
-          coordinates: [rect.left + rect.width / 2, rect.top],
-          isTouchEvent: false,
-        });
-      });
+        // Una sola identidad: es la del día (matriz → tabla), y con varias Power BI no abre la ayuda de página.
+        return { dataItems: items as any, identities: day.selectionIds.slice(0, 1), isTouchEvent: false };
+    };
 
-      el.addEventListener("mouseout", function() {
+    wrapper.querySelectorAll("[data-date][data-has-data='1']").forEach(node => {
+      const el = node as HTMLElement;
+      el.addEventListener("mouseenter", function(e: MouseEvent) {
+        const d = datosTip(el);
+        if (d) self.host.tooltipService.show({ ...d, coordinates: [e.clientX, e.clientY] });
+      });
+      el.addEventListener("mousemove", function(e: MouseEvent) {
+        const d = datosTip(el);
+        if (d) self.host.tooltipService.move({ ...d, coordinates: [e.clientX, e.clientY] });
+      });
+      el.addEventListener("mouseleave", function() {
         self.host.tooltipService.hide({ immediately: false, isTouchEvent: false });
       });
 
       // Keyboard users get the same tooltip when the cell receives focus
       el.addEventListener("focus", function() {
-        (el as HTMLElement).dispatchEvent(new Event("mouseover"));
+        const d = datosTip(el);
+        if (!d) return;
+        const rect = el.getBoundingClientRect();
+        self.host.tooltipService.show({ ...d, coordinates: [rect.left + rect.width / 2, rect.top] });
       });
       el.addEventListener("blur", function() {
         self.host.tooltipService.hide({ immediately: true, isTouchEvent: false });

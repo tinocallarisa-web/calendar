@@ -110,7 +110,7 @@ window.powerbi = { visuals: { plugins: {} }, extensibility: {} };
   createSelectionIdBuilder(){ const k=[]; const b = { withTable(t,i){ k.push('r'+i); return b; }, withMatrixNode(n){ k.push('m'+n.value); return b; }, withCategory(c,i){ k.push('c'+i); return b; }, withSeries(){ return b; },
      withMeasure(){ return b; }, createSelectionId(){ const key=k.join('|'); return { key, getKey(){return key;}, getSelector(){ return {data:[key]}; }, equals(o){return o&&o.key===key;}, includes(){return false;} }; } }; return b; },
   createLocalizationManager(){ return { getDisplayName(k){ return k; } }; },
-  tooltipService: { enabled(){ return true; }, show(o){ window.__tip = o; }, move(){}, hide(){} },
+  tooltipService: { enabled(){ return true; }, show(o){ window.__tip = o; window.__nTip = (window.__nTip||0)+1; }, move(o){ window.__tip = o; }, hide(){ window.__nHide = (window.__nHide||0)+1; } },
   subSelectionService: { subSelect(){}, updateRegionOutlines(){} },
   hostCapabilities: { allowInteractions: true }, locale: window.__locale || 'en-US',
   colorPalette: { isHighContrast: !!window.__hc, foreground:{value: window.__hc ? '#FFFF00' : '#252423'}, background:{value: window.__hc ? '#000000' : '#FFFFFF'},
@@ -233,10 +233,16 @@ async def main():
         print("Ayudas de página")
         pg = await page(b, dataview())
         ids = await pg.evaluate("""() => { const r = {}; for (const k of ['2026-03-06', '2026-03-10']) {
-            const el = document.querySelector('[data-date="' + k + '"]'); el.dispatchEvent(new Event('mouseover'));
+            const el = document.querySelector('[data-date="' + k + '"]'); el.dispatchEvent(new MouseEvent('mouseenter'));
             r[k] = (window.__tip && window.__tip.identities || []).map(i => i.key); } return r; }""")
         check("día con dos eventos: una sola identidad", len(ids["2026-03-06"]) == 1, str(ids))
         check("día normal: una identidad", len(ids["2026-03-10"]) == 1, str(ids))
+        await pg.evaluate("() => { window.__nTip = 0; window.__nHide = 0; }")
+        box = await pg.locator('[data-date="2026-03-06"]').bounding_box()
+        for k in range(12):
+            await pg.mouse.move(box["x"] + 3 + k * (box["width"] - 6) / 11, box["y"] + 3 + k * (box["height"] - 6) / 11)
+        n = await pg.evaluate("() => [window.__nTip, window.__nHide]")
+        check("sin parpadeo: recorrer la celda (pasando por número y eventos) abre la ayuda una vez y no la cierra", n == [1, 0], str(n))
         await pg.click('[data-date="2026-03-06"]')
         await pg.wait_for_timeout(100)
         sel = await pg.evaluate("() => (window.__sel || []).map(i => i.key)")
@@ -247,7 +253,7 @@ async def main():
 
         pg = await page(b, dataview_jerarquia(), name="17_jerarquia")
         r = await pg.evaluate("""() => { const el = document.querySelector('[data-date="2026-03-06"]'); if (!el) return null;
-            el.dispatchEvent(new Event('mouseover')); return { id: (window.__tip.identities || []).map(i => i.key), dias: document.querySelectorAll('[data-date][data-has-data="1"]').length }; }""")
+            el.dispatchEvent(new MouseEvent('mouseenter')); return { id: (window.__tip.identities || []).map(i => i.key), dias: document.querySelectorAll('[data-date][data-has-data="1"]').length }; }""")
         check("jerarquía: el 6 de marzo lleva año, mes y día en su identidad", r and r["id"] == ["m2026|mMarch|m6"], str(r))
         check("jerarquía: marzo pintado con datos", r and r["dias"] >= 31, str(r))
         await eventos(pg, "jerarquía")
