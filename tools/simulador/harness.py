@@ -55,8 +55,25 @@ def dataview(objects=None, eventos=True, formato="#,0", dinamico=None, guia=Fals
     if eventos:   # un día con dos eventos: dos filas en la tabla, una sola fecha en la vista categórica
         extra = [date(2026, 3, 6).isoformat() + "T00:00:00", 0, "Radio spot", "Promotion"]
         rows.append(extra)
+    # Matriz como la manda Power BI desde 1.3: filas = fecha → evento → categoría; valores = la medida.
+    niveles = [{"sources": [c]} for c in cols if not c.get("isMeasure")]
+    medidas = [c for c in cols if c.get("isMeasure")]
+    raiz = {"children": []}
+    por_dia = {}
+    for r in rows:
+        f, v = r[0], r[1]
+        nd = por_dia.get(f)
+        if nd is None:
+            nd = {"value": f, "level": 0, "identity": {"d": f}, "children": []}
+            por_dia[f] = nd; raiz["children"].append(nd)
+        if eventos:
+            ev = {"value": r[2], "level": 1, "identity": {"e": r[2]}, "children": [
+                  {"value": r[3], "level": 2, "identity": {"c": r[3]}, "values": {"0": {"value": v}}}]}
+            nd["children"].append(ev)
+        else:
+            nd["values"] = {"0": {"value": v}}
     return {"metadata": {"objects": objects, "columns": cols},
-            "table": {"columns": cols, "rows": rows, "identity": [{"k": i} for i in range(len(rows))]}}
+            "matrix": {"rows": {"levels": niveles, "root": raiz}, "columns": {"levels": [], "root": {}}, "valueSources": medidas}}
 
 
 STUB = r"""
@@ -66,10 +83,10 @@ window.powerbi = { visuals: { plugins: {} }, extensibility: {} };
  let sel = [];
  window.__host = {
   eventService: { renderingStarted(){ __ev.push('S'); }, renderingFinished(){ __ev.push('F'); }, renderingFailed(o,m){ __ev.push('X'); console.error('FAILED', m); } },
-  createSelectionManager(){ return { select(id, multi){ const a = Array.isArray(id) ? id : [id]; sel = multi ? sel.concat(a) : a; return Promise.resolve(sel); },
+  createSelectionManager(){ return { select(id, multi){ const a = Array.isArray(id) ? id : [id]; sel = multi ? sel.concat(a) : a; window.__sel = sel; return Promise.resolve(sel); },
      clear(){ sel = []; return Promise.resolve(); }, getSelectionIds(){ return sel; },
      hasSelection(){ return sel.length > 0; }, registerOnSelectCallback(){}, showContextMenu(){ return Promise.resolve(); } }; },
-  createSelectionIdBuilder(){ const k=[]; const b = { withTable(t,i){ k.push('r'+i); return b; }, withCategory(c,i){ k.push('c'+i); return b; }, withSeries(){ return b; },
+  createSelectionIdBuilder(){ const k=[]; const b = { withTable(t,i){ k.push('r'+i); return b; }, withMatrixNode(n){ k.push('m'+n.value); return b; }, withCategory(c,i){ k.push('c'+i); return b; }, withSeries(){ return b; },
      withMeasure(){ return b; }, createSelectionId(){ const key=k.join('|'); return { key, getKey(){return key;}, getSelector(){ return {data:[key]}; }, equals(o){return o&&o.key===key;}, includes(){return false;} }; } }; return b; },
   createLocalizationManager(){ return { getDisplayName(k){ return k; } }; },
   tooltipService: { enabled(){ return true; }, show(o){ window.__tip = o; }, move(){}, hide(){} },
@@ -199,6 +216,10 @@ async def main():
             r[k] = (window.__tip && window.__tip.identities || []).map(i => i.key); } return r; }""")
         check("día con dos eventos: una sola identidad", len(ids["2026-03-06"]) == 1, str(ids))
         check("día normal: una identidad", len(ids["2026-03-10"]) == 1, str(ids))
+        await pg.click('[data-date="2026-03-06"]')
+        await pg.wait_for_timeout(100)
+        sel = await pg.evaluate("() => (window.__sel || []).map(i => i.key)")
+        check("clic en un día con eventos: filtra con la identidad de la fecha (una)", sel == ["m2026-03-06T00:00:00"], str(sel))
         marcas = await pg.evaluate("() => document.querySelectorAll('[data-date=\"2026-03-06\"] span').length")
         check("los eventos siguen en el calendario (marca el 6 de marzo; misma categoría = una franja)", marcas >= 1, str(marcas))
         await pg.close()

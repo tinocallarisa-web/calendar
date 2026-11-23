@@ -243,7 +243,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
     try {
       this.readHighContrast();
-      const dataView = options.dataViews?.[0];
+      // Desde 1.3.0.0 los datos llegan como matriz (fecha → evento → categoría → festivo) y se pasan a la tabla de siempre.
+      const dataView = this.matrizATabla(options.dataViews?.[0]);
 
       // Landing page — no data yet
       if (!dataView?.table) {
@@ -473,7 +474,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           : null;
 
         if (!dayMap.has(key)) {
-          const selId = this.host.createSelectionIdBuilder()
+          const selId = (table as any).__ids?.[r] ?? this.host.createSelectionIdBuilder()
             .withTable(table, r)
             .createSelectionId();
 
@@ -504,7 +505,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           const n = nFilas.get(key)!;
           const p0 = primeros.get(key)!;
           hayVarias = true;
-          existing.selectionIds.push(this.host.createSelectionIdBuilder().withTable(table, r).createSelectionId());
+          const otra = (table as any).__ids?.[r] ?? this.host.createSelectionIdBuilder().withTable(table, r).createSelectionId();
+          // Con la matriz todas las filas del día comparten la identidad de la fecha: no se repite.
+          if (!existing.selectionIds.some(x => x === otra || !!(x as any).equals?.(otra))) existing.selectionIds.push(otra);
           if (rowMeasure !== null) {
             if (p0[0] !== null && rowMeasure !== p0[0]) repetido[0] = false;
             existing.measureValue = junta(existing.measureValue, rowMeasure);
@@ -1594,6 +1597,56 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         self.host.tooltipService.hide({ immediately: true, isTouchEvent: false });
       });
     });
+  }
+
+  /**
+   * Matriz → tabla (1.3.0.0). Con la tabla, cada fila se identificaba por fecha + evento + categoría + festivo: un día con
+   * eventos tenía varias identidades y la ayuda de página del informe no salía, o salía filtrada a un evento (Tino,
+   * 23-11-2026, con los eventos en otra tabla). En la matriz el nodo de la fecha tiene identidad propia, solo la fecha: es
+   * la que llevan todas las filas del día, para filtrar, para los marcadores y para la ayuda de página. Las filas (una por
+   * hoja) y las columnas son las mismas que daba la tabla, así que el resto del visual no cambia.
+   */
+  private matrizATabla(dv: powerbi.DataView | undefined): powerbi.DataView | undefined {
+    if (!dv || dv.table || !dv.matrix?.rows?.root) return dv;
+    const mx = dv.matrix;
+    const niveles = mx.rows.levels ?? [];
+    const fuentesNivel = niveles.map(l => l.sources?.[0]).filter(Boolean) as powerbi.DataViewMetadataColumn[];
+    const medidas = (mx.valueSources ?? []) as powerbi.DataViewMetadataColumn[];
+    // Último nivel de fecha (con jerarquía de fechas, Day): su nodo es el día.
+    let nivelDia = -1;
+    fuentesNivel.forEach((c, i) => { if ((c.roles ?? {})["date"]) nivelDia = i; });
+    const filas: powerbi.PrimitiveValue[][] = [];
+    const ids: powerbi.visuals.ISelectionId[] = [];
+    const idDe = new Map<any, powerbi.visuals.ISelectionId>();
+    const recorrer = (nodo: powerbi.DataViewMatrixNode, prof: number, ruta: powerbi.PrimitiveValue[], dia: powerbi.DataViewMatrixNode | null) => {
+      const hijos = (nodo.children ?? []).filter(h => !h.isSubtotal);
+      if (prof >= 0) {
+        ruta = ruta.concat([nodo.value as powerbi.PrimitiveValue]);
+        if (prof === nivelDia) dia = nodo;
+      }
+      if (hijos.length && prof < niveles.length - 1) {
+        hijos.forEach(h => recorrer(h, prof + 1, ruta, dia));
+        return;
+      }
+      if (prof < 0) return;
+      while (ruta.length < fuentesNivel.length) ruta.push(null);
+      const vals = medidas.map((_m, i) => {
+        const v = (nodo.values as any)?.[i]?.value;
+        return v === undefined ? null : v;
+      });
+      filas.push(ruta.concat(vals));
+      const base = dia ?? nodo;
+      let id = idDe.get(base);
+      if (!id) {
+        try { id = this.host.createSelectionIdBuilder().withMatrixNode(base, niveles).createSelectionId(); } catch (_) { id = undefined; }
+        if (id) idDe.set(base, id);
+      }
+      ids.push(id as powerbi.visuals.ISelectionId);
+    };
+    recorrer(mx.rows.root, -1, [], null);
+    const columnas = fuentesNivel.concat(medidas);
+    const table: any = { columns: columnas, rows: filas, __ids: ids };
+    return { ...dv, metadata: { ...dv.metadata, columns: dv.metadata?.columns ?? columnas }, table } as powerbi.DataView;
   }
 
   // ─── License ───────────────────────────────────────────────────────────────

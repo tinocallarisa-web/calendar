@@ -45,22 +45,12 @@
   ],
   "dataViewMappings": [
     {
-      "table": {
+      "matrix": {
         "rows": {
           "select": [
             {
               "for": {
                 "in": "date"
-              }
-            },
-            {
-              "for": {
-                "in": "mainMeasure"
-              }
-            },
-            {
-              "for": {
-                "in": "secondaryMeasures"
               }
             },
             {
@@ -84,6 +74,20 @@
               "count": 30000
             }
           }
+        },
+        "values": {
+          "select": [
+            {
+              "for": {
+                "in": "mainMeasure"
+              }
+            },
+            {
+              "for": {
+                "in": "secondaryMeasures"
+              }
+            }
+          ]
         }
       }
     }
