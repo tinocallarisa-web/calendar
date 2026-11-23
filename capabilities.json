@@ -99,6 +99,11 @@
           "type": {
             "enumeration": [
               {
+                "value": "report",
+                "displayName": "Report theme",
+                "displayNameKey": "Visual_Style_Template_Report"
+              },
+              {
                 "value": "classic",
                 "displayName": "Classic",
                 "displayNameKey": "Visual_Style_Template_Classic"
@@ -122,6 +127,36 @@
                 "value": "tcviz",
                 "displayName": "TCViz",
                 "displayNameKey": "Visual_Style_Template_Tcviz"
+              },
+              {
+                "value": "boardroom",
+                "displayName": "Boardroom [Pro]",
+                "displayNameKey": "Visual_Style_Template_Boardroom"
+              },
+              {
+                "value": "ledger",
+                "displayName": "Ledger [Pro]",
+                "displayNameKey": "Visual_Style_Template_Ledger"
+              },
+              {
+                "value": "editorial",
+                "displayName": "Editorial [Pro]",
+                "displayNameKey": "Visual_Style_Template_Editorial"
+              },
+              {
+                "value": "signal",
+                "displayName": "Signal [Pro]",
+                "displayNameKey": "Visual_Style_Template_Signal"
+              },
+              {
+                "value": "aurora",
+                "displayName": "Aurora [Pro]",
+                "displayNameKey": "Visual_Style_Template_Aurora"
+              },
+              {
+                "value": "terrace",
+                "displayName": "Terrace [Pro]",
+                "displayNameKey": "Visual_Style_Template_Terrace"
               }
             ]
           }
@@ -842,6 +877,37 @@
         }
       }
     },
+    "totals": {
+      "displayName": "Totals [Pro]",
+      "displayNameKey": "Visual_Totals",
+      "properties": {
+        "show": {
+          "displayName": "Week and month totals",
+          "displayNameKey": "Visual_Totals_Show",
+          "type": {
+            "bool": true
+          }
+        },
+        "mode": {
+          "displayName": "Total as",
+          "displayNameKey": "Visual_Totals_Mode",
+          "type": {
+            "enumeration": [
+              {
+                "value": "sum",
+                "displayName": "Sum",
+                "displayNameKey": "Visual_Totals_Mode_Sum"
+              },
+              {
+                "value": "avg",
+                "displayName": "Daily average",
+                "displayNameKey": "Visual_Totals_Mode_Avg"
+              }
+            ]
+          }
+        }
+      }
+    },
     "eventCategoryColors": {
       "displayName": "Event Category Colors [Pro]",
       "displayNameKey": "Visual_EventCategoryColors",
@@ -952,6 +1018,66 @@
           "displayNameKey": "Visual_State_HiddenCategories",
           "type": {
             "text": true
+          }
+        }
+      }
+    },
+    "accessibility": {
+      "displayName": "Accessibility",
+      "displayNameKey": "Visual_Accessibility",
+      "properties": {
+        "highContrast": {
+          "displayName": "High contrast",
+          "displayNameKey": "Visual_Accessibility_HighContrast",
+          "type": {
+            "enumeration": [
+              {
+                "value": "auto",
+                "displayName": "Auto (follow Windows)",
+                "displayNameKey": "Visual_Accessibility_HighContrast_Auto"
+              },
+              {
+                "value": "on",
+                "displayName": "On",
+                "displayNameKey": "Visual_Accessibility_HighContrast_On"
+              }
+            ]
+          }
+        },
+        "focusColor": {
+          "displayName": "Focus outline color",
+          "displayNameKey": "Visual_Accessibility_FocusColor",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "focusWidth": {
+          "displayName": "Focus outline width",
+          "displayNameKey": "Visual_Accessibility_FocusWidth",
+          "type": {
+            "integer": true
+          }
+        },
+        "minTextSize": {
+          "displayName": "Minimum text size",
+          "displayNameKey": "Visual_Accessibility_MinTextSize",
+          "type": {
+            "integer": true
+          }
+        }
+      }
+    },
+    "general": {
+      "properties": {
+        "formatString": {
+          "type": {
+            "formatting": {
+              "formatString": true
+            }
           }
         }
       }

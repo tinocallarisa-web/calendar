@@ -16,6 +16,13 @@ export function matchesPlan(spIdentifier: unknown, planId: string): boolean {
 
 /** Paletas de tres puntos (bajo, medio, alto). "custom" usa los colores mínimo y máximo del panel. */
 export const SCHEMES: Record<string, [string, string, string]> = {
+  // Escalas de los estilos de la colección (1.3.0.0): de casi fondo a color pleno del estilo.
+  boardroom: ["#22385A", "#7E8FA8", "#C9A45C"],
+  ledger: ["#F3EEDF", "#C9A47A", "#7A1F1F"],
+  editorial: ["#F4F4F4", "#9E9E9E", "#111111"],
+  signal: ["#EEF3F8", "#7FA6CC", "#1F4E80"],
+  aurora: ["#1A4570", "#3FA6A0", "#7CE7D0"],
+  terrace: ["#F3E9DA", "#D39A6A", "#B5532A"],
   blues: ["#F7FBFF", "#6BAED6", "#08306B"],
   greens: ["#F7FCF5", "#74C476", "#00441B"],
   purples: ["#FCFBFD", "#9E9AC8", "#3F007D"],
@@ -47,6 +54,41 @@ export const TEMPLATES: Record<string, [string, string, unknown][]> = {
   tcviz: [["heatmap", "scheme", "tcviz"], ["heatmap", "colorNull", "#F4F7FB"], ["layout", "cellRadius", 6], ["layout", "cellGap", 3],
           ["dayNumber", "color", "#1F4E80"], ["dayNumber", "weekendColor", "#3E9C5B"], ["dayNumber", "holidayColor", "#3E9C5B"],
           ["navigation", "activeColor", "#2B6CB0"], ["navigation", "textColor", "#1F4E80"]],
+  // Report theme (1.3.0.0, gratis): la escala y los colores salen del tema del informe (visual.ts, temaInforme()).
+  report: [],
+  // Colección TCViz (1.3.0.0, Pro).
+  boardroom: estilo("boardroom", "#16263D", "#F2F0E8", "#9FB0C6", "#C9A45C", "#C9A45C"),
+  ledger: estilo("ledger", "#F3EEDF", "#231F16", "#6E6652", "#7A1F1F", "#7A1F1F"),
+  editorial: estilo("editorial", "#F4F4F4", "#111111", "#5F5F5F", "#D7263D", "#D7263D"),
+  signal: estilo("signal", "#F2F4F7", "#14202B", "#566472", "#1F4E80", "#1F7A4D"),
+  aurora: estilo("aurora", "#1A4570", "#FFFFFF", "#C5D3E3", "#7CE7D0", "#FFD27D"),
+  terrace: estilo("terrace", "#F3E9DA", "#3A2A1E", "#7A6450", "#B5532A", "#5E7128"),
+};
+
+function estilo(scheme: string, nulo: string, texto: string, gris: string, acento: string, festivo: string): [string, string, unknown][] {
+  return [["heatmap", "scheme", scheme], ["heatmap", "colorNull", nulo], ["layout", "cellRadius", 4], ["layout", "cellGap", 2],
+          ["dayNumber", "color", texto], ["dayNumber", "weekendColor", gris], ["dayNumber", "holidayColor", festivo],
+          ["labels", "color", texto], ["legend", "color", gris],
+          ["navigation", "activeColor", acento], ["navigation", "textColor", texto]];
+}
+
+/** Estilos de la colección TCViz (1.3.0.0, Pro): los seis de toda la cartera. */
+export const PRO_STYLES = ["boardroom", "ledger", "editorial", "signal", "aurora", "terrace"];
+
+/**
+ * Lo que una plantilla no puede decir con propiedades del panel: fondo, texto, gris secundario, días vacíos y tipo de letra.
+ * Classic y las plantillas gratis de la 1.2 conservan los neutros de siempre (los informes publicados no cambian).
+ */
+export interface StyleTokens { bg: string; grad?: string; text: string; muted: string; empty: string; line: string; font?: string; dark?: boolean; }
+export const NEUTRAL_TOKENS: StyleTokens = { bg: "transparent", text: "#3D3929", muted: "#83827D", empty: "#F5F3ED", line: "#DAD9D4" };
+export const STYLE_TOKENS: Record<string, StyleTokens> = {
+  boardroom: { bg: "#16263D", text: "#F2F0E8", muted: "#9FB0C6", empty: "#1E3150", line: "#3A5070", dark: true },
+  ledger: { bg: "#FBF8EF", text: "#231F16", muted: "#6E6652", empty: "#F3EEDF", line: "#D8CFB8", font: "Georgia, serif" },
+  editorial: { bg: "#FFFFFF", text: "#111111", muted: "#5F5F5F", empty: "#F4F4F4", line: "#D0D0D0", font: "Georgia, serif" },
+  signal: { bg: "#FFFFFF", text: "#14202B", muted: "#566472", empty: "#F2F4F7", line: "#D5DCE4" },
+  aurora: { bg: "#10395E", grad: "linear-gradient(135deg, #1B1147, #10395E 50%, #0B5A5E)", text: "#FFFFFF", muted: "#C5D3E3",
+            empty: "#1A4570", line: "#2F6390", dark: true },
+  terrace: { bg: "#FBF5EC", text: "#3A2A1E", muted: "#7A6450", empty: "#F3E9DA", line: "#E0D0BA" },
 };
 
 /**
@@ -64,6 +106,10 @@ export const EVENT_PALETTES: Record<string, string[]> = {
 
 export interface CalendarSettings {
   style: { template: string; guide: boolean };
+  /** Totales por semana y por mes (1.3.0.0, Pro). */
+  totals: { show: boolean; mode: "sum" | "avg" };
+  /** Accesibilidad (1.3.0.0, gratis): tarjeta común de la cartera. */
+  accessibility: { highContrast: "auto" | "on"; focusColor: string; focusWidth: number; minTextSize: number };
   layout: { cellRadius: number; cellGap: number };
   calendar: {
     view: "year" | "month" | "week";
@@ -127,6 +173,8 @@ export interface CalendarSettings {
 
 export const defaultSettings: CalendarSettings = {
   style: { template: "classic", guide: true },
+  totals: { show: false, mode: "sum" },
+  accessibility: { highContrast: "auto", focusColor: "#3D3929", focusWidth: 2, minTextSize: 8 },
   layout: { cellRadius: 4, cellGap: 2 },
   calendar: {
     view: "month",
@@ -191,6 +239,8 @@ export const defaultSettings: CalendarSettings = {
 export function freeSettings(s: CalendarSettings): CalendarSettings {
   return {
     ...s,
+    style: { ...s.style, template: PRO_STYLES.indexOf(s.style.template) >= 0 ? "classic" : s.style.template },
+    totals: { ...s.totals, show: false },
     calendar: { ...s.calendar, view: "month", monthsToShow: 1 },
     labels: { ...defaultSettings.labels },
     navigation: { ...defaultSettings.navigation },
@@ -213,6 +263,16 @@ export function parseSettings(dataView: powerbi.DataView): CalendarSettings {
     style: {
       template: (obj["style"]?.["template"] as string) ?? defaultSettings.style.template,
       guide: (obj["style"]?.["guide"] as boolean) ?? defaultSettings.style.guide,
+    },
+    totals: {
+      show: (obj["totals"]?.["show"] as boolean) ?? defaultSettings.totals.show,
+      mode: ((obj["totals"]?.["mode"] as string) ?? defaultSettings.totals.mode) as "sum" | "avg",
+    },
+    accessibility: {
+      highContrast: ((obj["accessibility"]?.["highContrast"] as string) ?? defaultSettings.accessibility.highContrast) as "auto" | "on",
+      focusColor: (obj["accessibility"]?.["focusColor"] as any)?.solid?.color ?? defaultSettings.accessibility.focusColor,
+      focusWidth: (obj["accessibility"]?.["focusWidth"] as number) ?? defaultSettings.accessibility.focusWidth,
+      minTextSize: (obj["accessibility"]?.["minTextSize"] as number) ?? defaultSettings.accessibility.minTextSize,
     },
     layout: {
       cellRadius: (obj["layout"]?.["cellRadius"] as number) ?? defaultSettings.layout.cellRadius,

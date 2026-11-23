@@ -5,7 +5,9 @@ import {
   HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute,
   SubSelectableObjectNameAttribute, SubSelectableTypeAttribute,
 } from "powerbi-visuals-utils-onobjectutils";
-import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES, EVENT_PALETTES } from "./settings";
+import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES, EVENT_PALETTES,
+  PRO_STYLES, STYLE_TOKENS, NEUTRAL_TOKENS, StyleTokens } from "./settings";
+import { createProWatermark, renderProWatermark } from "./comun/watermark";
 import { PANEL, PanelProp } from "./panel";
 import { STRINGS } from "./strings";
 import { LANDING_ICON } from "./landingIcon";
@@ -74,7 +76,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   /** Modo edición (ViewMode != 0). Se guarda para poder recalcular la vista previa
       cuando la licencia responde, que ocurre después del primer pintado. */
   private editing: boolean = false;
-  private watermarkEl: HTMLDivElement;
+  /** Marca de agua común de la cartera (utillaje/comun, 1.3.0.0). */
+  private wm: HTMLDivElement;
+  /** Fondo, texto, gris y días vacíos del estilo en uso (1.3.0.0). Classic y las plantillas gratis: los neutros de siempre. */
+  private tk: StyleTokens = NEUTRAL_TOKENS;
+  /** Escala del texto con el tamaño del visual (1.3.0.0, norma de la cartera): 0,6 a 1. */
+  private escala = 1;
 
   /** Lo que se pinta: en Free, las opciones Pro vuelven a su valor por defecto. */
   private settings: CalendarSettings = defaultSettings;
@@ -171,18 +178,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       box-sizing: border-box;
       position: relative;
     `;
-    // Marca de agua de la vista previa Pro. Blanca con contorno oscuro y opacidad 0.55:
-    // un gris translúcido desaparece sobre celdas saturadas y fondos oscuros. No intercepta
-    // clics ni entra en el recorrido del lector de pantalla.
-    this.watermarkEl = document.createElement("div");
-    this.watermarkEl.setAttribute("aria-hidden", "true");
-    this.watermarkEl.textContent = this.t("Msg_ProPreview", "Pro preview");
-    this.watermarkEl.style.cssText =
-      "position:absolute;left:0;top:0;right:0;bottom:0;display:none;align-items:center;" +
-      "justify-content:center;pointer-events:none;z-index:5;font:700 32px 'Segoe UI',sans-serif;" +
-      "color:#FFFFFF;opacity:0.55;transform:rotate(-20deg);" +
-      "text-shadow:0 0 2px rgba(51,51,51,0.85),0 1px 3px rgba(51,51,51,0.65);";
-    this.container.appendChild(this.watermarkEl);
+    // Marca de agua común de la cartera: pieza única en utillaje/comun (sincronizar_comun.py).
+    this.wm = createProWatermark(this.container);
 
     options.element.appendChild(this.container);
     this.injectStyles();
@@ -223,12 +220,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       ".tcviz-calendar button{transition:opacity .1s ease}",
       ".tcviz-calendar button:hover{opacity:.75}",
       // Keyboard users must be able to see which control has focus.
-      ".tcviz-calendar button:focus-visible{outline:2px solid var(--tcviz-focus,#3D3929);outline-offset:2px}",
+      ".tcviz-calendar button:focus-visible{outline:var(--tcviz-focus-w,2px) solid var(--tcviz-focus,#3D3929);outline-offset:2px}",
       // Day cells use a roving tabindex. The ring is a box-shadow so it never collides
       // with the inline `outline` that marks a selected day.
       ".tcviz-calendar [data-date]{box-sizing:border-box}",
       ".tcviz-calendar [data-date]:focus{outline:none;position:relative;z-index:2;" +
-        "box-shadow:0 0 0 2px var(--tcviz-focus-halo,#FAF9F5),0 0 0 4px var(--tcviz-focus,#3D3929)}",
+        "box-shadow:0 0 0 2px var(--tcviz-focus-halo,#FAF9F5),0 0 0 calc(2px + var(--tcviz-focus-w,2px)) var(--tcviz-focus,#3D3929)}",
       // Windows high contrast / forced colors: let the OS palette win outright.
       "@media (forced-colors:active){" +
         ".tcviz-calendar [data-date]:focus{box-shadow:none;outline:3px solid Highlight;outline-offset:-3px}" +
@@ -274,6 +271,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const objs = dataView?.metadata?.objects;
       this.rawSettings = applyTemplate(parseSettings(dataView), objs);
       this.settings = (this.isPro || this.proPreview) ? this.rawSettings : applyTemplate(freeSettings(this.rawSettings), objs);
+      this.resolverEstilo(objs);
+      this.readHighContrast();
+      const vp = options.viewport ?? this.viewport;
+      // Norma de la cartera (Waterfall 1.3): por debajo de ~760×440 el texto baja con el visual, hasta el 60 %.
+      this.escala = Math.min(1, Math.max(0.6, Math.min(vp.width / 760, vp.height / 440)));
       this.syncSavedView();
 
       // Parse data
@@ -378,12 +380,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // strings work: Power BI resolves the DAX expression and puts the result on the
     // column metadata before the visual is called.
     this.mainFormat = measureIdx >= 0
-      ? (valueFormatter.getFormatStringByColumn(cols[measureIdx]) ?? "")
+      ? this.formatoColumna(cols[measureIdx])
       : "";
     this.fullFormatter = this.makeFormatter(this.mainFormat, undefined);
     this.secondaryMeta = secondaryIdxs.map(i => ({
       name: String(cols[i].displayName ?? "").replace(/[\x00-\x1f\x7f]/g, ""),
-      formatter: this.makeFormatter(valueFormatter.getFormatStringByColumn(cols[i]) ?? "", undefined),
+      formatter: this.makeFormatter(this.formatoColumna(cols[i]), undefined),
     }));
 
     // Pre-collect unique event categories (ordered by first appearance) so color
@@ -583,11 +585,18 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
   private render(): void {
     // Focus ring colour lives in CSS; feed it the theme-aware value.
+    // Foco: el color de Accesibilidad si el autor lo eligió; si no, el del botón activo (lo de siempre).
+    const focoGuardado = (this.lastDataView?.metadata?.objects as any)?.accessibility?.focusColor !== undefined;
     this.container.style.setProperty(
       "--tcviz-focus",
-      this.hc ? this.hcFgSel : this.sanitizeColor(this.settings.navigation.activeColor, "#3D3929"),
+      this.hc ? this.hcFgSel : this.sanitizeColor(focoGuardado ? this.settings.accessibility.focusColor : this.settings.navigation.activeColor, "#3D3929"),
     );
-    this.container.style.setProperty("--tcviz-focus-halo", this.hc ? this.hcBg : "#FAF9F5");
+    this.container.style.setProperty("--tcviz-focus-w", `${Math.max(1, Math.min(6, this.settings.accessibility.focusWidth || 2))}px`);
+    this.container.style.setProperty("--tcviz-focus-halo", this.hc ? this.hcBg : (this.tk.bg === "transparent" ? "#FAF9F5" : this.tk.bg));
+    // Fondo y tipo de letra del estilo (1.3.0.0). Classic y las plantillas gratis siguen transparentes.
+    this.container.style.background = this.hc ? this.hcBg : (this.tk.grad ?? this.tk.bg);
+    this.container.style.fontFamily = this.tk.font ?? "'Segoe UI', system-ui, sans-serif";
+    this.container.style.color = this.hc ? this.hcFg : this.tk.text;
 
     // La vista semanal es Pro. Antes bastaba con "Default View = Week" para verla en Free.
     // Semana y año son Pro. Antes bastaba con "Default View = Week" para verla en Free.
@@ -619,7 +628,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         `position:absolute;inset:12px;background:${this.hc ? this.hcBg : "rgba(255,255,255,0.95)"};`,
         `border:2px solid ${this.hc ? this.hcFg : "#C96442"};border-radius:8px;`,
         "display:flex;flex-direction:column;align-items:center;justify-content:center;",
-        `font-size:12px;color:${this.fg(null, "#3D3929")};text-align:center;padding:16px;`,
+        `font-size:${this.fz(12)}px;color:${this.fg(null, "#3D3929")};text-align:center;padding:16px;`,
         "z-index:9999;line-height:1.6;gap:4px;",
       ].join("");
 
@@ -642,7 +651,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     if (this.dateHint && this.calendarData.length > 0) {
       const aviso = document.createElement("div");
       aviso.setAttribute("role", "status");
-      aviso.style.cssText = "position:absolute;left:8px;right:8px;top:8px;z-index:15;padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.4;"
+      aviso.style.cssText = "position:absolute;left:8px;right:8px;top:8px;z-index:15;padding:8px 10px;border-radius:6px;font-size:" + this.fz(11) + "px;line-height:1.4;"
         + `background:${this.hc ? this.hcBg : "#FFF4CE"};color:${this.hc ? this.hcFg : "#3D3929"};border:1px solid ${this.hc ? this.hcFg : "#E8A838"};`;
       const b = document.createElement("b");
       b.textContent = this.t("Msg_DateHierarchy", "Connect the Date field as a Date, not as a Year hierarchy.");
@@ -660,7 +669,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     this.applySelectionStyles();
 
     // Asistente de configuración (1.2.0.0): solo editando y con datos; nunca en lectura.
-    if (this.editing && !this.formatMode && this.calendarData.length > 0 && this.rawSettings.style.guide && this.interactionsAllowed()) {
+    // En un mosaico pequeño la guía tapaba el calendario entero: por debajo de 420×280 no sale (como en Risk Matrix 1.1).
+    const cabeGuia = this.viewport.width >= 420 && this.viewport.height >= 280;
+    if (this.editing && !this.formatMode && this.calendarData.length > 0 && this.rawSettings.style.guide && cabeGuia && this.interactionsAllowed()) {
       this.container.appendChild(this.buildGuide());
     }
 
@@ -778,12 +789,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const wkndColor      = this.fg(this.settings.dayNumber.weekendColor, "#C96442");
     const numColor       = this.fg(this.settings.dayNumber.color, "#3D3929");
     const numFont        = this.sanitizeFont(this.settings.dayNumber.fontFamily, "Segoe UI, system-ui, sans-serif");
-    const numSz          = `${Math.max(6, Math.min(24, this.settings.dayNumber.fontSize))}px`;
+    const numSz          = `${this.fz(Math.max(6, Math.min(24, this.settings.dayNumber.fontSize)))}px`;
     const lblColor       = this.fg(this.settings.labels.color, "#535146");
     const lblFont        = this.sanitizeFont(this.settings.labels.fontFamily, "Segoe UI, system-ui, sans-serif");
-    const lblSz          = `${Math.max(6, Math.min(24, this.settings.labels.fontSize))}px`;
+    const lblSz          = `${this.fz(Math.max(6, Math.min(24, this.settings.labels.fontSize)))}px`;
     const evtFg          = this.hc ? this.hcFg : this.sanitizeColor(this.settings.events.eventFontColor, "#ffffff");
-    const evtFontSz      = `${Math.max(6, Math.min(24, this.settings.events.eventFontSize))}px`;
+    const evtFontSz      = `${this.fz(Math.max(6, Math.min(24, this.settings.events.eventFontSize)))}px`;
 
     const outer = document.createElement("div");
     outer.style.cssText = `flex:1 0 ${minColW};min-width:${minColW};display:flex;flex-direction:column;min-height:0;overflow:hidden;`;
@@ -791,7 +802,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     // Optional per-month label (when showing >1 month)
     if (totalMonths > 1) {
       const mlabel = document.createElement("div");
-      mlabel.style.cssText = `text-align:center;font-size:12px;font-weight:600;color:${this.fg(null, "#3D3929")};margin-bottom:6px;flex-shrink:0;`;
+      mlabel.style.cssText = `text-align:center;font-size:${this.fz(12)}px;font-weight:600;color:${this.fg(null, "#3D3929")};margin-bottom:6px;flex-shrink:0;`;
       mlabel.textContent = monthName;
       outer.appendChild(mlabel);
     }
@@ -800,14 +811,15 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const dayNamesRow = document.createElement("div");
     dayNamesRow.setAttribute("role", "row");
     const semanas = this.settings.calendar.weekNumbers !== "none";
-    const columnas = semanas ? "26px repeat(7,1fr)" : "repeat(7,1fr)";
+    const totales = this.totalesOn();
+    const columnas = (semanas ? "26px repeat(7,1fr)" : "repeat(7,1fr)") + (totales ? " minmax(30px,0.9fr)" : "");
     const hueco = `${Math.max(0, Math.min(12, this.settings.layout.cellGap))}px`;
     const radio = `${Math.max(0, Math.min(16, this.settings.layout.cellRadius))}px`;
     dayNamesRow.style.cssText = `display:grid;grid-template-columns:${columnas};gap:${hueco};margin-bottom:4px;flex-shrink:0;`;
     if (semanas) {
       const wk = document.createElement("div");
       wk.setAttribute("role", "columnheader");
-      wk.style.cssText = `text-align:center;font-size:9px;font-weight:600;color:${this.fg(null, "#83827D")};padding:2px 0;`;
+      wk.style.cssText = `text-align:center;font-size:${this.fz(9)}px;font-weight:600;color:${this.fg(null, "#83827D")};padding:2px 0;`;
       wk.textContent = this.t("Cal_Wk", "Wk");
       wk.title = this.t("Cal_WeekNumber", "Week number");
       dayNamesRow.appendChild(wk);
@@ -817,10 +829,18 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const finde = wd === 0 || wd === 6;
       const cell = document.createElement("div");
       cell.setAttribute("role", "columnheader");
-      cell.style.cssText = `text-align:center;font-size:10px;font-weight:600;color:${finde ? this.fg(this.settings.dayNumber.weekendColor, "#83827D") : this.fg(null, "#83827D")};padding:2px 0;overflow:hidden;`;
+      cell.style.cssText = `text-align:center;font-size:${this.fz(10)}px;font-weight:600;color:${finde ? this.fg(this.settings.dayNumber.weekendColor, "#83827D") : this.fg(null, "#83827D")};padding:2px 0;overflow:hidden;`;
       cell.textContent = dn;
       dayNamesRow.appendChild(cell);
     });
+    if (totales) {
+      const sg = document.createElement("div");
+      sg.setAttribute("role", "columnheader");
+      sg.style.cssText = `text-align:right;font-size:${this.fz(10)}px;font-weight:700;color:${this.fg(this.settings.legend.color, "#83827D")};padding:2px 2px 2px 0;`;
+      sg.textContent = "Σ";
+      sg.title = this.t("Cal_WeekTotal", "Week total") + " — " + this.nombreTotal();
+      dayNamesRow.appendChild(sg);
+    }
 
     // Grid body
     const gridBody = document.createElement("div");
@@ -839,7 +859,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         b.type = "button";
         b.setAttribute("data-drill-week", this.dateKey(primero));
         b.setAttribute("aria-label", this.t("Cal_OpenWeek", "Open week {0}").replace("{0}", String(n)));
-        b.style.cssText = `border:none;background:none;cursor:pointer;font-size:9px;font-weight:600;padding:0;`
+        b.style.cssText = `border:none;background:none;cursor:pointer;font-size:${this.fz(9)}px;font-weight:600;padding:0;`
           + `color:${this.fg(this.settings.navigation.textColor, "#83827D")};align-self:center;`;
         b.textContent = String(n);
         weekRow.appendChild(b);
@@ -852,7 +872,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           empty.setAttribute("aria-hidden", "true");
           empty.style.cssText = this.hc
             ? `background:${this.hcBg};border-radius:4px;opacity:0.3;overflow:hidden;`
-            : "background:#F5F3ED;border-radius:4px;opacity:0.3;overflow:hidden;";
+            : `background:${this.tk.empty};border-radius:4px;opacity:0.3;overflow:hidden;`;
           weekRow.appendChild(empty);
           return;
         }
@@ -943,7 +963,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
             fila.appendChild(m);
             if (i === 0 && colores.length > tope) {
               const mas = document.createElement("span");
-              mas.style.cssText = `font-size:8px;line-height:1;color:${this.legible("#83827D", chrome.bg)};`;
+              mas.style.cssText = `font-size:${this.fz(8)}px;line-height:1;color:${this.legible(this.tk.muted, chrome.bg)};`;
               mas.textContent = `+${colores.length - tope}`;
               fila.appendChild(mas);
             }
@@ -980,7 +1000,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         // "+N more"
         if (moreCount > 0 && !comoMarcas) {
           const moreDiv = document.createElement("div");
-          moreDiv.style.fontSize = "8px";
+          moreDiv.style.fontSize = `${this.fz(8)}px`;
           moreDiv.style.color = this.fg(null, "#83827D");
           moreDiv.style.marginTop = "1px";
           moreDiv.style.whiteSpace = "nowrap";
@@ -992,6 +1012,23 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         weekRow.appendChild(cell);
       });
 
+      if (totales) {
+        // Total de la fila: los días de este mes que se ven en ella (en los bordes del mes, la semana va partida).
+        const tot = this.totalDias(wk, dayMap);
+        const c = document.createElement("div");
+        c.setAttribute("role", "rowheader");
+        c.setAttribute("data-total", "week");
+        c.style.cssText = `display:flex;align-items:center;justify-content:flex-end;padding-right:2px;font-size:${lblSz};font-weight:700;`
+          + `font-family:${lblFont};color:${this.fg(this.settings.labels.color, "#3D3929")};white-space:nowrap;overflow:hidden;min-width:0;`
+          + `border-left:1px solid ${this.hc ? this.hcFg : this.tk.line};`;
+        c.textContent = tot ? tot.texto : "";
+        if (tot) {
+          c.title = `${this.t("Cal_WeekTotal", "Week total")} (${this.nombreTotal()}): ${tot.completo}`;
+          c.setAttribute("aria-label", c.title);
+        }
+        weekRow.appendChild(c);
+      }
+
       gridBody.appendChild(weekRow);
     });
 
@@ -1002,6 +1039,28 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     gridWrap.style.cssText = "display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;";
     gridWrap.appendChild(dayNamesRow);
     gridWrap.appendChild(gridBody);
+    if (totales) {
+      const dias: Date[] = [];
+      for (let d = new Date(firstDay); d <= lastDay; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) dias.push(d);
+      const tot = this.totalDias(dias, dayMap);
+      if (tot) {
+        const pie = document.createElement("div");
+        pie.setAttribute("data-total", "month");
+        pie.setAttribute("role", "status");
+        pie.style.cssText = `display:flex;justify-content:flex-end;gap:6px;margin-top:4px;flex-shrink:0;font-size:${this.fz(11)}px;`
+          + `color:${this.fg(this.settings.legend.color, "#83827D")};white-space:nowrap;overflow:hidden;`;
+        const etq = document.createElement("span");
+        etq.textContent = `${this.nombreTotal()} · ${monthName}`;
+        etq.style.cssText = "overflow:hidden;text-overflow:ellipsis;";
+        const val = document.createElement("b");
+        val.style.color = this.fg(this.settings.labels.color, "#3D3929");
+        val.textContent = tot.texto;
+        val.title = tot.completo;
+        pie.appendChild(etq);
+        pie.appendChild(val);
+        gridWrap.appendChild(pie);
+      }
+    }
 
     outer.appendChild(gridWrap);
     return outer;
@@ -1041,13 +1100,27 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const lblColor    = this.fg(lbl.color, "#535146");
     const lblFont     = this.sanitizeFont(lbl.fontFamily, "Segoe UI, system-ui, sans-serif");
     const evtFg       = this.hc ? this.hcFg : this.sanitizeColor(evts.eventFontColor, "#ffffff");
-    const evtFontSz   = `${Math.max(6, Math.min(24, evts.eventFontSize))}px`;
+    const evtFontSz   = `${this.fz(Math.max(6, Math.min(24, evts.eventFontSize)))}px`;
 
     const outer = document.createElement("div");
     outer.style.cssText = `display:flex;flex-direction:column;height:100%;padding:${this.compact() ? 4 : 8}px;box-sizing:border-box;overflow:hidden;`;
 
     // ── Cabecera, vistas y leyendas (comunes a las tres vistas) ──
     this.buildChrome(outer, weekLabel, "month");
+    if (this.totalesOn()) {
+      const tot = this.totalDias(days, dayMap);
+      if (tot) {
+        const tt = document.createElement("div");
+        tt.setAttribute("data-total", "week");
+        tt.setAttribute("role", "status");
+        tt.style.cssText = `display:flex;justify-content:flex-end;gap:6px;margin:-2px 0 6px;flex-shrink:0;font-size:${this.fz(11)}px;`
+          + `color:${this.fg(this.settings.legend.color, "#83827D")};`;
+        const a = document.createElement("span"); a.textContent = this.settings.totals.mode === "avg" ? `${this.t("Cal_WeekTotal", "Week total")} · ${this.nombreTotal()}` : this.t("Cal_WeekTotal", "Week total");
+        const b = document.createElement("b"); b.style.color = this.fg(this.settings.labels.color, "#3D3929"); b.textContent = tot.texto; b.title = tot.completo;
+        tt.appendChild(a); tt.appendChild(b);
+        outer.appendChild(tt);
+      }
+    }
 
     // ── Days grid ──
     const daysGrid = document.createElement("div");
@@ -1095,7 +1168,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       // Day name (Mon, Tue, …)
       const dnDiv = document.createElement("div");
-      dnDiv.style.fontSize = `${dn.fontSize}px`;
+      dnDiv.style.fontSize = `${this.fz(dn.fontSize)}px`;
       dnDiv.style.fontFamily = dnFont;
       dnDiv.style.fontWeight = "600";
       dnDiv.style.color = this.hc ? dayNumColor
@@ -1106,7 +1179,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       // Day number
       const numDiv = document.createElement("div");
-      numDiv.style.fontSize = `${Math.round(dn.fontSize * 1.6)}px`;
+      numDiv.style.fontSize = `${this.fz(Math.round(dn.fontSize * 1.6))}px`;
       numDiv.style.fontFamily = dnFont;
       numDiv.style.fontWeight = isToday ? "700" : "400";
       numDiv.style.color = this.hc ? dnColor : this.legible(dnColor, chrome.bg);
@@ -1118,7 +1191,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       // Measure value
       if (day?.measureValue != null) {
         const valDiv = document.createElement("div");
-        valDiv.style.fontSize = `${lbl.fontSize}px`;
+        valDiv.style.fontSize = `${this.fz(lbl.fontSize)}px`;
         valDiv.style.fontFamily = lblFont;
         valDiv.style.fontWeight = "600";
         valDiv.style.color = this.hc ? lblColor : this.legible(lblColor, chrome.bg);
@@ -1132,7 +1205,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       // Holiday name
       if (isHoliday && day?.holidayName) {
         const holDiv = document.createElement("div");
-        holDiv.style.fontSize = `${lbl.fontSize}px`;
+        holDiv.style.fontSize = `${this.fz(lbl.fontSize)}px`;
         holDiv.style.fontFamily = lblFont;
         holDiv.style.color = this.hc ? dnHol : this.legible(dnHol, chrome.bg);
         holDiv.style.whiteSpace = "nowrap";
@@ -1163,7 +1236,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       // "+N more"
       if (moreWeekCount > 0) {
         const moreDiv = document.createElement("div");
-        moreDiv.style.fontSize = `${lbl.fontSize}px`;
+        moreDiv.style.fontSize = `${this.fz(lbl.fontSize)}px`;
         moreDiv.style.color = this.fg(null, "#83827D");
         moreDiv.textContent = `+${moreWeekCount}`;
         cell.appendChild(moreDiv);
@@ -1616,6 +1689,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     if (distinto("labels", defaultSettings.labels)) w.push("measure label styling");
     if (distinto("navigation", defaultSettings.navigation)) w.push("view button colours");
     if (o.eventCategoryColors) w.push("event category colours");
+    if (PRO_STYLES.indexOf(String(o.style?.template ?? "")) >= 0) w.push("collection styles");
+    if (o.totals?.show === true) w.push("week and month totals");
     return w;
   }
 
@@ -1684,18 +1759,17 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   }
 
   private updateWatermark(): void {
-    // El render vacía el contenedor entero (removeChild en bucle), así que la marca se
-    // pierde en cada pintado y hay que volver a insertarla. Encenderla sobre un elemento
-    // desconectado del DOM no hace nada: ese era el motivo de que no se viera.
-    if (this.watermarkEl.parentNode !== this.container) {
-      this.container.appendChild(this.watermarkEl);
-    }
-    const show = this.proPreview && this.attemptedPro().length > 0;
-    this.watermarkEl.style.display = show ? "flex" : "none";
-    if (!show) { return; }
-    const width = this.container.clientWidth || 0;
-    const size  = Math.max(20, Math.min(72, Math.round(width * 0.09)));
-    this.watermarkEl.style.fontSize = `${size}px`;
+    // El render vacía el contenedor: la marca se vuelve a poner encima en cada pintado.
+    if (this.wm.parentNode !== this.container) this.container.appendChild(this.wm);
+    const usadas = this.proPreview ? this.attemptedPro() : [];
+    if (!usadas.length) { renderProWatermark(this.wm, null); return; }
+    renderProWatermark(this.wm, {
+      width: this.container.clientWidth || this.viewport.width,
+      height: this.container.clientHeight || this.viewport.height,
+      title: this.t("Msg_ProPreview", "Pro preview"),
+      features: usadas.map(w => this.t("Pro_" + w.replace(/[^A-Za-z]+/g, "_"), w)),
+      highContrast: this.hc ? { foreground: this.hcFg, background: this.hcBg } : null,
+    });
   }
 
   private cancelLicenseIcon(): void {
@@ -1862,11 +1936,62 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   /** Reads the host color palette so the visual can honour Windows high-contrast themes. */
   private readHighContrast(): void {
     const cp: any = (this.host as any).colorPalette;
-    this.hc = !!(cp && cp.isHighContrast);
+    const tema = !!(cp && cp.isHighContrast);
+    // Accesibilidad → High contrast = On (1.3.0.0): el modo de alto contraste sin depender de Windows.
+    const forzado = !tema && this.rawSettings?.accessibility?.highContrast === "on";
+    this.hc = tema || forzado;
     if (!this.hc) return;
-    this.hcFg    = this.sanitizeColor(cp?.foreground?.value, "#000000");
-    this.hcBg    = this.sanitizeColor(cp?.background?.value, "#ffffff");
-    this.hcFgSel = this.sanitizeColor(cp?.foregroundSelected?.value, this.hcFg);
+    this.hcFg    = tema ? this.sanitizeColor(cp?.foreground?.value, "#000000") : "#000000";
+    this.hcBg    = tema ? this.sanitizeColor(cp?.background?.value, "#ffffff") : "#FFFFFF";
+    this.hcFgSel = tema ? this.sanitizeColor(cp?.foregroundSelected?.value, this.hcFg) : "#1A3FBF";
+  }
+
+  /**
+   * Estilo en uso (1.3.0.0). Los seis de la colección traen fondo, texto, gris, días vacíos y tipo de letra; Report theme
+   * toma la escala y el texto del tema del informe; Classic y las plantillas gratis de la 1.2 se quedan como estaban.
+   */
+  private resolverEstilo(objs: powerbi.DataViewObjects | undefined): void {
+    const tpl = this.settings.style.template;
+    this.tk = STYLE_TOKENS[tpl] ?? NEUTRAL_TOKENS;
+    if (this.tk.font) {
+      const o: any = objs ?? {};
+      if (o?.dayNumber?.fontFamily === undefined) this.settings.dayNumber.fontFamily = this.tk.font;
+      if (o?.labels?.fontFamily === undefined) this.settings.labels.fontFamily = this.tk.font;
+    }
+    if (tpl !== "report") return;
+    const cp: any = (this.host as any).colorPalette;
+    const texto = this.sanitizeColor(cp?.foreground?.value, "#252423");
+    const base = this.sanitizeColor(cp?.getColor?.("0")?.value, "#118DFF");
+    this.tk = { ...NEUTRAL_TOKENS, text: texto, muted: "#605E5C", empty: "#F3F2F1", line: "#E1DFDD" };
+    const o: any = objs ?? {};
+    const libre = (card: string, prop: string) => o?.[card]?.[prop] === undefined;
+    const st: any = this.settings;
+    if (libre("heatmap", "scheme")) { st.heatmap.scheme = "custom"; }
+    if (libre("heatmap", "colorMin")) st.heatmap.colorMin = this.mezcla("#FFFFFF", base, 0.1);
+    if (libre("heatmap", "colorMax")) st.heatmap.colorMax = base;
+    if (libre("heatmap", "colorNull")) st.heatmap.colorNull = "#F3F2F1";
+    if (libre("dayNumber", "color")) st.dayNumber.color = texto;
+    if (libre("dayNumber", "weekendColor")) st.dayNumber.weekendColor = "#605E5C";
+    if (libre("dayNumber", "holidayColor")) st.dayNumber.holidayColor = base;
+    if (libre("navigation", "activeColor") && st.navigation) st.navigation.activeColor = base;
+    if (libre("navigation", "textColor") && st.navigation) st.navigation.textColor = texto;
+    if (libre("legend", "color")) st.legend.color = "#605E5C";
+  }
+
+  /** Mezcla de dos colores #RRGGBB (t = 0 el primero, 1 el segundo), en #RRGGBB. */
+  private mezcla(a: string, b: string, t: number): string {
+    const p = (h: string) => { const c = h.replace("#", ""); return [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16) || 0); };
+    const x = p(a), y = p(b);
+    return "#" + x.map((v, i) => ("0" + Math.round(v + (y[i] - v) * t).toString(16)).slice(-2)).join("").toUpperCase();
+  }
+
+  /**
+   * Tamaño de texto que encoge con el visual (norma de la cartera, receta de Waterfall 1.3): nunca por debajo de 8 px
+   * —ni del tamaño pedido si era menor— ni del mínimo de Accesibilidad.
+   */
+  private fz(px: number): number {
+    const minimo = Math.max(6, Math.min(24, this.settings?.accessibility?.minTextSize ?? 8));
+    return Math.max(Math.round(px * this.escala), Math.min(px, 8), minimo);
   }
 
   /**
@@ -1884,7 +2009,18 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
   /** Foreground color: the theme foreground in high contrast, the configured color otherwise. */
   private fg(configured: string | null | undefined, fallback: string): string {
-    return this.hc ? this.hcFg : this.sanitizeColor(configured, fallback);
+    return this.hc ? this.hcFg : this.sanitizeColor(configured, this.neutro(fallback));
+  }
+
+  /** Los neutros de Classic, traducidos al estilo en uso: texto, gris secundario, días vacíos y líneas. */
+  private neutro(c: string): string {
+    switch (c.toUpperCase()) {
+      case "#3D3929": return this.tk.text;
+      case "#83827D": case "#535146": return this.tk.muted;
+      case "#F5F3ED": return this.tk.empty;
+      case "#DAD9D4": return this.tk.line;
+      default: return c;
+    }
   }
 
   /** Accent color: the selected-foreground in high contrast, the configured color otherwise. */
@@ -2165,6 +2301,12 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
    * measure abbreviates to "1.2M" while still honouring its own format string.
    * Returns null when the formatter cannot be created, and callers fall back to plain text.
    */
+  /** Formato de una medida: el dinámico (general.formatString, 1.3.0.0) si Power BI lo manda; si no, el de la columna. */
+  private formatoColumna(col: powerbi.DataViewMetadataColumn): string {
+    const dyn = (col as any)?.objects?.general?.formatString;
+    return (typeof dyn === "string" && dyn) ? dyn : (valueFormatter.getFormatStringByColumn(col as any) ?? "");
+  }
+
   private makeFormatter(format: string, sampleValue: number | undefined): IValueFormatter | null {
     try {
       return valueFormatter.create(
@@ -2294,6 +2436,38 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
   }
 
   /** Compact value for the label printed inside a day cell. */
+  /** Totales por semana y mes (1.3.0.0, Pro): encendidos y con licencia o en vista previa. */
+  private totalesOn(): boolean {
+    return (this.isPro || this.proPreview) && !!this.settings.totals?.show;
+  }
+
+  /**
+   * Total de unos días: suma, o promedio de los días con valor. Los días sin dato no cuentan; si ninguno tiene, null.
+   * Con unidades propias (una semana suma más que un día: "52,3 K", no "52.312").
+   */
+  private totalDias(dias: (Date | null)[], dayMap: Map<string, CalendarDay>): { valor: number; texto: string; completo: string } | null {
+    let suma = 0, n = 0;
+    for (const d of dias) {
+      if (!d) continue;
+      const v = dayMap.get(this.dateKey(d))?.measureValue;
+      if (typeof v === "number" && isFinite(v)) { suma += v; n++; }
+    }
+    if (!n) return null;
+    const valor = this.settings.totals.mode === "avg" ? suma / n : suma;
+    // Power BI salta a la unidad siguiente desde 0,1 de ella (160.000 → "0.16M"): muestra dentro de su propia unidad.
+    const a = Math.abs(valor);
+    const unidad = a >= 1e9 ? 1e9 : a >= 1e6 ? 1e6 : a >= 1e3 ? 1e3 : 0;
+    const f = this.makeFormatter(this.mainFormat, unidad ? unidad * 99.9 : a);
+    let texto = "";
+    try { texto = f ? f.format(valor) : this.compactFallback(valor); } catch (_) { texto = this.compactFallback(valor); }
+    return { valor, texto, completo: this.formatFull(valor) };
+  }
+
+  /** "Total" o "Daily average", según Totals → Total as. */
+  private nombreTotal(): string {
+    return this.settings.totals.mode === "avg" ? this.t("Cal_DailyAverage", "Daily average") : this.t("Cal_Total", "Total");
+  }
+
   private formatValue(value: any): string {
     if (value === null || value === undefined) return "—";
     if (typeof value !== "number") return String(value);
@@ -2587,16 +2761,21 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const actual = this.rawSettings.style.template;
       const rejilla = document.createElement("div");
       rejilla.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px;";
-      for (const nombre of Object.keys(TEMPLATES)) {
+      const orden = ["report"].concat(Object.keys(TEMPLATES).filter(k => k !== "report"));
+      for (const nombre of orden) {
         const valor = (card: string, prop: string, def: unknown) =>
           ((TEMPLATES[nombre].find(([c2, p2]) => c2 === card && p2 === prop) || [])[2] ?? def) as any;
-        const esquema = SCHEMES[String(valor("heatmap", "scheme", "custom"))] ?? [this.rawSettings.heatmap.colorMin, "#E0A080", this.rawSettings.heatmap.colorMax];
+        const temaBase = this.sanitizeColor((this.host as any).colorPalette?.getColor?.("0")?.value, "#118DFF");
+        const esquema = nombre === "report" ? [this.mezcla("#FFFFFF", temaBase, 0.1), this.mezcla("#FFFFFF", temaBase, 0.55), temaBase]
+          : SCHEMES[String(valor("heatmap", "scheme", "custom"))] ?? [this.rawSettings.heatmap.colorMin, "#E0A080", this.rawSettings.heatmap.colorMax];
+        const tkChip = STYLE_TOKENS[nombre];
+        const esPro = PRO_STYLES.indexOf(nombre) >= 0;
         const radio = Math.min(4, Number(valor("layout", "cellRadius", 4)));
         const chip = document.createElement("button");
         chip.type = "button";
         chip.setAttribute("aria-pressed", String(nombre === actual));
         chip.style.cssText = `border:${nombre === actual ? 2 : 1}px solid ${nombre === actual ? azul : "#C8C6C4"};`
-          + "border-radius:6px;padding:6px;cursor:pointer;text-align:left;background:#FFFFFF;";
+          + `border-radius:6px;padding:6px;cursor:pointer;text-align:left;background:${tkChip ? (tkChip.grad ?? tkChip.bg) : "#FFFFFF"};`;
         const mini = document.createElement("div");
         mini.style.cssText = "display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;";
         [0, 1, 2, 1, 2, 2, 0, 1, 0, 2, 1, 2, 2, 1].forEach(i => {
@@ -2605,8 +2784,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           mini.appendChild(sq);
         });
         const etq = document.createElement("div");
-        etq.textContent = nombre === "tcviz" ? "TCViz" : nombre.charAt(0).toUpperCase() + nombre.slice(1);
-        etq.style.cssText = `font:11px 'Segoe UI',sans-serif;color:${fg};`;
+        etq.textContent = (nombre === "tcviz" ? "TCViz" : nombre === "report" ? this.t("Visual_Style_Template_Report", "Report theme")
+          : nombre.charAt(0).toUpperCase() + nombre.slice(1)) + (esPro ? " (Pro)" : "");
+        etq.style.cssText = `font:11px ${tkChip?.font ?? "'Segoe UI',sans-serif"};color:${tkChip ? tkChip.text : fg};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
         chip.appendChild(mini); chip.appendChild(etq);
         chip.addEventListener("click", () => {
           this.host.persistProperties({ merge: [{ objectName: "style", selector: null as any, properties: { template: nombre } }] });
@@ -2643,6 +2823,8 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const meses = String(o.calendar?.monthsToShow ?? "1");
     const tres = meses === "3" && vista === "month";
     probar(this.t("Guide_ProMonths", "3 months"), tres, "calendar", tres ? { monthsToShow: "1" } : { monthsToShow: "3", view: "month" });
+    const conTotales = o.totals?.show === true;
+    probar(this.t("Guide_ProTotals", "Totals"), conTotales, "totals", { show: !conTotales });
     // Cambiar de medida solo tiene sentido con medidas en Tooltip Measures.
     const cols = (this.lastDataView?.table?.columns ?? []) as powerbi.DataViewMetadataColumn[];
     if (cols.some(c => (c.roles ?? {})["secondaryMeasures"])) {
@@ -2790,7 +2972,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     centro.style.cssText = "display:flex;align-items:center;gap:8px;min-width:0;";
     const titulo = document.createElement(up ? "button" : "span");
     titulo.setAttribute("aria-live", "polite");
-    titulo.style.cssText = `font-weight:600;font-size:14px;color:${this.fg(null, "#3D3929")};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`
+    titulo.style.cssText = `font-weight:600;font-size:${this.fz(14)}px;color:${this.fg(null, "#3D3929")};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`
       + (up ? "background:none;border:none;cursor:pointer;padding:0;text-decoration:underline dotted;text-underline-offset:3px;" : "");
     titulo.textContent = label;
     if (up) {
@@ -2831,7 +3013,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       sep.style.cssText = "flex:1;";
       viewRow.appendChild(sep);
       const etq = document.createElement("label");
-      etq.style.cssText = `font-size:11px;color:${this.fg(this.settings.navigation.textColor, "#535146")};display:flex;align-items:center;gap:4px;`;
+      etq.style.cssText = `font-size:${this.fz(11)}px;color:${this.fg(this.settings.navigation.textColor, "#535146")};display:flex;align-items:center;gap:4px;`;
       etq.textContent = this.t("Cal_Measure", "Measure");
       const sel = document.createElement("select");
       sel.setAttribute("data-measure", "1");
@@ -2884,7 +3066,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
   /** Tamaño del texto de las leyendas (Color Legend → Text size), entre 7 y 20 px. */
   private legendFontSize(): number {
-    return Math.max(7, Math.min(20, this.settings.legend.fontSize || 9));
+    return this.fz(Math.max(7, Math.min(20, this.settings.legend.fontSize || 9)));
   }
 
   private appendScaleLegend(outer: HTMLElement, where: "top" | "bottom"): void {
@@ -2946,10 +3128,21 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       t.type = "button";
       t.setAttribute("data-drill-month", this.dateKey(ini));
       t.setAttribute("aria-label", this.t("Cal_OpenMonth", "Open {0}").replace("{0}", ini.toLocaleString(this.loc(), { month: "long", year: "numeric" })));
-      t.style.cssText = `border:none;background:none;cursor:pointer;padding:0 0 2px;text-align:left;font-size:11px;font-weight:600;`
+      t.style.cssText = `border:none;background:none;cursor:pointer;padding:0 0 2px;text-align:left;font-size:${this.fz(11)}px;font-weight:600;`
         + `color:${this.fg(null, "#3D3929")};text-transform:capitalize;`;
       t.textContent = nombre;
       bloque.appendChild(t);
+      if (this.totalesOn()) {
+        const dias: Date[] = [];
+        for (let d = new Date(ini); d <= fin; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) dias.push(d);
+        const tot = this.totalDias(dias, dayMap);
+        const tt = document.createElement("div");
+        tt.setAttribute("data-total", "month");
+        tt.style.cssText = `font-size:${this.fz(10)}px;font-weight:700;color:${this.fg(this.settings.labels.color, "#3D3929")};margin:-2px 0 2px;white-space:nowrap;`;
+        tt.textContent = tot ? `Σ ${tot.texto}` : "\u00A0";
+        if (tot) tt.title = `${this.nombreTotal()}: ${tot.completo}`;
+        bloque.appendChild(tt);
+      }
 
       const g = document.createElement("div");
       g.setAttribute("role", "grid");
@@ -2958,7 +3151,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       for (let i = 0; i < 7; i++) {
         const h = document.createElement("div");
         h.setAttribute("role", "columnheader");
-        h.style.cssText = `text-align:center;font-size:8px;color:${this.fg(null, "#83827D")};`;
+        h.style.cssText = `text-align:center;font-size:${this.fz(8)}px;color:${this.fg(null, "#83827D")};`;
         h.textContent = iniciales.format(new Date(2024, 0, 7 + ((i + weekStart) % 7)));
         g.appendChild(h);
       }
@@ -2976,7 +3169,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
         c.setAttribute("aria-label", this.cellAriaLabel(fecha, day));
         c.setAttribute("aria-selected", "false");
         c.style.cssText = `aspect-ratio:1;border-radius:2px;box-sizing:border-box;background-color:${chrome.bg};border:${chrome.border};`
-          + `font-size:7px;line-height:1;color:${this.fg(this.settings.dayNumber.color, "#3D3929")};display:flex;align-items:center;justify-content:center;`
+          + `font-size:${this.fz(7)}px;line-height:1;color:${this.fg(this.settings.dayNumber.color, "#3D3929")};display:flex;align-items:center;justify-content:center;`
           + `overflow:hidden;cursor:${day ? "pointer" : "default"};`;
         if ((day?.events?.length ?? 0) > 0 && this.settings.events.showEvents) {
           // Franjas apiladas al pie, como en el mes (hasta 3 en Pro; 1 en Free).
@@ -3003,9 +3196,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
   private navBtnStyle(): string {
     const c = this.fg(this.settings.navigation.textColor, "#535146");
-    const bd = this.hc ? this.hcFg : "#DAD9D4";
+    const bd = this.hc ? this.hcFg : this.tk.line;
     const bg = this.hc ? this.hcBg : "none";
-    return `background:${bg};border:1px solid ${bd};border-radius:4px;cursor:pointer;padding:4px 8px;font-size:12px;color:${c};`;
+    return `background:${bg};border:1px solid ${bd};border-radius:4px;cursor:pointer;padding:4px 8px;font-size:${this.fz(12)}px;color:${c};`;
   }
 
   private viewBtnStyle(active: boolean): string {
@@ -3013,11 +3206,11 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const tc = this.fg(this.settings.navigation.textColor, "#535146");
     if (this.hc) {
       // High contrast: never fill with an accent — mark the active button by border weight.
-      return `background:${this.hcBg};color:${this.hcFg};border:${active ? 3 : 1}px solid ${active ? this.hcFgSel : this.hcFg};border-radius:4px;cursor:pointer;padding:2px 8px;font-size:11px;`;
+      return `background:${this.hcBg};color:${this.hcFg};border:${active ? 3 : 1}px solid ${active ? this.hcFgSel : this.hcFg};border-radius:4px;cursor:pointer;padding:2px 8px;font-size:${this.fz(11)}px;`;
     }
     return active
-      ? `background:${ac};color:#fff;border:1px solid ${ac};border-radius:4px;cursor:pointer;padding:2px 8px;font-size:11px;`
-      : `background:none;color:${tc};border:1px solid #DAD9D4;border-radius:4px;cursor:pointer;padding:2px 8px;font-size:11px;`;
+      ? `background:${ac};color:#fff;border:1px solid ${ac};border-radius:4px;cursor:pointer;padding:2px 8px;font-size:${this.fz(11)}px;`
+      : `background:none;color:${tc};border:1px solid ${this.tk.line};border-radius:4px;cursor:pointer;padding:2px 8px;font-size:${this.fz(11)}px;`;
   }
 
   // ─── Panel de formato (modelo de formato, 1.2.0.0) ────────────────────────

@@ -1,7 +1,7 @@
 /**
- * Esquema del panel de formato, generado desde capabilities.json (panel_gen.py): tarjeta ->
+ * Esquema del panel de formato, escrito a mano desde capabilities.json (panel_gen.py ya no existe): tarjeta ->
  * propiedades con su tipo de control y su clave de traducción. getFormattingModel() lo recorre.
- * No editar a mano; regenerar si cambian los objetos de capabilities.
+ * Orden de tarjetas: el común de la cartera (Style template primero; Legend y Accessibility al final).
  */
 export type PanelKind = "color" | "toggle" | "num" | "drop" | "font" | "text";
 export interface PanelProp { p: string; kind: PanelKind; key: string; en: string; }
@@ -192,39 +192,21 @@ export const PANEL: PanelCard[] = [
         ]
     },
     {
-        "o": "legend",
-        "key": "Visual_Legend",
-        "en": "Color Legend",
+        "o": "totals",
+        "key": "Visual_Totals",
+        "en": "Totals [Pro]",
         "props": [
             {
                 "p": "show",
                 "kind": "toggle",
-                "key": "Visual_Legend_Show",
-                "en": "Show"
+                "key": "Visual_Totals_Show",
+                "en": "Week and month totals"
             },
             {
-                "p": "position",
+                "p": "mode",
                 "kind": "drop",
-                "key": "Visual_Legend_Position",
-                "en": "Position"
-            },
-            {
-                "p": "showValues",
-                "kind": "toggle",
-                "key": "Visual_Legend_ShowValues",
-                "en": "Show min and max"
-            },
-            {
-                "p": "fontSize",
-                "kind": "num",
-                "key": "Visual_Legend_FontSize",
-                "en": "Text size"
-            },
-            {
-                "p": "color",
-                "kind": "color",
-                "key": "Visual_Legend_Color",
-                "en": "Text color"
+                "key": "Visual_Totals_Mode",
+                "en": "Total as"
             }
         ]
     },
@@ -435,6 +417,74 @@ export const PANEL: PanelCard[] = [
                 "kind": "color",
                 "key": "Visual_EventCategoryColors_C7",
                 "en": "Category 8"
+            }
+        ]
+    },
+    {
+        "o": "legend",
+        "key": "Visual_Legend",
+        "en": "Color Legend",
+        "props": [
+            {
+                "p": "show",
+                "kind": "toggle",
+                "key": "Visual_Legend_Show",
+                "en": "Show"
+            },
+            {
+                "p": "position",
+                "kind": "drop",
+                "key": "Visual_Legend_Position",
+                "en": "Position"
+            },
+            {
+                "p": "showValues",
+                "kind": "toggle",
+                "key": "Visual_Legend_ShowValues",
+                "en": "Show min and max"
+            },
+            {
+                "p": "fontSize",
+                "kind": "num",
+                "key": "Visual_Legend_FontSize",
+                "en": "Text size"
+            },
+            {
+                "p": "color",
+                "kind": "color",
+                "key": "Visual_Legend_Color",
+                "en": "Text color"
+            }
+        ]
+    },
+    {
+        "o": "accessibility",
+        "key": "Visual_Accessibility",
+        "en": "Accessibility",
+        "props": [
+            {
+                "p": "highContrast",
+                "kind": "drop",
+                "key": "Visual_Accessibility_HighContrast",
+                "en": "High contrast"
+            },
+            {
+                "p": "focusColor",
+                "kind": "color",
+                "key": "Visual_Accessibility_FocusColor",
+                "en": "Focus outline color"
+            },
+            {
+                "p": "focusWidth",
+                "kind": "num",
+                "key": "Visual_Accessibility_FocusWidth",
+                "en": "Focus outline width"
+            },
+            {
+                "p": "minTextSize",
+                "kind": "num",
+                "key": "Visual_Accessibility_MinTextSize",
+                "en": "Minimum text size"
             }
         ]
     }
