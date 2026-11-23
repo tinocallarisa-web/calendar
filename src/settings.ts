@@ -1,5 +1,7 @@
-// SP_IDENTIFIER: Plan ID, la última parte del Service ID de Partner Center
-export const SP_IDENTIFIER = "calendar-tcviz";
+// Plan IDs (la última parte del Service ID de Partner Center). 1.3.0.0: precio nuevo 1,99 USD/mes · 19/año en un plan
+// nuevo "calendar-pro" (un plan publicado no cambia de precio). El viejo "calendar-tcviz" (9,99 · 99) se detiene, NO se
+// borra: quien ya lo pagó sigue en Pro. El plan nuevo debe crearse en Partner Center con ese ID EXACTO.
+export const PLAN_IDS = ["calendar-tcviz", "calendar-pro"];
 
 /**
  * spIdentifier es el Service ID completo de Partner Center ("editor.oferta.plan", p.ej.

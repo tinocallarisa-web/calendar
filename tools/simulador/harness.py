@@ -18,7 +18,7 @@ from playwright.async_api import async_playwright
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "capturas")
 DROP = os.path.join(ROOT, ".tmp", "drop")
-PLAN = "calendar-tcviz"
+PLAN = os.environ.get("PLAN", "calendar-tcviz")   # PLAN=tino_callarisa.calendar-events-heatmap.calendar-pro para el plan nuevo
 FALLOS = []
 
 INI = date(2026, 3, 1)
@@ -257,6 +257,12 @@ async def main():
         check("jerarquía: el 6 de marzo lleva año, mes y día en su identidad", r and r["id"] == ["m2026|mMarch|m6"], str(r))
         check("jerarquía: marzo pintado con datos", r and r["dias"] >= 31, str(r))
         await eventos(pg, "jerarquía")
+        await pg.close()
+
+        print("Con licencia (plan " + PLAN + ")")
+        pg = await page(b, dataview({"totals": {"show": True}, "style": {"template": "aurora"}}), pro=True, edit=False)
+        i = await info(pg)
+        check("lectura con licencia: totales y estilo Pro, sin marca", len(i["semanas"]) >= 5 and i["bg"] not in ("transparent", "") and not i["wm"], f"{len(i['semanas'])} {i['bg']} {i['wm']}")
         await pg.close()
 
         print("Sin licencia")

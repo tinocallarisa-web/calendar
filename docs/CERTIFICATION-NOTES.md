@@ -1,7 +1,7 @@
 # Certification Notes — Calendar Events Heatmap v1.3.0.0
 
 **Visual GUID:** `calendarTCViz022303184F264C8B9ACE6A13E838FFEB`  
-**Plan ID:** `calendar-tcviz`  
+**Plan IDs:** `calendar-pro` (new, $1.99/month · $19/year) and `calendar-tcviz` (earlier plan, stopped, still honoured)  
 **Publisher:** TCViz (support@tcviz.com)  
 **Version:** 1.3.0.0  
 **Submission date:** (fill on submission)
@@ -272,8 +272,8 @@ All five required flags are present in `capabilities.json`:
 - License is validated via the official `IVisualLicenseManager` API (`options.host.licenseManager`) provided by the Power BI host runtime.
 - The Visual calls `licenseManager.getAvailableServicePlans()` once, deferred after the first render.
 - License resolution is non-blocking: the visual renders immediately in Free tier mode while the license check completes asynchronously. There is no spinner or blocked state.
-- The Plan ID used is `calendar-tcviz`, matching the plan configured in Partner Center.
-- Pro is granted when `plan.spIdentifier === "calendar-tcviz"` and the state is `Active` (1) or `Warning` (2, the payment grace period). The 30-day trial configured on the Partner Center plan resolves as Active.
+- The Plan IDs accepted are `calendar-pro` (current plan) and `calendar-tcviz` (earlier plan, no longer sold; existing licences keep Pro).
+- Pro is granted when `plan.spIdentifier` is, or ends in `.`, one of those Plan IDs and the state is `Active` (1) or `Warning` (2, the payment grace period). The 30-day trial configured on the Partner Center plan resolves as Active.
 - `isLicenseUnsupportedEnv` and `isLicenseInfoAvailable` are honoured: where the licence cannot be read (Publish to Web, embedding, export) the Free experience renders and no purchase prompt is shown.
 - **No licensing UI of its own.** When a Free user clicks Week or sets a Pro option, the visual calls Power BI's `notifyFeatureBlocked` and `notifyLicenseRequired`, which carry the purchase path, and clears them with `clearLicenseNotification` when the licence resolves to Pro. There is no license key field.
 - No external network calls are made by the Visual for license validation or any other purpose.
@@ -307,7 +307,7 @@ Available without a Pro license or after trial expiry:
 
 ---
 
-## Features — Pro Tier ($9.99/month, 30-day trial)
+## Features — Pro Tier ($1.99/month · $19/year, 30-day trial)
 
 All Free features plus:
 
@@ -334,7 +334,7 @@ All Free features plus:
 7. Set Calendar > Months to Display [Pro] = 3; verify it stays at 1 month and the notification appears
 8. Set Calendar > Default View = Week [Pro]; verify month view still renders
 
-### Pro Tier Test (submitted package with an active "calendar-tcviz" plan, or the 30-day trial)
+### Pro Tier Test (submitted package with an active "calendar-pro" plan, or the 30-day trial)
 
 1. Install the submitted package with an active plan or trial
 2. Verify no licence notification is shown

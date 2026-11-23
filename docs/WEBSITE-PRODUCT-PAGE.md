@@ -178,7 +178,7 @@ saves its own settings only when you click. See the
 ### Licensing
 
 Freemium via Microsoft AppSource. The licence is read through the official `IVisualLicenseManager` API provided by the
-Power BI host — no external licence server. Plan ID: `calendar-tcviz`.
+Power BI host — no external licence server. Plan ID: `calendar-pro` (licences on the earlier `calendar-tcviz` plan keep working).
 
 ### Support
 

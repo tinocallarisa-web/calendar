@@ -5,7 +5,7 @@ import {
   HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute,
   SubSelectableObjectNameAttribute, SubSelectableTypeAttribute,
 } from "powerbi-visuals-utils-onobjectutils";
-import { SP_IDENTIFIER, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES, EVENT_PALETTES,
+import { PLAN_IDS, matchesPlan, CalendarSettings, parseSettings, freeSettings, defaultSettings, applyTemplate, SCHEMES, TEMPLATES, EVENT_PALETTES,
   PRO_STYLES, STYLE_TOKENS, NEUTRAL_TOKENS, StyleTokens } from "./settings";
 import { createProWatermark, renderProWatermark } from "./comun/watermark";
 import { PANEL, PanelProp } from "./panel";
@@ -1692,7 +1692,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           const plans: any[] = result?.plans ?? [];
           // ServicePlanState: Active = 1, Warning = 2. Warning es el periodo de gracia de un
           // cobro fallido: el cliente ya pagó y conserva Pro. La prueba de 30 días llega como Active.
-          resolve(plans.some(p => matchesPlan(p.spIdentifier, SP_IDENTIFIER) &&
+          resolve(plans.some(p => PLAN_IDS.some(id => matchesPlan(p.spIdentifier, id)) &&
             ((p.state as unknown as number) === 1 || (p.state as unknown as number) === 2)));
         },
         () => { this.licenseInfoAvailable = false; resolve(false); }

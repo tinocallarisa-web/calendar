@@ -15,7 +15,6 @@ NEW IN 1.3
 Data read as a matrix: a day has one identity (its date node), so report page tooltips
 open filtered to the whole day with all its events. Totals (Pro), Report theme style
 (free), collection styles (Pro), Accessibility card, text scaling, dynamic format strings.
-Color Rules replace the fx removed in 1.2.
 
 TESTING
 1. Date + Main Measure: month heatmap. Add Event Name/Category: colour marks + legend.
@@ -40,5 +39,5 @@ user click: style.template/guide, state.activeMeasure/hiddenCategories, and the 
 months or totals chosen in the guide's Try Pro row.
 
 LICENSING
-Plan calendar-tcviz, matched on the Service ID. Requested after the first paint; on
-failure it stays Free. No licensing UI of our own. npm audit: 0 in production.
+Plans calendar-pro (new) and calendar-tcviz (earlier), matched on the Service ID.
+Requested after first paint; on failure stays Free. No licensing UI of our own. npm audit: 0 in production.

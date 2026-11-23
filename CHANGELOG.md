@@ -22,6 +22,7 @@ All notable changes to this project are documented in this file.
 - The setup guide no longer covers the calendar in small tiles (below 420 × 280 px).
 
 ### Changed
+- **New Pro price: USD 1.99/month or 19/year** on a new AppSource plan. Licences bought on the earlier plan keep Pro.
 - The Pro preview watermark is the one shared by all TCViz visuals.
 - The Format pane follows the common TCViz order: Style first, Legend and Accessibility last.
 - The data is now read as a matrix (date → event). A bookmark saved in an earlier version with a day selected will not restore that selection; save it again.
