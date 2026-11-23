@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## [1.3.0.0] — 2026-11-24
+
+### Added
+- **Week and month totals (Pro).** A Σ column at the end of each week row and the month total under the grid; in the year view, the total under each month; in the week view, the week total. Format → Totals: Sum or Daily average, in the measure's own number format.
+- **Six collection styles (Pro):** Boardroom, Ledger, Editorial, Signal, Aurora and Terrace — background, text, empty days, lines and type, shared with the other TCViz visuals.
+- **Report theme style (free).** The heat scale and text take the report theme's colours. The five 1.2 templates (Classic, Clean, Tiles, Minimal, TCViz) stay free.
+- **Accessibility card:** high contrast on demand, focus colour and width, and a minimum text size.
+- **Text that scales with the visual.** Day numbers, labels and headers shrink with a small tile instead of overflowing, down to the minimum text size.
+- **Dynamic format strings** of the measure are respected in tooltips, labels and totals.
+
+### Fixed
+- **Report page tooltips on days with events.** A day with events carried one identity per event, so the report page tooltip did not open, or opened filtered to a single event. It now opens filtered to the whole day, with every event of that day.
+- **Report page tooltips with a date hierarchy** filtered to every day with the same number in any month or year. The day is now identified by year, quarter, month and day.
+- **The tooltip flickered** while the pointer moved across a day's number or event marks. It now opens once on entering the day and follows the pointer.
+- The setup guide no longer covers the calendar in small tiles (below 420 × 280 px).
+
+### Changed
+- The Pro preview watermark is the one shared by all TCViz visuals.
+- The Format pane follows the common TCViz order: Style first, Legend and Accessibility last.
+- The data is now read as a matrix (date → event). A bookmark saved in an earlier version with a day selected will not restore that selection; save it again.
+
 ## [1.2.1.2] — 2026-10-25
 
 ### Added
