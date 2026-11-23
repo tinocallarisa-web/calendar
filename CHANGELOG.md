@@ -13,6 +13,7 @@ All notable changes to this project are documented in this file.
 - **Accessibility card:** high contrast on demand, focus colour and width, and a minimum text size.
 - **Text that scales with the visual.** Day numbers, labels and headers shrink with a small tile instead of overflowing, down to the minimum text size.
 - **Dynamic format strings** of the measure are respected in tooltips, labels and totals.
+- **Try Pro: Totals.** The setup guide's Try Pro row gains a Totals button.
 
 ### Fixed
 - **Report page tooltips on days with events.** A day with events carried one identity per event, so the report page tooltip did not open, or opened filtered to a single event. It now opens filtered to the whole day, with every event of that day.
