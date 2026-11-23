@@ -1,44 +1,43 @@
-Calendar Events Heatmap 1.2.1.2 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
+Calendar Events Heatmap 1.3.0.0 - GUID calendarTCViz022303184F264C8B9ACE6A13E838FFEB
 
 SOURCE CODE
-github.com/tinocallarisa-web/calendar, branch "certification".
-PUBLIC: no credentials needed, none included here.
+github.com/tinocallarisa-web/calendar, branch "certification". Public, no credentials.
 Full notes: docs/CERTIFICATION-NOTES.md. Docs: tinocallarisa-web.github.io/calendar
 
-TESTING THE PREMIUM FEATURES - NO KEY NEEDED
-There is no activation key: Pro is granted by the AppSource plan through
-IVisualLicenseManager. Import this .pbiviz and open a report in EDIT mode without a
-licence: each Pro feature (Year and Week views, 2-12 months, Measure selector, several
-events per day, category colours) is drawn WORKING under a "Pro preview" watermark
-naming it, a banner names it and the Upgrade bar follows. Reading view shows the free
-result. Intentional, not missing gating.
+TESTING PRO - NO KEY NEEDED
+Pro comes from the AppSource plan via IVisualLicenseManager. In EDIT mode without a
+licence each Pro feature (Year/Week views, 2-12 months, Measure selector, several events
+per day, category colours, week/month totals, the 6 collection styles) is drawn WORKING
+under a "Pro preview" watermark naming it; a banner and the Upgrade bar follow. Reading
+view shows the free result. Intentional, not missing gating.
+
+NEW IN 1.3
+Data read as a matrix: a day has one identity (its date node), so report page tooltips
+open filtered to the whole day with all its events. Totals (Pro), Report theme style
+(free), collection styles (Pro), Accessibility card, text scaling, dynamic format strings.
+Color Rules replace the fx removed in 1.2.
 
 TESTING
 1. Date + Main Measure: month heatmap. Add Event Name/Category: colour marks + legend.
    Click a legend category: its marks hide; day values stay.
-2. Click a day: other visuals filter. Drag across days (or Shift+click): the report
-   filters by the range. Ctrl+click adds; empty space clears.
-3. Click the month title: year view (Pro). Click a month name: back to that month.
-   Calendar > Week Numbers = ISO, click a week number: week view (Pro). Today button.
-4. Calendar > Fiscal Calendar on, start month 10: title shows FY and period.
-   Fiscal Periods = 4-4-5: the month view shows a fiscal period of whole weeks.
-5. Color Rules: rule 1 >= a value: those days repaint.
-6. Edit mode: setup guide with the wells and templates; its "Try Pro" buttons turn a
-   Pro view on (watermark). Finish hides it. No fields: start screen with links.
-7. Format mode: click a day, its number or the legend to format it on the canvas.
-8. Resize to 300x260: compact layout.
-
-WHY NO FX
-Power BI does not support fx for table-based visuals; Color Rules replace it.
+2. Click a day: other visuals filter. Drag (or Shift+click): range filter. Ctrl+click
+   adds; empty space clears.
+3. Month title: year view (Pro). Month name: back. Week number: week view (Pro). Today.
+4. Calendar > Fiscal Calendar on, start month 10: FY and period. Fiscal Periods 4-4-5.
+5. Totals > Week and month totals on: Σ column per week, month total (watermark).
+6. Style template > Boardroom [Pro]: watermark. Report theme: report colours, free.
+7. Accessibility > High contrast = On; Minimum text size 12, resize to 300x260.
+8. Report page tooltip on a day with events: filtered to that day, every event.
+9. Edit mode: setup guide with a Try Pro row. No fields: start screen.
 
 RENDERING EVENTS
-One renderingStarted and one renderingFinished/Failed per update(). Navigation,
-selection and the guide repaint through render(), emitting none.
+One renderingStarted and one renderingFinished/Failed per update(). Repaints
+(navigation, selection, guide) go through render() and emit none.
 
 PRIVACY / NETWORK
-No external calls, telemetry or CDN; privileges: []. No innerHTML. The visual persists
-only on a user click: style.template/guide, state.activeMeasure/hiddenCategories,
-and the view, months or events per day chosen in the guide's Try Pro row.
+No external calls, telemetry or CDN; privileges: []. No innerHTML. Persists only on a
+user click: style.template/guide, state.activeMeasure/hiddenCategories, and the view,
+months or totals chosen in the guide's Try Pro row.
 
 LICENSING
 Plan calendar-tcviz, matched on the Service ID. Requested after the first paint; on

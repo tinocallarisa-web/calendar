@@ -1,12 +1,45 @@
-# Certification Notes — Calendar Events Heatmap v1.2.1.2
+# Certification Notes — Calendar Events Heatmap v1.3.0.0
 
 **Visual GUID:** `calendarTCViz022303184F264C8B9ACE6A13E838FFEB`  
 **Plan ID:** `calendar-tcviz`  
 **Publisher:** TCViz (support@tcviz.com)  
-**Version:** 1.2.1.2  
+**Version:** 1.3.0.0  
 **Submission date:** (fill on submission)
 
 ---
+
+## Release Notes — v1.3.0.0
+
+The text pasted into Partner Center is `docs/CERTIFICATION-NOTES-SHORT.txt` (≤ 2,500 characters counting CRLF).
+
+- **Data view: table → matrix.** `dataViewMappings` is now a `matrix` (rows: date → event name → event category →
+  holiday name; values: main measure and tooltip measures; `top 30000` on the rows). `matrizATabla()` flattens it
+  into the same rows the visual read before. The selection id of every row of a day is built from the **date node**
+  only (`withMatrixNode` on each date level; with a date hierarchy, Year + Quarter + Month + Day), so a day has one
+  identity. Effect: report page tooltips open filtered to the whole day with every event, and with a date hierarchy
+  no longer match every day with the same number. Bookmarks saved in 1.2 with a day selected do not restore that
+  selection (different identity); documented in the changelog and the FAQ.
+- **Tooltip.** Shown once on entering a day and moved with the pointer (no hide/show while crossing the day's
+  number or event marks).
+- **Week and month totals (Pro).** New object `totals` (`show`, `mode`: sum / daily average). Without a licence it
+  is forced off in `freeSettings()`; in edit mode it renders under the "Pro preview" watermark like the other Pro
+  features. The setup guide's Try Pro row adds a "Totals" button that persists `totals.show` **only on a click**.
+- **Style templates.** `style.template` gains `report` (Report theme, free: colours from the host colour palette)
+  and six collection styles, marked [Pro] in the list: `boardroom`, `ledger`, `editorial`, `signal`, `aurora`,
+  `terrace`. Without a licence a collection style falls back to Classic in `freeSettings()`.
+- **Accessibility card (free).** New object `accessibility`: `highContrast` (auto = follow
+  `colorPalette.isHighContrast`; on = the same high-contrast rendering without the Windows theme), `focusColor`,
+  `focusWidth` (clamped 1–6 px) and `minTextSize` (clamped 6–24 px).
+- **Text that scales with the visual.** Font sizes are multiplied by a scale from the viewport, never below the
+  minimum text size.
+- **Dynamic format strings.** `objects.general.formatString` is declared with `formatting.formatString`; the
+  dynamic format string of a measure is used when Power BI sends it, otherwise the column's format string.
+- **Setup guide** hidden below 420 × 280 px.
+- **Format pane order:** Style, Calendar, Heatmap Colors, Color Rules, Totals, Layout, Day Number, Measure Labels,
+  View Buttons, Events, Event Category Colors, Color Legend, Accessibility.
+- **Watermark:** the common TCViz "Pro preview" watermark.
+- **Unchanged:** no network calls, `privileges: []`, licensing through `IVisualLicenseManager`, one
+  renderingStarted and one renderingFinished/Failed per `update()`.
 
 ## Release Notes — v1.2.1.2
 

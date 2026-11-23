@@ -1,6 +1,6 @@
 # Calendar Events Heatmap
 
-> **1.2.1.2:** the TCViz start screen and a Try Pro row in the setup guide. **1.2.0.0:** year, month and week views with drill up and down, date-range filtering, fiscal calendars in months or 4-4-5 weeks, color rules, 10 color schemes, 5 style templates, a setup guide, format on the canvas and 12 languages. See the [changelog](https://tinocallarisa-web.github.io/calendar/changelog.html).
+> **1.3.0.0:** week and month totals and six collection styles (Pro), the Report theme style and an Accessibility card (free), text that scales with the visual, and report tooltip pages filtered to the whole day with every event. **1.2.1.2:** the TCViz start screen and a Try Pro row in the setup guide. **1.2.0.0:** year, month and week views with drill up and down, date-range filtering, fiscal calendars in months or 4-4-5 weeks, color rules, 10 color schemes, 5 style templates, a setup guide, format on the canvas and 12 languages. See the [changelog](https://tinocallarisa-web.github.io/calendar/changelog.html).
 
 **A Power BI custom visual by [TCViz](https://github.com/tinocallarisa-web).**
 Daily KPI intensity and dated business events on one calendar surface — promotions,
@@ -26,7 +26,7 @@ both at once normally means two visuals and a mental join — read the spike in 
 hunt for what was running that week in the other.
 
 This visual puts them in the same cell. Each day is shaded by your measure and carries
-badges for whatever was happening on it, so the question *"what happened on the days
+colour marks for whatever was happening on it, so the question *"what happened on the days
 performance changed?"* is answered by looking, not by cross-referencing.
 
 Typical uses: retail promotion tracking, marketing campaign calendars, staffing and
@@ -37,15 +37,14 @@ attendance overviews, service and maintenance planning, holiday impact analysis.
 ## Quick start
 
 1. Drop the visual on the page and connect a **Date** column and a **Main Measure**.
-2. Optionally add **Event Name** and **Event Category** to get badges, and
-   **Holiday Name** to mark holidays.
-3. Tune the colours and density under **Format → Heatmap Colors** and **Events**.
+2. Optionally add **Event Name** and **Event Category** to get colour marks, and
+   **Holiday Name** to mark holidays. The setup guide inside the visual ticks off each field.
+3. Pick a style under **Format → Style template** — Report theme, five free templates or
+   six collection styles (Pro) — and tune **Heatmap Colors** and **Events**.
 
-> **The one setup mistake worth knowing about.** If your dates render as `1900` or as
-> year numbers, Power BI is sending its auto date hierarchy instead of dates. In the
-> field well, click the **▼** next to your date field and pick **Date**, not *Date
-> Hierarchy*. Or turn the hierarchy off entirely under *File → Options → Current file →
-> Data Load → Auto date/time*.
+> **Date hierarchies.** The automatic date hierarchy works: the visual rebuilds each date
+> from Year, Quarter, Month and Day. Keep the **Day** level in the well — without it the
+> visual says so instead of piling the data on one day.
 
 There are sample CSVs in this repo — [`sample_sales.csv`](sample_sales.csv),
 [`sample_events.csv`](sample_events.csv) and [`sample_holidays.csv`](sample_holidays.csv)
@@ -57,10 +56,10 @@ There are sample CSVs in this repo — [`sample_sales.csv`](sample_sales.csv),
 
 | Field well | Kind | What it does |
 |---|---|---|
-| **Date** | Grouping | The calendar date. Connect as a date, not a hierarchy. |
+| **Date** | Grouping | The calendar date: a date column, or the date hierarchy with its Day level. |
 | **Main Measure** | Measure | Drives the heatmap shading and the value printed in each day. |
-| **Tooltip Measures** | Measure | Extra measures shown in the tooltip only. Multiple fields supported. |
-| **Event Name** | Grouping | Text of the event badge. |
+| **Tooltip Measures** | Measure | Extra measures shown in the tooltip; with Pro, any of them can colour the calendar. |
+| **Event Name** | Grouping | The event on that day. |
 | **Event Category** | Grouping | Groups events for colour coding, and drives the legend. |
 | **Holiday Name** | Grouping | Marks the day as a holiday. The date comes from the Date field. |
 
@@ -68,8 +67,17 @@ There are sample CSVs in this repo — [`sample_sales.csv`](sample_sales.csv),
 
 ## What it does
 
-**Calendar** — month and week views, one to twelve months side by side, configurable
-week start, and fiscal calendars with a custom year-start month.
+**Calendar** — year, month and week views with drill up and down and a Today button, one
+to twelve months side by side, ISO or US week numbers, configurable week start, and fiscal
+calendars by month or in 4-4-5, 4-5-4 and 5-4-4 weeks.
+
+**Totals (Pro, 1.3)** — a Σ column for each week row and the month total under the grid; the
+total under each month in the year view and the week total in the week view. Sum or daily
+average, in the measure's own number format.
+
+**Styles** — Report theme (the heat scale and text take your report theme's colours) and the
+Classic, Clean, Tiles, Minimal and TCViz templates, free; six collection styles shared with the
+other TCViz visuals — Boardroom, Ledger, Editorial, Signal, Aurora and Terrace — with Pro.
 
 **Heatmap** — gradient from your min to max colour across the visible range, with a
 separate colour for days that have no data, so an empty day never reads as a low one.
@@ -80,9 +88,10 @@ the legend to hide its marks: the day values do not change. Free shows one event
 `+N` counter; Pro shows several. Sales and events in two tables related by date are counted once
 per day (*Heatmap Colors → Rows of the same day*).
 
-**Report integration** — standard tooltips and report tooltip pages, cross-page
-filtering with multi-select, bookmarks, color rules on the day's value, and
-the measure's own format string honoured throughout, including dynamic format strings.
+**Report integration** — standard tooltips and report tooltip pages (filtered to the whole
+day, with every event of that day), cross-page filtering with multi-select and date ranges,
+bookmarks, color rules on the day's value, and the measure's own format string honoured
+throughout, including dynamic format strings.
 
 ![Week view: one card per day with its value and every event written on it](assets/Screenshot1.png)
 
@@ -104,21 +113,26 @@ The calendar is a real grid, not a picture of one.
 - **High contrast.** Under a Windows high-contrast theme the visual stops using fill
   colour to carry meaning: the heatmap intensity becomes border weight, badges and
   legend swatches switch to an outlined style, and everything takes the theme's own
-  foreground and background.
+  foreground and background. *Format → Accessibility → High contrast = On* gives the same
+  rendering without changing the Windows theme.
+- **Accessibility card.** Focus outline colour and width, and a minimum text size: text
+  shrinks with a small visual instead of overflowing, but never below that size.
 
 ---
 
 ## Free and Pro
 
-Everything below works without a licence, in both tiers: the KPI heatmap, event badges
-with automatic category colours, holiday overlay, tooltip measures and report tooltip
-pages, cross-page filtering, bookmarks, color rules, keyboard navigation and
-high contrast.
+Everything below works without a licence: the full month calendar with the KPI heatmap,
+colour schemes, color rules, the Report theme style and five templates, events (one per day
+with a `+N` counter) in five palettes, holidays, tooltip measures and report tooltip pages,
+date-range filtering, fiscal calendars including 4-4-5, week numbers, bookmarks, the setup
+guide, the Accessibility card, keyboard navigation and high contrast.
 
-**Pro** adds the week view, one to twelve months side by side, a configurable number of
-event badges per day, per-category colour pickers, and the full format pane. Every
-install starts with a 30-day Pro trial — no card required — and falls back to Free when
-it ends.
+**Pro** adds the year and week views, one to twelve months side by side, week and month
+totals, the six collection styles, measure switching, several events per day, and your own
+colours for each event category, the measure labels and the view buttons. While you edit
+without a licence, each Pro feature you turn on is drawn working under a "Pro preview"
+watermark. Pro comes with a 30-day free trial on AppSource.
 
 ---
 

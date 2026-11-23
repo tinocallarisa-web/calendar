@@ -1,8 +1,13 @@
-# AppSource listing — Calendar Events Heatmap 1.2.1.2
+# AppSource listing — Calendar Events Heatmap 1.3.0.0
 
-**1.2.1.2 (25-10-2026): the description does NOT change.** The new start screen and the Try Pro row in the setup guide
-are setup aids, not features a buyer compares. Paste only the certification notes (the field is cleared on every
-resubmission).
+**1.3.0.0 (24-11-2026): the description CHANGES.** New for the buyer: week and month totals and the six collection
+styles (Pro), the Report theme style and the Accessibility card (free), text that scales with the visual, and report
+tooltip pages filtered to the whole day. The WHAT'S NEW block is rewritten for 1.3, a BEST FOR block and an
+ACCESSIBILITY block are added (App Advisor, 17-11-2026), and the Free/Pro paragraphs list the new features.
+Paste the **HTML** from `python C:\tcviz\utillaje\ficha_html.py "C:\tcviz\dev\Calendar" --copiar`, never the
+text below: **4,842 characters, 4,897 counting CRLF** (limit 5,000, tags included).
+
+History: 1.2.1.2 (25-10-2026) did not change the description — the start screen and the Try Pro row are setup aids.
 
 Copy ready to paste into Partner Center, English only. **The marketplace description is the
 documentation most people read** — update it on every release.
@@ -27,7 +32,7 @@ implied; "Power BI" always with that capitalisation (rejection 100.7.1).
 A calendar heatmap with the events that explain each day: promotions, holidays, fiscal weeks.
 ```
 
-*(93 characters)*
+*(93 characters — unchanged in 1.3.0.0)*
 
 ---
 
@@ -36,54 +41,65 @@ A calendar heatmap with the events that explain each day: promotions, holidays, 
 ```
 A daily measure on a line chart hides the question that matters: why was that Tuesday so good? The answer is usually on the calendar — a promotion, a campaign, a public holiday — and it lives in another report.
 
-Calendar Events Heatmap puts both in one place. Each day is coloured by your measure, and the events that explain it sit on the day they happened. Click a day, or drag across a week, and the whole report filters to it.
+Calendar Events Heatmap puts both in one place, as a Power BI visual that filters the rest of your report. Each day is coloured by your measure, and the events that explain it sit on the day they happened. Click a day, or drag across a week, and the whole report filters to it.
 
-WHAT IS NEW IN 1.2
+BEST FOR
 
-• Year, month and week views, with drill up and down and a Today button
-• Drag across days to filter the report by a date range
-• Fiscal calendars that follow your year: by month, or in 4-4-5, 4-5-4 and 5-4-4 weeks
-• Color rules: paint the days above or below your thresholds
-• Ten colour schemes, two of them colour-blind safe, and five style templates
-• Events as colour marks in five clearly distinct palettes, so the heatmap stays readable; the legend names each colour
-• A setup guide inside the visual, format on the canvas, and twelve languages
+• Retail and FMCG: daily sales against promotions, campaigns and public holidays
+• Monthly reviews: which weeks carried the month, with week and month totals
+• Fiscal reporting in 4-4-5 weeks that the native visuals cannot draw
+
+WHAT'S NEW IN 1.3
+
+• Week and month totals (Pro): a sum or daily average for each week row, under each month and in the week view
+• Six collection styles (Pro): Boardroom, Ledger, Editorial, Signal, Aurora and Terrace, shared with the other TCViz visuals
+• Report theme style (free): the heat scale and text take your report theme's colours
+• Accessibility card: high contrast on demand, focus outline colour and width, minimum text size
+• Text that shrinks with a small visual instead of overflowing
+• Report tooltip pages now open filtered to the whole day, with every event of that day
 
 A CALENDAR THAT READS LIKE A HEATMAP
 
+• Year, month and week views, with drill up and down and a Today button
 • Every day coloured by the measure, with a legend for the scale
-• Promotions, campaigns or incidents on their day, one colour per category
+• Promotions, campaigns or incidents on their day, as colour marks in five distinct palettes
 • Public holidays marked, with their name in the tooltip
 • ISO or US week numbers; weeks starting on Monday or Sunday
-• Tooltips with every measure you add, and report tooltip pages
+• Color rules for your thresholds, and ten colour schemes, two of them colour-blind safe
 
 FISCAL YEARS AS YOUR BUSINESS COUNTS THEM
 
-Switch on the fiscal calendar and pick the start month: months show their fiscal year and period, and the year view starts where your year starts. Retail calendars in 4-4-5 weeks get twelve periods of whole weeks, with the 53rd week placed in the last period.
+Switch on the fiscal calendar and pick the start month: months show their fiscal year and period, and the year view starts where your year starts. Retail calendars in 4-4-5, 4-5-4 or 5-4-4 weeks get twelve periods of whole weeks, with the 53rd week placed in the last period.
 
 WORKS LIKE A NATIVE VISUAL
 
 • Click a day to cross-filter; Ctrl+click to add; drag or Shift+click for a range
 • Bookmarks restore the selected days; "Edit interactions" is respected
 • Click a category in the event legend to hide its marks; the day values do not change
-• Highlighting from other visuals and the native right-click menu
-• Format on the canvas: click a day, a number or a legend to format it
+• Dynamic format strings, so labels match the rest of your report
+• Format on the canvas, a setup guide inside the visual, and twelve languages
+
+ACCESSIBILITY
+
 • Keyboard navigation through days, weeks and months, with screen-reader labels
-• Windows high contrast: intensity becomes border weight, so nothing depends on colour
+• High contrast follows Windows or can be switched on; intensity becomes border weight, so nothing depends on colour
+• Focus outline and minimum text size of your choice
 
 FREE AND PRO
 
-Free gives you the full month calendar: heatmap, colour schemes and rules, templates, holidays, events (one shown per day, with a count of the rest), date-range filtering, fiscal calendars including 4-4-5, week numbers, the setup guide and every interaction above.
+Free gives you the full month calendar: heatmap, colour schemes and rules, the Report theme style and five templates, holidays, events (one shown per day, with a count of the rest), date-range filtering, fiscal calendars including 4-4-5, week numbers, the Accessibility card and every interaction above.
 
-Pro adds the year and week views, up to twelve months side by side, switching the measure inside the visual, several events per day, and your own colours for each event category, the labels and the buttons.
+Pro adds the year and week views, up to twelve months side by side, week and month totals, the six collection styles, switching the measure inside the visual, several events per day, and your own colours for each event category, the labels and the buttons.
 
-While you edit a report without a licence, every Pro feature you turn on is drawn working under a "Pro preview" watermark that names it. Reading view shows the free result, so a published report never uses a feature you have not paid for. 30-day free trial on AppSource.
+While you edit a report without a licence, every Pro feature you turn on is drawn working, on your own data, under a "Pro preview" watermark that names it. Reading view shows the free result, so a published report never uses a feature you have not paid for. 30-day free trial on AppSource.
 
 PRIVACY
 
-No network calls of any kind: no telemetry, no analytics, no external scripts. Everything happens inside Power BI. What the visual saves in your report is four of its own settings — the style template, whether the setup guide is shown, which measure is displayed and which event categories are hidden — chosen with a click.
+No network calls of any kind: no telemetry, no analytics, no external scripts. Everything happens inside Power BI. The visual saves its own settings in the report only when you click.
 
 GETTING STARTED
 
+You need a date column and a measure; events, categories and holidays are optional.
 1. Add a Date column and a measure.
 2. Follow the setup guide: add events, categories and holidays if you have them.
 3. Pick a style, and click a day to filter the report.
@@ -127,7 +143,7 @@ Canonical YouTube URL only (policy 100.3.3.3). **Correcting it here does not cor
 
 | Asset | File | Notes |
 |---|---|---|
-| Offer screenshots | `assets/infographic.png`, `assets/infographic-styles.png`, `assets/Screenshot1.png` (week), `Screenshot2.png` (month), `Screenshot3.png` (year) | 1366×768, all for 1.2.0.0 |
+| Offer screenshots | `assets/infographic.png`, `assets/infographic-styles.png`, `assets/Screenshot1.png` (week), `Screenshot2.png` (month), `Screenshot3.png` (year) | 1366×768, made for 1.2.0.0: they do not show the 1.3 totals or collection styles — **pending new screenshots** |
 | Offer logo | `assets/tcviz-icono-calendar-300x300.png` | Uploaded by hand: it does not travel in the package |
 | Package icon | `assets/icon.png` | Embedded in the `.pbiviz` |
 
@@ -135,8 +151,9 @@ Canonical YouTube URL only (policy 100.3.3.3). **Correcting it here does not cor
 
 ## What must be pasted by hand in Partner Center
 
-1. **Description** and **Search results summary** — both change.
+1. **Description** — changes (paste the HTML, see the top). **Search results summary** — unchanged.
 2. **Keywords** — `calendar heatmap`, `4-4-5 calendar`, `promotion calendar`.
 3. **Certification notes** — `docs/CERTIFICATION-NOTES-SHORT.txt`. Cleared on every resubmission.
 4. **Screenshots** — the two infographics and Screenshot1-3 in `assets/` (1366×768).
-5. **Video** — NEW for 1.2 (replace the old one by hand): `https://www.youtube.com/watch?v=CJ62plGb6QE`.
+5. **Video** — unchanged until the 1.3 video exists: `https://www.youtube.com/watch?v=CJ62plGb6QE`. When the new one is
+   uploaded, replace it here, in every file of the repo and by hand in Partner Center (canonical `watch?v=` URL only).
