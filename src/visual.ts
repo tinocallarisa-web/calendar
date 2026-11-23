@@ -1618,14 +1618,19 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
     const filas: powerbi.PrimitiveValue[][] = [];
     const ids: powerbi.visuals.ISelectionId[] = [];
     const idDe = new Map<any, powerbi.visuals.ISelectionId>();
-    const recorrer = (nodo: powerbi.DataViewMatrixNode, prof: number, ruta: powerbi.PrimitiveValue[], dia: powerbi.DataViewMatrixNode | null) => {
+    const rutaDia = new Map<powerbi.DataViewMatrixNode, powerbi.DataViewMatrixNode[]>();
+    // Con jerarquía de fechas, la identidad del nodo Day es solo "día 6": hay que componerla con Year, Quarter y Month, o
+    // la ayuda de página se filtraba a todos los días 6 de todos los meses y años (Tino, 23-11-2026).
+    const recorrer = (nodo: powerbi.DataViewMatrixNode, prof: number, ruta: powerbi.PrimitiveValue[],
+                      fechas: powerbi.DataViewMatrixNode[], dia: powerbi.DataViewMatrixNode | null) => {
       const hijos = (nodo.children ?? []).filter(h => !h.isSubtotal);
       if (prof >= 0) {
         ruta = ruta.concat([nodo.value as powerbi.PrimitiveValue]);
-        if (prof === nivelDia) dia = nodo;
+        if (prof <= nivelDia) fechas = fechas.concat([nodo]);
+        if (prof === nivelDia) { dia = nodo; rutaDia.set(nodo, fechas); }
       }
       if (hijos.length && prof < niveles.length - 1) {
-        hijos.forEach(h => recorrer(h, prof + 1, ruta, dia));
+        hijos.forEach(h => recorrer(h, prof + 1, ruta, fechas, dia));
         return;
       }
       if (prof < 0) return;
@@ -1638,12 +1643,16 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
       const base = dia ?? nodo;
       let id = idDe.get(base);
       if (!id) {
-        try { id = this.host.createSelectionIdBuilder().withMatrixNode(base, niveles).createSelectionId(); } catch (_) { id = undefined; }
+        try {
+          const b = this.host.createSelectionIdBuilder();
+          (rutaDia.get(base) ?? [base]).forEach(n => b.withMatrixNode(n, niveles));
+          id = b.createSelectionId();
+        } catch (_) { id = undefined; }
         if (id) idDe.set(base, id);
       }
       ids.push(id as powerbi.visuals.ISelectionId);
     };
-    recorrer(mx.rows.root, -1, [], null);
+    recorrer(mx.rows.root, -1, [], [], null);
     const columnas = fuentesNivel.concat(medidas);
     const table: any = { columns: columnas, rows: filas, __ids: ids };
     return { ...dv, metadata: { ...dv.metadata, columns: dv.metadata?.columns ?? columnas }, table } as powerbi.DataView;

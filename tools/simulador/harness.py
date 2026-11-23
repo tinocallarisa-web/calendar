@@ -76,6 +76,27 @@ def dataview(objects=None, eventos=True, formato="#,0", dinamico=None, guia=Fals
             "matrix": {"rows": {"levels": niveles, "root": raiz}, "columns": {"levels": [], "root": {}}, "valueSources": medidas}}
 
 
+def dataview_jerarquia():
+    """Fecha con la jerarquía automática: Year → Month → Day → Event. El mismo día 6 en marzo, abril y mayo."""
+    q = "d.Date.Variation.Date Hierarchy."
+    cols = [{"displayName": "Year", "queryName": q + "Year", "roles": {"date": True}, "type": {"numeric": True}},
+            {"displayName": "Month", "queryName": q + "Month", "roles": {"date": True}, "type": {"text": True}},
+            {"displayName": "Day", "queryName": q + "Day", "roles": {"date": True}, "type": {"numeric": True}},
+            {"displayName": "Event", "queryName": "e.Event", "roles": {"eventName": True}, "type": {"text": True}},
+            {"displayName": "Sales", "queryName": "s.Sales", "roles": {"mainMeasure": True}, "type": {"numeric": True}, "isMeasure": True, "format": "#,0"}]
+    meses = {}
+    for d in DIAS:
+        meses.setdefault(d.strftime("%B"), []).append(d)
+    raiz = {"children": [{"value": 2026, "identity": {"y": 2026}, "children": [
+        {"value": m, "identity": {"m": m}, "children": [
+            {"value": d.day, "identity": {"d": d.day}, "children": [
+                {"value": (EVENTOS.get(d) or (None,))[0], "identity": {"e": 1}, "values": {"0": {"value": VENTAS[d]}}}]}
+            for d in ds]} for m, ds in meses.items()]}]}
+    return {"metadata": {"objects": {"style": {"guide": False}}, "columns": cols},
+            "matrix": {"rows": {"levels": [{"sources": [c]} for c in cols[:4]], "root": raiz}, "columns": {"levels": [], "root": {}},
+                       "valueSources": [cols[4]]}}
+
+
 STUB = r"""
 window.__ev = []; window.__persist = []; window.__notif = [];
 window.powerbi = { visuals: { plugins: {} }, extensibility: {} };
@@ -222,6 +243,14 @@ async def main():
         check("clic en un día con eventos: filtra con la identidad de la fecha (una)", sel == ["m2026-03-06T00:00:00"], str(sel))
         marcas = await pg.evaluate("() => document.querySelectorAll('[data-date=\"2026-03-06\"] span').length")
         check("los eventos siguen en el calendario (marca el 6 de marzo; misma categoría = una franja)", marcas >= 1, str(marcas))
+        await pg.close()
+
+        pg = await page(b, dataview_jerarquia(), name="17_jerarquia")
+        r = await pg.evaluate("""() => { const el = document.querySelector('[data-date="2026-03-06"]'); if (!el) return null;
+            el.dispatchEvent(new Event('mouseover')); return { id: (window.__tip.identities || []).map(i => i.key), dias: document.querySelectorAll('[data-date][data-has-data="1"]').length }; }""")
+        check("jerarquía: el 6 de marzo lleva año, mes y día en su identidad", r and r["id"] == ["m2026|mMarch|m6"], str(r))
+        check("jerarquía: marzo pintado con datos", r and r["dias"] >= 31, str(r))
+        await eventos(pg, "jerarquía")
         await pg.close()
 
         print("Sin licencia")
