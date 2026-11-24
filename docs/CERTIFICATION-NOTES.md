@@ -241,10 +241,9 @@ The `certification` branch contains the exact source used to build the submitted
 
 ## Capabilities Flags
 
-All five required flags are present in `capabilities.json`:
+Flags in `capabilities.json`. `supportsHighlight` was removed in 1.3.0.0: with the matrix mapping Power BI would send highlights instead of filtering, and the calendar draws filtered data (as in 1.2), so a selection in another visual filters the calendar.
 
 ```json
-"supportsHighlight": true,
 "supportsSynchronizingFilterState": true,
 "supportsLandingPage": true,
 "supportsKeyboardFocus": true,

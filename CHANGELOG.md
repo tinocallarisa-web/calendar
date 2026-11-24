@@ -24,6 +24,8 @@ All notable changes to this project are documented in this file.
 ### Changed
 - **New Pro price: USD 1.99/month or 19/year** on a new AppSource plan. Licences bought on the earlier plan keep Pro.
 - The Pro preview watermark is the one shared by all TCViz visuals.
+- A selection in another visual filters the calendar, as before: highlighting is no longer declared, since the matrix would otherwise receive highlights it does not draw.
+- Escape no longer clears the selection where Power BI does not allow interactions.
 - The Format pane follows the common TCViz order: Style first, Legend and Accessibility last.
 - The data is now read as a matrix (date → event). A bookmark saved in an earlier version with a day selected will not restore that selection; save it again.
 

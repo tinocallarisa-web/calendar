@@ -474,9 +474,10 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           : null;
 
         if (!dayMap.has(key)) {
-          const selId = (table as any).__ids?.[r] ?? this.host.createSelectionIdBuilder()
-            .withTable(table, r)
-            .createSelectionId();
+          // Con la matriz la identidad viene de matrizATabla; si allí falló, el día queda sin identidad (no se puede
+          // seleccionar) en vez de construir una sobre la tabla sintética, que no tiene identity.
+          const ids = (table as any).__ids;
+          const selId = (ids ? ids[r] : this.host.createSelectionIdBuilder().withTable(table, r).createSelectionId()) ?? null;
 
           primeros.set(key, [rowMeasure, ...secondaryIdxs.map(i => (typeof row[i] === "number" && isFinite(row[i] as number)) ? row[i] as number : null)]);
           nFilas.set(key, [rowMeasure !== null ? 1 : 0, ...secondaryIdxs.map(i => (typeof row[i] === "number" && isFinite(row[i] as number)) ? 1 : 0)]);
@@ -492,7 +493,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
             isWeekend: date.getDay() === 0 || date.getDay() === 6,
             isCurrentMonth: true,
             selectionId: selId,
-            selectionIds: [selId],
+            selectionIds: selId ? [selId] : [],
             secondaryValues: secondaryIdxs.map(i => {
               const v = row[i];
               return (typeof v === "number" && isFinite(v)) ? v : null;
@@ -505,9 +506,9 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
           const n = nFilas.get(key)!;
           const p0 = primeros.get(key)!;
           hayVarias = true;
-          const otra = (table as any).__ids?.[r] ?? this.host.createSelectionIdBuilder().withTable(table, r).createSelectionId();
+          const otra = (table as any).__ids ? (table as any).__ids[r] : this.host.createSelectionIdBuilder().withTable(table, r).createSelectionId();
           // Con la matriz todas las filas del día comparten la identidad de la fecha: no se repite.
-          if (!existing.selectionIds.some(x => x === otra || !!(x as any).equals?.(otra))) existing.selectionIds.push(otra);
+          if (otra && !existing.selectionIds.some(x => x === otra || !!(x as any).equals?.(otra))) existing.selectionIds.push(otra);
           if (rowMeasure !== null) {
             if (p0[0] !== null && rowMeasure !== p0[0]) repetido[0] = false;
             existing.measureValue = junta(existing.measureValue, rowMeasure);
@@ -1491,6 +1492,7 @@ export class CalendarVisual implements powerbi.extensibility.visual.IVisual {
 
       // Clear the selection so slicers and other visuals go back to unfiltered
       if (k === "Escape") {
+        if (!this.interactionsAllowed()) return;
         e.preventDefault();
         this.selectionManager.clear();
         this.selectedKeys.clear();
