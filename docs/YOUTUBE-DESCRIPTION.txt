@@ -23,17 +23,14 @@ Get it on Microsoft AppSource: https://marketplace.microsoft.com/en-us/product/p
 ──────────────────────────────────────────
 CHAPTERS
 ──────────────────────────────────────────
-PENDING — the 1.3 video does not exist yet. Write the chapters from the final edit of the new video, with real
-timestamps (the first one must be 0:00). Do not publish this block as it is. Candidate chapters:
-- The question: why was that day different?
-- Date and a measure: the month heatmap
-- Events, categories and holidays
-- Year, month and week views
-- Week and month totals (Pro)
-- Styles: Report theme, templates and the collection styles (Pro)
-- Fiscal calendars: by month or 4-4-5 weeks
-- Report tooltip pages and accessibility
-- Free and Pro
+0:00 Why was that Tuesday so good?
+0:14 Sales heatmap with events, holidays and filtering
+0:32 Year, month and week views (Pro)
+0:42 New: week and month totals (Pro)
+0:54 Report theme and the collection styles
+1:08 Report page tooltips and 4-4-5 fiscal weeks
+1:26 Text that scales to a tile
+1:37 Free, Pro preview and AppSource
 
 ──────────────────────────────────────────
 WHAT IT DOES

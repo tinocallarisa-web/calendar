@@ -2,7 +2,7 @@
 YOUTUBE TAGS — PASTE THIS BLOCK (under 500 characters)
 ==========================================
 
-Power BI,Power BI custom visual,calendar heatmap,Power BI calendar,promotion calendar,event calendar Power BI,4-4-5 calendar,fiscal calendar Power BI,retail calendar,holiday calendar,sales heatmap,date range filter,AppSource,data visualization,TCViz,Calendar Events Heatmap
+Power BI,Power BI custom visual,calendar heatmap,Power BI calendar,promotion calendar,event calendar Power BI,4-4-5 calendar,fiscal calendar Power BI,retail calendar,holiday calendar,sales heatmap,Power BI heatmap,week and month totals,tooltip page,date range filter,AppSource,data visualization,TCViz,Calendar Events Heatmap
 
 
 ==========================================
