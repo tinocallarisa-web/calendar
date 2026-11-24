@@ -1,6 +1,6 @@
 CALENDAR EVENTS HEATMAP — TIPS & HINTS
 Version 1.3.0.0 · TCViz
-Demo: https://www.youtube.com/watch?v=CJ62plGb6QE
+Demo: https://www.youtube.com/watch?v=Uh7sgjFaKqI
 Plain-text version for Power BI text boxes: one block per text box.
 ────────────────────────────────────────────────────────
 

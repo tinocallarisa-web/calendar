@@ -134,7 +134,7 @@ Dropped from the 1.1 listing: none recorded.
 | Privacy policy | https://tinocallarisa-web.github.io/calendar/privacy.html |
 | Terms of use | https://tinocallarisa-web.github.io/calendar/terms.html |
 | Changelog | https://tinocallarisa-web.github.io/calendar/changelog.html |
-| Video | https://www.youtube.com/watch?v=CJ62plGb6QE |
+| Video | https://www.youtube.com/watch?v=Uh7sgjFaKqI |
 | Source | https://github.com/tinocallarisa-web/calendar |
 
 Canonical YouTube URL only (policy 100.3.3.3). **Correcting it here does not correct the offer.**
@@ -155,5 +155,5 @@ Canonical YouTube URL only (policy 100.3.3.3). **Correcting it here does not cor
 2. **Keywords** — `calendar heatmap`, `4-4-5 calendar`, `promotion calendar`.
 3. **Certification notes** — `docs/CERTIFICATION-NOTES-SHORT.txt`. Cleared on every resubmission.
 4. **Screenshots** — the two infographics and Screenshot1-3 in `assets/` (1366×768).
-5. **Video** — unchanged until the 1.3 video exists: `https://www.youtube.com/watch?v=CJ62plGb6QE`. When the new one is
+5. **Video** — unchanged until the 1.3 video exists: `https://www.youtube.com/watch?v=Uh7sgjFaKqI`. When the new one is
    uploaded, replace it here, in every file of the repo and by hand in Partner Center (canonical `watch?v=` URL only).

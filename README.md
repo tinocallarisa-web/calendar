@@ -11,7 +11,7 @@ campaigns and holidays shown alongside the measure they moved.
 [Product page](https://tcviz.com/product/calendar-events-heatmap/) ·
 [Documentation](https://tinocallarisa-web.github.io/calendar/support.html) ·
 [Changelog](https://tinocallarisa-web.github.io/calendar/changelog.html) ·
-[Video tutorial](https://www.youtube.com/watch?v=CJ62plGb6QE) ·
+[Video tutorial](https://www.youtube.com/watch?v=Uh7sgjFaKqI) ·
 [Report an issue](https://github.com/tinocallarisa-web/calendar/issues) ·
 [Questions & ideas](https://github.com/tinocallarisa-web/calendar/discussions)
 
@@ -146,7 +146,7 @@ watermark. Pro comes with a 30-day free trial on AppSource.
   accessibility and FAQ, with search.
 - **[Changelog](https://tinocallarisa-web.github.io/calendar/changelog.html)** — what
   changed in every release.
-- **[Video tutorial](https://www.youtube.com/watch?v=CJ62plGb6QE)** — the visual set up
+- **[Video tutorial](https://www.youtube.com/watch?v=Uh7sgjFaKqI)** — the visual set up
   end to end.
 - **[Issues](https://github.com/tinocallarisa-web/calendar/issues)** — bug reports and
   feature requests. Please use the templates; they ask for the version and environment

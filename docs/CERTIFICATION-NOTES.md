@@ -235,7 +235,7 @@ The `certification` branch contains the exact source used to build the submitted
 | Privacy Policy | https://tinocallarisa-web.github.io/calendar/privacy.html |
 | Terms of Service | https://tinocallarisa-web.github.io/calendar/terms.html |
 | GitHub repo | https://github.com/tinocallarisa-web/calendar |
-| Demo video | https://www.youtube.com/watch?v=CJ62plGb6QE |
+| Demo video | https://www.youtube.com/watch?v=Uh7sgjFaKqI |
 
 ---
 
